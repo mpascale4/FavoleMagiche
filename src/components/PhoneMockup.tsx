@@ -137,7 +137,7 @@ export default function PhoneMockup({
           </div>
 
           {/* Phone Screen Screen Area */}
-          <div className={`w-full h-full ${themeStyles.bg} rounded-[38px] overflow-hidden flex flex-col relative z-30 select-none text-natural-text ${isNightTheme ? "bg-slate-900" : ""}`}>
+          <div className={`w-full h-full ${themeStyles.bg} rounded-[38px] overflow-hidden flex flex-col relative z-30 select-none text-natural-text ${isNightTheme ? "bg-slate-900 night-theme" : ""}`}>
 
             {/* Status Bar */}
             <div className={`h-11 ${isNightTheme ? "bg-slate-900/90 border-slate-700" : `bg-white/60 ${themeStyles.border}`} border-b-4 flex items-center justify-between px-5 pt-1 shrink-0 text-natural-text font-bold text-xs z-30`}>
@@ -161,13 +161,13 @@ export default function PhoneMockup({
               </div>
               <div className="flex items-center gap-2">
                 {settings && onUpdateSettings && (
-                  <div className="flex items-center gap-1 bg-white/80 border border-natural-pink-border rounded-full p-0.5">
+                  <div className={`flex items-center gap-1 border rounded-full p-0.5 ${isNightTheme ? "bg-slate-800 border-slate-600" : "bg-white/80 border-natural-pink-border"}`}>
                     {/* Music Toggle */}
                     <button
                       onClick={toggleMusic}
                       className={`w-7 h-7 rounded-full flex items-center justify-center transition-all active:scale-90 cursor-pointer ${
                         musicOn
-                          ? "bg-amber-100 text-amber-600 border border-amber-200 shadow-xs"
+                          ? (isNightTheme ? "bg-slate-700 text-amber-300 border border-slate-500" : "bg-amber-100 text-amber-600 border border-amber-200 shadow-xs")
                           : "text-slate-400 hover:text-slate-600 bg-transparent"
                       }`}
                       title={musicOn ? "Spegni Musica" : "Accendi Musica"}
@@ -180,7 +180,7 @@ export default function PhoneMockup({
                       onClick={toggleSfx}
                       className={`w-7 h-7 rounded-full flex items-center justify-center transition-all active:scale-90 cursor-pointer ${
                         sfxOn
-                          ? "bg-pink-100 text-pink-600 border border-pink-200 shadow-xs"
+                          ? (isNightTheme ? "bg-slate-700 text-pink-300 border border-slate-500" : "bg-pink-100 text-pink-600 border border-pink-200 shadow-xs")
                           : "text-slate-400 hover:text-slate-600 bg-transparent"
                       }`}
                       title={sfxOn ? "Spegni Effetti Audio" : "Accendi Effetti Audio"}
@@ -197,7 +197,7 @@ export default function PhoneMockup({
             </div>
 
             {/* Application Screen Content */}
-            <div className={`flex-1 overflow-y-auto relative flex flex-col ${themeStyles.bg} ${isNightTheme ? "night-theme" : ""}`}>
+            <div className={`flex-1 overflow-y-auto relative flex flex-col ${themeStyles.bg}`}>
               {children}
             </div>
 

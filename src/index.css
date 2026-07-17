@@ -82,57 +82,115 @@
 .night-theme .bg-white\/90,
 .night-theme .bg-white\/80,
 .night-theme .bg-white\/70,
-.night-theme .bg-slate-50,
-.night-theme .bg-slate-100,
+.night-theme .bg-white\/50,
+.night-theme .bg-white\/40,
 .night-theme .bg-natural-pink-light,
-.night-theme .bg-natural-bg {
+.night-theme .bg-natural-bg,
+.night-theme [class*="bg-slate-50"],
+.night-theme [class*="bg-slate-100"],
+.night-theme [class*="bg-slate-200"],
+.night-theme [class*="bg-slate-300"] {
   background-color: #1e293b !important;
 }
 
-/* Text color conversions - ensure high contrast */
+/* Colored light backgrounds to dark backgrounds */
+.night-theme [class*="bg-red-50"], .night-theme [class*="bg-red-100"], .night-theme [class*="bg-rose-50"], .night-theme [class*="bg-rose-100"] {
+  background-color: #4c0519 !important; /* rose-950 */
+}
+.night-theme [class*="bg-amber-50"], .night-theme [class*="bg-amber-100"], .night-theme [class*="bg-yellow-50"], .night-theme [class*="bg-yellow-100"], .night-theme [class*="bg-orange-50"], .night-theme [class*="bg-orange-100"] {
+  background-color: #451a03 !important; /* amber-950 */
+}
+.night-theme [class*="bg-green-50"], .night-theme [class*="bg-green-100"], .night-theme [class*="bg-emerald-50"], .night-theme [class*="bg-emerald-100"] {
+  background-color: #022c22 !important; /* emerald-950 */
+}
+.night-theme [class*="bg-blue-50"], .night-theme [class*="bg-blue-100"], .night-theme [class*="bg-sky-50"], .night-theme [class*="bg-sky-100"] {
+  background-color: #082f49 !important; /* sky-950 */
+}
+.night-theme [class*="bg-indigo-50"], .night-theme [class*="bg-indigo-100"] {
+  background-color: #1e1b4b !important; /* indigo-950 */
+}
+.night-theme [class*="bg-purple-50"], .night-theme [class*="bg-purple-100"], .night-theme [class*="bg-pink-50"], .night-theme [class*="bg-pink-100"], .night-theme [class*="bg-fuchsia-50"], .night-theme [class*="bg-fuchsia-100"] {
+  background-color: #3b0764 !important; /* purple-950 */
+}
+
+/* Text color conversions - ensure high contrast for ANY text color used */
 .night-theme .text-natural-text,
 .night-theme .text-natural-burgundy,
-.night-theme .text-slate-700,
-.night-theme .text-slate-600,
-.night-theme .text-slate-500,
-.night-theme .text-slate-400,
-.night-theme .text-slate-300 {
-  color: #f1f5f9 !important;
+.night-theme [class*="text-slate-4"],
+.night-theme [class*="text-slate-5"],
+.night-theme [class*="text-slate-6"],
+.night-theme [class*="text-slate-7"],
+.night-theme [class*="text-slate-8"],
+.night-theme [class*="text-slate-9"] {
+  color: #f1f5f9 !important; /* slate-100 */
 }
 
-/* Border color adjustments for night theme */
-.night-theme .border-natural-pink-border,
-.night-theme .border-slate-200,
-.night-theme .border-slate-100,
-.night-theme .border-natural-green-light,
-.night-theme .border-natural-blue-light {
-  border-color: #475569 !important;
+/* Colori caldi */
+.night-theme [class*="text-red-5"], .night-theme [class*="text-red-6"], .night-theme [class*="text-red-7"], .night-theme [class*="text-red-8"], .night-theme [class*="text-red-9"],
+.night-theme [class*="text-rose-5"], .night-theme [class*="text-rose-6"], .night-theme [class*="text-rose-7"], .night-theme [class*="text-rose-8"], .night-theme [class*="text-rose-9"],
+.night-theme [class*="text-orange-5"], .night-theme [class*="text-orange-6"], .night-theme [class*="text-orange-7"], .night-theme [class*="text-orange-8"], .night-theme [class*="text-orange-9"] {
+  color: #fca5a5 !important; /* red-300 */
 }
 
-/* Ensure accent colors remain visible in night mode */
-.night-theme .text-[#880E4F] {
-  color: #fca5a5 !important;
+.night-theme [class*="text-amber-5"], .night-theme [class*="text-amber-6"], .night-theme [class*="text-amber-7"], .night-theme [class*="text-amber-8"], .night-theme [class*="text-amber-9"],
+.night-theme [class*="text-yellow-5"], .night-theme [class*="text-yellow-6"], .night-theme [class*="text-yellow-7"], .night-theme [class*="text-yellow-8"], .night-theme [class*="text-yellow-9"] {
+  color: #fcd34d !important; /* amber-300 */
 }
 
-.night-theme .text-[#2E7D32] {
-  color: #86efac !important;
+/* Colori freddi */
+.night-theme [class*="text-green-5"], .night-theme [class*="text-green-6"], .night-theme [class*="text-green-7"], .night-theme [class*="text-green-8"], .night-theme [class*="text-green-9"],
+.night-theme [class*="text-emerald-5"], .night-theme [class*="text-emerald-6"], .night-theme [class*="text-emerald-7"], .night-theme [class*="text-emerald-8"], .night-theme [class*="text-emerald-9"],
+.night-theme [class*="text-teal-5"], .night-theme [class*="text-teal-6"], .night-theme [class*="text-teal-7"], .night-theme [class*="text-teal-8"], .night-theme [class*="text-teal-9"] {
+  color: #6ee7b7 !important; /* emerald-300 */
 }
 
-.night-theme .text-[#0277BD] {
-  color: #7dd3fc !important;
+.night-theme [class*="text-blue-5"], .night-theme [class*="text-blue-6"], .night-theme [class*="text-blue-7"], .night-theme [class*="text-blue-8"], .night-theme [class*="text-blue-9"],
+.night-theme [class*="text-sky-5"], .night-theme [class*="text-sky-6"], .night-theme [class*="text-sky-7"], .night-theme [class*="text-sky-8"], .night-theme [class*="text-sky-9"],
+.night-theme [class*="text-cyan-5"], .night-theme [class*="text-cyan-6"], .night-theme [class*="text-cyan-7"], .night-theme [class*="text-cyan-8"], .night-theme [class*="text-cyan-9"] {
+  color: #7dd3fc !important; /* sky-300 */
 }
 
-.night-theme .text-[#E65100] {
-  color: #fbbf24 !important;
+/* Colori accento e magia */
+.night-theme [class*="text-indigo-5"], .night-theme [class*="text-indigo-6"], .night-theme [class*="text-indigo-7"], .night-theme [class*="text-indigo-8"], .night-theme [class*="text-indigo-9"],
+.night-theme [class*="text-violet-5"], .night-theme [class*="text-violet-6"], .night-theme [class*="text-violet-7"], .night-theme [class*="text-violet-8"], .night-theme [class*="text-violet-9"] {
+  color: #a5b4fc !important; /* indigo-300 */
 }
 
-.night-theme .text-[#6A1B9A] {
-  color: #d8b4fe !important;
+.night-theme [class*="text-purple-5"], .night-theme [class*="text-purple-6"], .night-theme [class*="text-purple-7"], .night-theme [class*="text-purple-8"], .night-theme [class*="text-purple-9"],
+.night-theme [class*="text-fuchsia-5"], .night-theme [class*="text-fuchsia-6"], .night-theme [class*="text-fuchsia-7"], .night-theme [class*="text-fuchsia-8"], .night-theme [class*="text-fuchsia-9"],
+.night-theme [class*="text-pink-5"], .night-theme [class*="text-pink-6"], .night-theme [class*="text-pink-7"], .night-theme [class*="text-pink-8"], .night-theme [class*="text-pink-9"] {
+  color: #f9a8d4 !important; /* pink-300 */
 }
 
-/* Light text that should stay readable */
+/* Mantenimento dei colori manuali di accento (hex code override) */
+.night-theme .text-\[\#880E4F\] { color: #fca5a5 !important; }
+.night-theme .text-\[\#2E7D32\] { color: #86efac !important; }
+.night-theme .text-\[\#0277BD\] { color: #7dd3fc !important; }
+.night-theme .text-\[\#E65100\] { color: #fbbf24 !important; }
+.night-theme .text-\[\#6A1B9A\] { color: #d8b4fe !important; }
+
+/* Keep white text white */
 .night-theme .text-white,
 .night-theme .text-slate-100,
 .night-theme .text-slate-50 {
   color: #f8fafc !important;
 }
+
+/* Border color adjustments for night theme */
+.night-theme .border-natural-pink-border,
+.night-theme .border-natural-green-light,
+.night-theme .border-natural-blue-light,
+.night-theme [class*="border-slate-100"],
+.night-theme [class*="border-slate-200"],
+.night-theme [class*="border-slate-300"],
+.night-theme [class*="border-slate-50"] {
+  border-color: #334155 !important;
+}
+
+/* Colored borders */
+.night-theme [class*="border-red-"], .night-theme [class*="border-rose-"] { border-color: #881337 !important; } /* rose-900 */
+.night-theme [class*="border-amber-"], .night-theme [class*="border-yellow-"], .night-theme [class*="border-orange-"] { border-color: #78350f !important; } /* amber-900 */
+.night-theme [class*="border-green-"], .night-theme [class*="border-emerald-"] { border-color: #064e3b !important; } /* emerald-900 */
+.night-theme [class*="border-blue-"], .night-theme [class*="border-sky-"] { border-color: #0c4a6e !important; } /* sky-900 */
+.night-theme [class*="border-indigo-"] { border-color: #312e81 !important; } /* indigo-900 */
+.night-theme [class*="border-purple-"], .night-theme [class*="border-pink-"], .night-theme [class*="border-fuchsia-"] { border-color: #581c87 !important; } /* purple-900 */
