@@ -39,6 +39,7 @@ export default function PhoneMockup({
 }: PhoneMockupProps) {
   const [time, setTime] = useState("");
   const [showInfoModal, setShowInfoModal] = useState(false);
+  const isNightTheme = shouldApplyNightTheme();
 
   const getThemeStyles = (name: string) => {
     let cleanName = name;
@@ -62,7 +63,6 @@ export default function PhoneMockup({
   };
 
   const themeStyles = getThemeStyles(temaVisivo);
-  const isNightTheme = shouldApplyNightTheme();
 
   const musicOn = settings?.musicaSottofondo !== false;
   const sfxOn = settings?.effettiAudio !== false;
