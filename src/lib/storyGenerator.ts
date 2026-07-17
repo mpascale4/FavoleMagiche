@@ -97,6 +97,9 @@ Requisiti:
 3) Concludi con una morale chiara.
 4) Suggerisci coverTheme in inglese e coverColor tra: ${COLORS.join(", ")}.
 5) Usa un linguaggio positivo, rassicurante e adatto ai bambini.
+6) FORMATTAZIONE SPECIALE PER L'INTERATTIVITÀ (MOLTO IMPORTANTE):
+   - Evidenzia circa 2-4 parole chiave, magiche o importanti per ciascuna pagina racchiudendole rigorosamente tra doppi asterischi, ad esempio: **magia**, **Celeste**, **drago**, **bosco**, **salto**.
+   - Inserisci in punti strategici del testo (all'inizio, alla fine o vicino a parole evocative) alcune emoji che rappresentano suoni ed effetti sonori (ad esempio: 🧚, ✨, 🐉, 🦁, 🔔, ⭐, 🌲, 🍃, 🐇, 🐸, 🌌, 👻, 🎉, 🥳, 👋). Queste emoji verranno visualizzate come pulsanti audio interattivi con effetto sonoro. Metti 1 o 2 emoji interattive per pagina.
 `;
 }
 
@@ -137,19 +140,40 @@ function normalizeGeminiResponse(raw: string, config: StoryGenerationConfig): St
 function generateFallbackStory(config: StoryGenerationConfig): StoryGenerationResult {
   const pageCount = expectedPages(config.durata);
   const mainCharacter = config.personaggi[0]?.nome || "Nuvola";
+  const child = config.nomeBambino || "Piccolo lettore";
+  const theme = config.temaEducativo.toLowerCase();
+  
   const pagine: string[] = [];
+  
+  if (pageCount === 3) {
+    pagine.push(`C'era una volta nel meraviglioso regno di ${config.categoria}, un piccolo amico di nome **${mainCharacter}** 🧚 che amava esplorare boschi fioriti. Un giorno incontrò il dolce **${child}** ✨ che passeggiava felice.`);
+    pagine.push(`Insieme scoprirono che potevano imparare il valore di **${theme}** 🌲 superando piccoli ostacoli e aiutandosi l'un l'altro. Il cammino si illuminò improvvisamente di mille colori fatati ⭐.`);
+    pagine.push(`Volando felici tra le nuvole soffici, **${mainCharacter}** e il piccolo **${child}** 🥳 celebrarono la loro splendida amicizia, promettendosi di diffondere sempre amore e gentilezza nel mondo 🎉.`);
+  } else {
+    pagine.push(`C'era una volta nel meraviglioso regno di ${config.categoria}, un piccolo amico di nome **${mainCharacter}** 🧚 che amava esplorare boschi fioriti. Un giorno incontrò il dolce **${child}** ✨.`);
+    pagine.push(`Insieme decisero di compiere un viaggio fantastico. Sul cammino trovarono una mappa magica che parlava del grande segreto di **${theme}** 🌲.`);
+    pagine.push(`- Dobbiamo tenerci per mano! - esclamò **${mainCharacter}** saltando di gioia 🐸. Solo così la strada diventerà splendente.`);
+    pagine.push(`E così fu! Ogni passo divenne una melodia dorata, e perfino le stelle in cielo 🌌 iniziarono a brillare più forte per incoraggiare i due piccoli avventurieri.`);
+    pagine.push(`Alla fine del cammino, scoprirono che il tesoro più grande era proprio la gioia di **${theme}** 🥳 condivisa con chi si ama.`);
+    if (pageCount > 5) {
+      pagine.push(`Tutti gli abitanti del regno fecero una festa grandiosa 🎉, ballando felici sotto la luce della Luna d'argento.`);
+      pagine.push(`E prima di addormentarsi, **${child}** sussurrò felice: - È stata l'avventura più magica di sempre! 👋`);
+    }
+  }
 
-  for (let i = 1; i <= pageCount; i++) {
-    pagine.push(`Pagina ${i}: ${config.nomeBambino} e ${mainCharacter} vivono un momento magico legato a ${config.temaEducativo.toLowerCase()}, imparando ad aiutarsi con il cuore.`);
+  // trim down or pad to exact pageCount
+  const finalPagine = pagine.slice(0, pageCount);
+  while (finalPagine.length < pageCount) {
+    finalPagine.push(`Il piccolo **${child}** e il dolce **${mainCharacter}** ✨ continuarono a vivere felici, diffondendo il valore di **${theme}** nel regno magico 🌟.`);
   }
 
   return {
-    titolo: `Il sorriso di ${config.nomeBambino} nel regno ${config.categoria} ✨`,
-    pagine,
-    morale: `La morale e che ${config.temaEducativo.toLowerCase()} rende ogni avventura piu bella quando la condividiamo.`,
+    titolo: `La magia di ${child} e ${mainCharacter} ✨`,
+    pagine: finalPagine,
+    morale: `La morale è che la forza di ${theme} rende ogni avventura più bella quando la condividiamo con il cuore.`,
     coverTheme: COVER_THEMES[config.categoria] || "star",
     coverColor: COLORS[Math.floor(Math.random() * COLORS.length)],
-    copertinaDescrizione: `${config.nomeBambino} e ${mainCharacter} in un mondo color pastello pieno di stelle e magia.`,
+    copertinaDescrizione: `${child} e ${mainCharacter} in un mondo color pastello pieno di stelle e magia.`,
     personaggiGenerati: config.personaggi.map((p) => p.nome),
     isOffline: true
   };

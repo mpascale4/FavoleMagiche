@@ -44,11 +44,26 @@ export default function ArchiveView({
   // Filter logic
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return "---";
-    const parts = dateStr.split("-");
-    if (parts.length === 3) {
-      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    try {
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) {
+        return dateStr;
+      }
+      const day = String(date.getDate()).padStart(2, "0");
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const year = date.getFullYear();
+      
+      // Check if original string has a time component
+      if (dateStr.includes("T") || dateStr.includes(":")) {
+        const hours = String(date.getHours()).padStart(2, "0");
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+        return `${day}/${month}/${year} alle ${hours}:${minutes}`;
+      }
+      
+      return `${day}/${month}/${year}`;
+    } catch (e) {
+      return dateStr;
     }
-    return dateStr;
   };
 
   const getThumbnailBadge = (count: number) => {

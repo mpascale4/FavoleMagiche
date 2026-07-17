@@ -30,16 +30,16 @@ const INITIAL_STORY: Story = {
   id: "s1",
   titolo: "La Lucciola che aveva paura del Buio",
   pagine: [
-    "C'era una volta, nel magico Bosco dei Sogni, una piccola lucciola di nome Lalla. Lalla era una lucciola davvero speciale: era dolcissima e soffice, ma aveva un piccolissimo segreto che non rivelava a nessuno...\n- Oh caro, ho così paura del buio! - sussurrava Lalla tremando sotto una foglia di quadrifoglio ogni volta che il sole tramontava.",
-    "Un bel giorno incontrò Celeste, una bambina curiosa di 5 anni che si era persa tra i sentieri profumati mentre inseguiva una farfalla arcobaleno.\n- Perché piangi, piccola lucciola? - chiese Celeste con un tono gentile.\n- Ho paura del buio! - rispose Lalla singhiozzando. - Se accendo la mia codina, tutti vedranno quanto tremo! Ma se la spengo, non vedo dove vado!",
-    "Celeste sorrise teneramente, si sedette sul morbido muschio e tese un dito:\n- Non devi temere, Lalla! Il coraggio non significa non avere mai paura, ma affrontarla tenendosi per mano. Io e te faremo una grande squadra. Tu sarai la mia lanterna e io sarò il tuo scudo!\nInsieme decisero di compiere il primo passo verso il sentiero più scuro.",
-    "Lalla prese un profondo respiro e... ssshhhh... accese la sua luce dorata! Era una luce calda, splendente, che illuminò gli alberi circostanti facendo ballare le ombre del bosco in modo divertente.\n- Guarda che meraviglia! - esclamò Celeste battendo le mani. - La tua luce è la più bella del bosco!\nLalla si accorse che, stando accanto alla sua nuova amica, il buio non faceva più così paura.",
-    "Da quella notte, Lalla e Celeste divennero amiche inseparabili. Lalla imparò ad amare la notte, capendo che proprio nell'oscurità la sua luce poteva splendere al massimo e aiutare chi si era smarrito.\n- Grazie Celeste, oggi ho trovato il mio vero splendore! - sussurrò felice la lucciola volando allegra intorno alle stelle d'argento."
+    "C'era una volta, nel magico Bosco dei Sogni 🌲, una piccola lucciola di nome **Lalla** 🧚. Lalla era una lucciola davvero speciale: era dolcissima e soffice, ma aveva un piccolissimo segreto che non rivelava a nessuno...\n- Oh caro, ho così **paura** 👻 del buio! - sussurrava Lalla tremando sotto una foglia di quadrifoglio ogni volta che il sole tramontava.",
+    "Un bel giorno incontrò **Celeste** ✨, una bambina curiosa di 5 anni che si era persa tra i sentieri profumati mentre inseguiva una farfalla arcobaleno.\n- Perché piangi, piccola lucciola? - chiese Celeste con un tono gentile.\n- Ho paura del buio! - rispose Lalla singhiozzando. - Se accendo la mia codina, tutti vedranno quanto tremo! Ma se la spengo, non vedo dove vado! 😭",
+    "Celeste sorrise teneramente, si sedette sul morbido muschio e tese un dito:\n- Non devi temere, Lalla! Il **coraggio** 💪 non significa non avere mai paura, ma affrontarla tenendosi per mano. Io e te faremo una grande squadra. Tu sarai la mia lanterna e io sarò il tuo scudo!\nInsieme decisero di compiere il primo passo verso il sentiero più scuro.",
+    "Lalla prese un profondo respiro e... ssshhhh... accese la sua **luce** ⭐ dorata! Era una luce calda, splendente, che illuminò gli alberi circostanti facendo ballare le ombre del bosco in modo divertente.\n- Guarda che meraviglia! - esclamò Celeste battendo le mani. - La tua luce è la più bella del bosco!\nLalla si accorse che, stando accanto alla sua nuova amica, il buio non faceva più così paura.",
+    "Da quella notte, Lalla e Celeste divennero amiche inseparabili. Lalla imparò ad amare la notte, capendo che proprio nell'oscurità la sua luce poteva splendere al massimo e aiutare chi si era smarrito.\n- Grazie Celeste, oggi ho trovato il mio vero **splendore** 🥳! - sussurrò felice la lucciola volando allegra intorno alle stelle d'argento. 👋"
   ],
   morale: "La morale di questa storia è che non dobbiamo nascondere le nostre paure: quando le condividiamo con un vero amico, troviamo il coraggio di splendere e illuminare la via per noi e per gli altri.",
-  data: "2026-07-12",
-  dataCreazione: "2026-07-12",
-  ultimaLettura: "2026-07-13",
+  data: "2026-07-12T18:30:00.000Z",
+  dataCreazione: "2026-07-12T18:30:00.000Z",
+  ultimaLettura: "2026-07-13T21:15:00.000Z",
   durata: "Media",
   categoria: "Natura",
   temaEducativo: "Coraggio",
@@ -711,9 +711,9 @@ export default function App() {
           : generatedData.titolo,
         pagine: generatedData.pagine,
         morale: generatedData.morale,
-        data: new Date().toISOString().split("T")[0],
-        dataCreazione: new Date().toISOString().split("T")[0],
-        ultimaLettura: new Date().toISOString().split("T")[0],
+        data: new Date().toISOString(),
+        dataCreazione: new Date().toISOString(),
+        ultimaLettura: "",
         durata: config.durata,
         categoria: config.categoria,
         temaEducativo: config.temaEducativo,
@@ -787,7 +787,7 @@ export default function App() {
   };
 
   const handleStoryReadCompleted = (storyId: string) => {
-    const todayStr = new Date().toISOString().split("T")[0];
+    const todayStr = new Date().toISOString();
     const updated = stories.map(s => {
       if (s.id === storyId) {
         const currentCount = s.volteLetta || 0;
@@ -948,7 +948,7 @@ export default function App() {
         <ArchiveView
           stories={stories}
           onSelectStory={(story) => {
-            const todayStr = new Date().toISOString().split("T")[0];
+            const todayStr = new Date().toISOString();
             // Just update last read date but don't increment reading count here
             const updated = stories.map(s => {
               if (s.id === story.id) {
