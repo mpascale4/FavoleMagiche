@@ -1,7 +1,7 @@
 {
-  "version": "1.2.4",
+  "version": "1.2.5",
   "releaseDate": "2026-07-17",
-  "releaseTime": "23:58",
+  "releaseTime": "23:53",
   "description": "Favole Magiche - Generatore di storie AI per bambini",
   "features": [
     "Generazione storie con Gemini AI (lato client)",
@@ -32,6 +32,28 @@
     }
   ],
   "versionHistory": [
+    {
+      "version": "1.2.5",
+      "releaseDate": "2026-07-17",
+      "releaseTime": "23:53",
+      "changes": [
+        {
+          "type": "feature",
+          "title": "Trait femminili per tipo personaggio",
+          "description": "Quando scegli Bambina/Fata/Sirena, i trait diventano Curiosa/Coraggiosa ecc."
+        },
+        {
+          "type": "improvement",
+          "title": "Info sempre in status bar",
+          "description": "Pulsante info visibile accanto all'orario in tutte le schermate."
+        },
+        {
+          "type": "improvement",
+          "title": "Tema notte esteso",
+          "description": "Contrasto testo migliorato nelle card interne in modalita notturna."
+        }
+      ]
+    },
     {
       "version": "1.2.4",
       "releaseDate": "2026-07-17",
