@@ -120,17 +120,17 @@ export default function GenerationView({
 
       {/* Main Info */}
       <h3 className="text-xl font-bold tracking-tight mb-1 text-natural-burgundy font-serif italic">
-        La Magia è in Azione...
+        La Magia e in Azione (Client-Side)...
       </h3>
       <p className="text-[11px] text-natural-text/80 mb-4 font-bold">
-        Creando una favola di <span className="text-[#EC407A] underline">{categoria}</span> sul tema <span className="text-natural-burgundy underline">{temaEducativo}</span>
+        Creando una favola di <span className="text-[#EC407A] underline">{categoria}</span> sul tema <span className="text-natural-burgundy underline">{temaEducativo}</span> direttamente sul dispositivo
       </p>
 
       {/* Real-time Detailed Log Terminal */}
       <div className="w-full max-w-[290px] bg-[#110D26] text-slate-100 rounded-2xl p-3 mb-4 shadow-md text-left font-mono text-[9px] border-2 border-[#EC407A]/40">
         <div className="flex items-center justify-between border-b border-slate-700/50 pb-1.5 mb-2">
           <span className="font-extrabold text-[#F06292] uppercase tracking-wider flex items-center gap-1 text-[8.5px]">
-            <span>📋</span> Registro Magico (AI Logs)
+            <span>📋</span> Registro Magico (AI Logs - Lato Client)
           </span>
           <span className="flex h-1.5 w-1.5 relative">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>

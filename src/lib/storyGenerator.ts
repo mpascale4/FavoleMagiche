@@ -159,7 +159,7 @@ export async function generateStoryClient(
   config: StoryGenerationConfig,
   options: GenerationOptions = {}
 ): Promise<StoryGenerationResult> {
-  options.onProgress?.(12, "Preparazione dell'incantesimo...");
+  options.onProgress?.(12, "Preparazione dell'incantesimo (elaborazione lato client)...");
   ensureNotCancelled(options.isCancelled);
 
   if (!GEMINI_API_KEY) {
@@ -169,7 +169,7 @@ export async function generateStoryClient(
 
   try {
     const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
-    options.onProgress?.(40, "Gemini sta scrivendo la favola...");
+    options.onProgress?.(40, "Gemini sta scrivendo la favola lato client...");
     ensureNotCancelled(options.isCancelled);
 
     const response = await ai.models.generateContent({
