@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Inter:wght@400;500;600;700;800;950&family=Outfit:wght@300..900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Fredoka", system-ui, sans-serif;
+  
+  /* Natural Tones palette */
+  --color-natural-bg: #FEF9F0;
+  --color-natural-text: #5D4037;
+  --color-natural-burgundy: #880E4F;
+  --color-natural-pink: #F06292;
+  --color-natural-pink-light: #FCE4EC;
+  --color-natural-pink-border: #F8BBD0;
+  --color-natural-yellow: #F9A825;
+  --color-natural-yellow-light: #FFE082;
+  --color-natural-blue-light: #B3E5FC;
+  --color-natural-green-light: #C8E6C9;
+}
+
+/* Custom scrolling classes */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Custom cartoon animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-8deg); }
+  75% { transform: rotate(8deg); }
+}
+
+@keyframes magicBlink {
+  0%, 100% { opacity: 1; filter: drop-shadow(0 0 10px rgba(249, 168, 37, 0.8)); }
+  50% { opacity: 0.2; filter: drop-shadow(0 0 2px rgba(249, 168, 37, 0.2)); }
+}
+
+@keyframes buttonBlink {
+  0%, 100% {
+    border-color: #FFE082;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 0 6px rgba(249, 168, 37, 0.2);
+  }
+  50% {
+    border-color: #F57C00;
+    box-shadow: 0 0 18px rgba(249, 168, 37, 0.75);
+    background-color: #FFFDE7;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-shake {
+  animation: shake 0.2s ease-in-out infinite;
+}
+
+.animate-magic-blink {
+  animation: magicBlink 0.9s ease-in-out infinite;
+}
+
+.animate-button-blink {
+  animation: buttonBlink 1.4s ease-in-out infinite;
+}

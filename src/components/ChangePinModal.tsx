@@ -1,0 +1,110 @@
+import React, { useState } from "react";
+import { Lock, X, AlertTriangle } from "lucide-react";
+import { playClickSound } from "../utils/audio";
+
+interface ChangePinModalProps {
+  onSuccess: (newPin: string) => void;
+  onCancel: () => void;
+  isForced?: boolean;
+}
+
+export default function ChangePinModal({ onSuccess, onCancel, isForced = false }: ChangePinModalProps) {
+  const [newPin, setNewPin] = useState("");
+  const [confirmPin, setConfirmPin] = useState("");
+  const [error, setError] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    playClickSound();
+    
+    if (newPin.length !== 4) {
+      setError("Il PIN deve essere di 4 cifre.");
+      return;
+    }
+    if (newPin === "0000") {
+      setError("Il PIN non può essere 0000. Scegli un codice più sicuro.");
+      return;
+    }
+    if (newPin !== confirmPin) {
+      setError("I PIN non corrispondono.");
+      return;
+    }
+    
+    setError("");
+    onSuccess(newPin);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-5 z-[110] animate-fade-in">
+      <div className="bg-white rounded-3xl p-6 border-4 border-slate-200 shadow-2xl max-w-sm w-full text-center relative overflow-hidden">
+        {!isForced && (
+          <button
+            onClick={() => { playClickSound(); onCancel(); }}
+            className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-full w-8 h-8 flex items-center justify-center cursor-pointer transition-colors"
+          >
+            <X size={16} />
+          </button>
+        )}
+
+        <div className="w-14 h-14 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm border border-amber-100">
+          <AlertTriangle size={28} />
+        </div>
+        
+        <h3 className="font-extrabold text-xl text-slate-800 font-serif italic mb-1">
+          {isForced ? "Imposta il tuo PIN" : "Modifica PIN"}
+        </h3>
+        <p className="text-[11px] text-slate-500 font-medium mb-4 px-2 leading-relaxed">
+          {isForced 
+            ? "Hai ancora il PIN di default (0000). Modificalo per proteggere l'area genitori. Attenzione: è importante ricordarlo per accedere alle impostazioni in futuro!" 
+            : "Inserisci un nuovo PIN di 4 cifre. Ricordalo per non perdere l'accesso!"}
+        </p>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-3">
+            <input
+              type="password"
+              pattern="[0-9]*"
+              inputMode="numeric"
+              maxLength={4}
+              placeholder="Nuovo PIN (4 cifre)"
+              value={newPin}
+              onChange={(e) => {
+                const val = e.target.value.replace(/[^0-9]/g, '');
+                setNewPin(val);
+                setError("");
+              }}
+              className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 text-center text-lg text-slate-700 font-black tracking-widest focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-200 transition-all"
+            />
+            <input
+              type="password"
+              pattern="[0-9]*"
+              inputMode="numeric"
+              maxLength={4}
+              placeholder="Conferma PIN"
+              value={confirmPin}
+              onChange={(e) => {
+                const val = e.target.value.replace(/[^0-9]/g, '');
+                setConfirmPin(val);
+                setError("");
+              }}
+              className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 text-center text-lg text-slate-700 font-black tracking-widest focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-200 transition-all"
+            />
+          </div>
+          
+          {error && (
+            <p className="text-xs text-red-500 font-bold animate-fade-in">
+              {error}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            className="w-full py-3 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-900 rounded-full font-black text-sm shadow-md border-b-4 border-amber-600 active:border-b-0 active:translate-y-1 transition-all cursor-pointer"
+          >
+            Salva PIN
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}

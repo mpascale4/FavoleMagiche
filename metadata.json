@@ -1,0 +1,6 @@
+{
+  "name": "Favole Magiche",
+  "description": "Un'applicazione magica per creare, leggere, ascoltare e conservare storie e favole personalizzate ed educative per bambini, guidata dall'IA.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

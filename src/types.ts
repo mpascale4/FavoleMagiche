@@ -1,0 +1,169 @@
+export interface ChildProfile {
+  id: string;
+  nome: string;
+  annoNascita: number;
+  temaVisivo?: string; // e.g. "Rosa Pastello" | "Verde Bosco" | "Azzurro Cielo" | "Giallo Sole" | "Lavanda"
+}
+
+export interface DeletedProfile {
+  profile: ChildProfile;
+  deletedAt: string; // ISO String format
+}
+
+export interface DeletedStory {
+  story: Story;
+  deletedAt: string; // ISO String format
+}
+
+export interface Character {
+  nome: string;
+  tipo: string;
+  caratteristica?: string;
+}
+
+export interface Story {
+  id: string;
+  titolo: string;
+  pagine: string[];
+  morale: string;
+  data: string; // Keep for backwards compatibility
+  dataCreazione?: string; // YYYY-MM-DD
+  ultimaLettura?: string; // YYYY-MM-DD
+  durata: "Breve" | "Media" | "Lunga";
+  categoria: string;
+  temaEducativo: string;
+  preferita: boolean;
+  coverTheme: string;
+  coverColor: string;
+  copertinaDescrizione: string;
+  profiloId?: string; // Which child was this story generated for
+  isOffline?: boolean;
+  volteLetta?: number;
+  isBedtimeMode?: boolean;
+  seriesId?: string;
+  chapter?: number;
+  personaggi?: Character[];
+}
+
+export interface AppSettings {
+  sogliaSpazio: "500 MB" | "1 GB" | "2 GB" | "Illimitato";
+  avvisaSuperamento: boolean;
+  eliminaInAutomatico: boolean;
+  conservaPreferite: boolean;
+  tipoVoce?: "maschile" | "femminile" | "narratore" | "robotica";
+  nomeVoceDispositivo?: string;
+  velocitaVoce?: number;
+  tonoVoce?: number;
+  musicaSottofondo?: boolean;
+  effettiAudio?: boolean;
+  pauseMusicaliChiave?: boolean;
+  stileVisuale?: "auto" | "giorno" | "alba" | "tramonto" | "notte" | "bosco" | "oceano" | "horror";
+  pinAccesso?: string;
+  modalitaBambino?: boolean;
+  timerNannaMinutes?: number; // 0 for disabled, 5, 10, 15, 30, 45, 60
+}
+
+export type ScreenType = "home" | "profiles" | "new-story" | "generating" | "reader" | "archive" | "settings" | "premium" | "albero";
+
+export const CATEGORIES = [
+  "Fantasy",
+  "Avventura",
+  "Mistero",
+  "Fiaba Classica",
+  "Natura",
+  "Spazio",
+  "Preistoria",
+  "Supereroi",
+  "Mitologia",
+  "Abissi"
+];
+
+export const INITIAL_CATEGORIES = [
+  "Fantasy",
+  "Avventura",
+  "Mistero",
+  "Fiaba Classica",
+  "Natura"
+];
+
+export const EDUCATIONAL_THEMES = [
+  "Amicizia",
+  "Coraggio",
+  "Gentilezza",
+  "Rispetto",
+  "Collaborazione",
+  "Onestà",
+  "Generosità",
+  "Pazienza",
+  "Gratitudine",
+  "Perdono"
+];
+
+export const INITIAL_THEMES = [
+  "Amicizia",
+  "Coraggio",
+  "Gentilezza",
+  "Rispetto",
+  "Collaborazione"
+];
+
+export const DURATIONS = [
+  { label: "Breve (3 Pagine)", value: "Breve" },
+  { label: "Media (5 Pagine)", value: "Media" },
+  { label: "Lunga (7 Pagine)", value: "Lunga" }
+];
+
+export const CHARACTER_TYPES = [
+  "Bambino",
+  "Bambina",
+  "Cucciolo",
+  "Robot",
+  "Fata",
+  "Astronauta",
+  "Drago",
+  "Unicorno",
+  "Folletto",
+  "Sirena"
+];
+
+export const INITIAL_CHARACTER_TYPES = [
+  "Bambino",
+  "Bambina",
+  "Cucciolo",
+  "Robot",
+  "Fata"
+];
+
+export const CHARACTER_TRAITS = [
+  "Curioso",
+  "Coraggioso",
+  "Pasticcione",
+  "Fifone",
+  "Antipatico",
+  "Dormiglione",
+  "Saggio",
+  "Allegro",
+  "Testardo",
+  "Timido"
+];
+
+export const INITIAL_CHARACTER_TRAITS = [
+  "Curioso",
+  "Coraggioso",
+  "Pasticcione",
+  "Fifone",
+  "Antipatico"
+];
+
+export const CHARACTER_TYPES_BY_CATEGORY: Record<string, string[]> = {
+  "Fantasy": ["Bambino", "Bambina", "Fata", "Unicorno", "Drago", "Folletto"],
+  "Avventura": ["Bambino", "Bambina", "Cucciolo", "Astronauta", "Folletto"],
+  "Mistero": ["Bambino", "Bambina", "Robot", "Folletto"],
+  "Fiaba Classica": ["Bambino", "Bambina", "Fata", "Cucciolo", "Drago", "Sirena"],
+  "Natura": ["Bambino", "Bambina", "Cucciolo", "Sirena"],
+  "Spazio": ["Bambino", "Bambina", "Robot", "Astronauta"],
+  "Preistoria": ["Bambino", "Bambina", "Cucciolo", "Drago"],
+  "Supereroi": ["Bambino", "Bambina", "Robot"],
+  "Mitologia": ["Bambino", "Bambina", "Fata", "Drago", "Sirena"],
+  "Abissi": ["Bambino", "Bambina", "Cucciolo", "Sirena"]
+};
