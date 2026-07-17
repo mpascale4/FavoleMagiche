@@ -25,8 +25,17 @@ if (!featureName) {
   process.exit(1);
 }
 
-console.log(`\n🚀 Chiusura feature: ${featureName}`);
-console.log("=".repeat(60));
+function nowParts() {
+  const now = new Date();
+  return {
+    releaseDate: now.toISOString().split("T")[0],
+    releaseTime: now.toTimeString().slice(0, 5)
+  };
+}
+
+function ensureArray(value) {
+  return Array.isArray(value) ? value : [];
+}
 
 try {
   // 1. Verifica che siamo su un branch feature
@@ -61,12 +70,34 @@ try {
   const newPatch = patch + 1;
   const newVersion = `${major}.${minor}.${newPatch}`;
 
-  // Aggiorna versione
-  versionData.version = newVersion;
-  versionData.releaseDate = new Date().toISOString().split("T")[0];
+  const { releaseDate, releaseTime } = nowParts();
 
-  // Svuota il changelog recente (sarà riempito al prossimo update:changelog)
-  versionData.recentChanges = [];
+  const fallbackChanges = [
+    {
+      type: "improvement",
+      title: "Version bump automatico",
+      description: `Feature ${featureName} chiusa con incremento versione.`
+    }
+  ];
+
+  const changesForHistory = ensureArray(versionData.recentChanges).length > 0
+    ? versionData.recentChanges
+    : fallbackChanges;
+
+  versionData.version = newVersion;
+  versionData.releaseDate = releaseDate;
+  versionData.releaseTime = releaseTime;
+  versionData.recentChanges = changesForHistory;
+
+  const historyEntry = {
+    version: newVersion,
+    releaseDate,
+    releaseTime,
+    changes: changesForHistory
+  };
+
+  const existingHistory = ensureArray(versionData.versionHistory).filter((h) => h.version !== newVersion);
+  versionData.versionHistory = [historyEntry, ...existingHistory].slice(0, 10);
 
   fs.writeFileSync(versionPath, JSON.stringify(versionData, null, 2));
   fs.writeFileSync(publicVersionPath, JSON.stringify(versionData, null, 2));
@@ -85,6 +116,8 @@ try {
   console.log("\n" + "=".repeat(60));
   console.log("✨ Feature chiusa con successo!");
   console.log(`📌 Versione: ${newVersion}`);
+  console.log(`📅 Data: ${releaseDate}`);
+  console.log(`⏰ Ora: ${releaseTime}`);
   console.log("\n🚀 Comandi suggeriti per il push:");
   console.log("   git push origin develop");
   console.log("   git push origin --tags");
@@ -94,4 +127,3 @@ try {
   console.error(error.message);
   process.exit(1);
 }
-

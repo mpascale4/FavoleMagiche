@@ -1,19 +1,132 @@
 {
   "version": "1.2.4",
   "releaseDate": "2026-07-17",
+  "releaseTime": "23:58",
   "description": "Favole Magiche - Generatore di storie AI per bambini",
   "features": [
-    "🤖 Generazione storie con Gemini AI (lato client)",
-    "📱 Profili bambini con tema visivo personalizzato",
-    "🎙️ Lettura storie con sintesi vocale",
-    "📚 Archivio storie con ricerca",
-    "⚙️ Impostazioni app avanzate",
-    "🌳 Albero della crescita",
-    "🌙 Timer Favola della Buonanotte",
-    "🔒 Modalità bambino protetta con PIN",
-    "🎵 Audio interattivo"
+    "Generazione storie con Gemini AI (lato client)",
+    "Profili bambini con tema visivo personalizzato",
+    "Lettura storie con sintesi vocale",
+    "Archivio storie con ricerca",
+    "Impostazioni app avanzate",
+    "Albero della crescita",
+    "Timer Favola della Buonanotte",
+    "Modalita bambino protetta con PIN",
+    "Audio interattivo"
   ],
-  "recentChanges": [],
+  "recentChanges": [
+    {
+      "type": "feature",
+      "title": "Trait femminili per tipo personaggio",
+      "description": "Quando scegli Bambina/Fata/Sirena, i trait diventano Curiosa/Coraggiosa ecc."
+    },
+    {
+      "type": "improvement",
+      "title": "Info sempre in status bar",
+      "description": "Pulsante info visibile accanto all'orario in tutte le schermate."
+    },
+    {
+      "type": "improvement",
+      "title": "Tema notte esteso",
+      "description": "Contrasto testo migliorato nelle card interne in modalita notturna."
+    }
+  ],
+  "versionHistory": [
+    {
+      "version": "1.2.4",
+      "releaseDate": "2026-07-17",
+      "releaseTime": "23:58",
+      "changes": [
+        {
+          "type": "feature",
+          "title": "Trait femminili per tipo",
+          "description": "I trait cambiano al femminile quando il tipo selezionato e femminile."
+        },
+        {
+          "type": "improvement",
+          "title": "Info in status bar",
+          "description": "Il tasto info e globale e sempre visibile."
+        }
+      ]
+    },
+    {
+      "version": "1.2.3",
+      "releaseDate": "2026-07-17",
+      "releaseTime": "23:10",
+      "changes": [
+        {
+          "type": "improvement",
+          "title": "Info modal interno",
+          "description": "Changelog mostrato dentro lo schermo dell'app."
+        }
+      ]
+    },
+    {
+      "version": "1.2.2",
+      "releaseDate": "2026-07-17",
+      "releaseTime": "22:40",
+      "changes": [
+        {
+          "type": "feature",
+          "title": "Achievement modal",
+          "description": "Popup premio in primo piano quando raggiungi una tappa."
+        }
+      ]
+    },
+    {
+      "version": "1.2.1",
+      "releaseDate": "2026-07-17",
+      "releaseTime": "22:00",
+      "changes": [
+        {
+          "type": "feature",
+          "title": "Version bump automatico",
+          "description": "Incremento patch automatico al finish della feature."
+        }
+      ]
+    },
+    {
+      "version": "1.2.0",
+      "releaseDate": "2026-07-17",
+      "releaseTime": "21:30",
+      "changes": [
+        {
+          "type": "feature",
+          "title": "Retry modelli Gemini",
+          "description": "Fallback automatico sui modelli disponibili."
+        },
+        {
+          "type": "feature",
+          "title": "Error modal generazione",
+          "description": "Errore esplicito con azione di retry."
+        }
+      ]
+    },
+    {
+      "version": "1.1.0",
+      "releaseDate": "2026-07-17",
+      "releaseTime": "20:40",
+      "changes": [
+        {
+          "type": "feature",
+          "title": "Diagnostica runtime Gemini",
+          "description": "Stato AI visibile in impostazioni."
+        }
+      ]
+    },
+    {
+      "version": "1.0.0",
+      "releaseDate": "2026-07-17",
+      "releaseTime": "19:00",
+      "changes": [
+        {
+          "type": "feature",
+          "title": "Release iniziale",
+          "description": "Generazione, archivio, lettura e impostazioni base."
+        }
+      ]
+    }
+  ],
   "techStack": {
     "framework": "React 19 + Vite",
     "styling": "Tailwind CSS",

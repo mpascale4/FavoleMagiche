@@ -11,7 +11,7 @@
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
     "pull": "git pull origin develop && git pull origin main",
-    "update:changelog": "node scripts/update-changelog.js",
+    "update:changelog": "node scripts/update-changelog.cjs",
     "feature:finish": "node scripts/finish-feature.cjs"
   },
   "dependencies": {
