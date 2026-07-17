@@ -612,7 +612,7 @@ export default function StoryReaderView({
 
     return parts.map((part, partIdx) => {
       if (part.startsWith("**") && part.endsWith("**")) {
-        const cleanWord = part.slice(2, -2);
+        const cleanWord = part.slice(2, -2).trim();
         const colorClass = getWordColorClass(cleanWord);
         
         const startIndex = globalOffset;

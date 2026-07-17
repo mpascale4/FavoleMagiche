@@ -98,7 +98,8 @@ Requisiti:
 4) Suggerisci coverTheme in inglese e coverColor tra: ${COLORS.join(", ")}.
 5) Usa un linguaggio positivo, rassicurante e adatto ai bambini.
 6) FORMATTAZIONE SPECIALE PER L'INTERATTIVITÀ (MOLTO IMPORTANTE):
-   - Evidenzia circa 2-4 parole chiave, magiche o importanti per ciascuna pagina racchiudendole rigorosamente tra doppi asterischi, ad esempio: **magia**, **Celeste**, **drago**, **bosco**, **salto**.
+   - Devi SEMPRE evidenziare i nomi dei personaggi e del bambino racchiudendoli rigorosamente tra doppi asterischi ogni volta che compaiono, ad esempio: **${config.nomeBambino}**.
+   - Evidenzia anche altre 2-4 parole chiave, magiche o importanti per ciascuna pagina, ad esempio: **magia**, **drago**, **bosco**, **salto**.
    - Inserisci in punti strategici del testo (all'inizio, alla fine o vicino a parole evocative) alcune emoji che rappresentano suoni ed effetti sonori (ad esempio: 🧚, ✨, 🐉, 🦁, 🔔, ⭐, 🌲, 🍃, 🐇, 🐸, 🌌, 👻, 🎉, 🥳, 👋). Queste emoji verranno visualizzate come pulsanti audio interattivi con effetto sonoro. Metti 1 o 2 emoji interattive per pagina.
 `;
 }
