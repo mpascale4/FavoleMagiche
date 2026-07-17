@@ -3,6 +3,7 @@ export interface ChildProfile {
   nome: string;
   annoNascita: number;
   temaVisivo?: string; // e.g. "Rosa Pastello" | "Verde Bosco" | "Azzurro Cielo" | "Giallo Sole" | "Lavanda"
+  genere?: "M" | "F"; // Genere: M=maschile, F=femminile
 }
 
 export interface DeletedProfile {
@@ -146,6 +147,33 @@ export const CHARACTER_TRAITS = [
   "Testardo",
   "Timido"
 ];
+
+/**
+ * Mappa dai trait maschili ai femminili
+ * Utile per personalizzare i caratteri in base al genere del profilo
+ */
+export const FEMININE_CHARACTER_TRAITS: Record<string, string> = {
+  "Curioso": "Curiosa",
+  "Coraggioso": "Coraggiosa",
+  "Pasticcione": "Pasticciona",
+  "Fifone": "Fifona",
+  "Antipatico": "Antipatica",
+  "Dormiglione": "Dormigliona",
+  "Saggio": "Saggia",
+  "Allegro": "Allegra",
+  "Testardo": "Testarda",
+  "Timido": "Timida"
+};
+
+/**
+ * Ritorna il trait adatto al genere del profilo
+ */
+export function getGenderAwareTrait(trait: string, genere?: "M" | "F"): string {
+  if (genere === "F" && FEMININE_CHARACTER_TRAITS[trait]) {
+    return FEMININE_CHARACTER_TRAITS[trait];
+  }
+  return trait;
+}
 
 export const INITIAL_CHARACTER_TRAITS = [
   "Curioso",

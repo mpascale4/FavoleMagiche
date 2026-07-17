@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Sparkles, Trophy, CheckCircle, Lock, BookOpen, User, Settings } from "lucide-react";
+import { Sparkles, Trophy, CheckCircle, Lock, BookOpen, User, Settings, Info } from "lucide-react";
 import { ChildProfile, ScreenType, Story, AppSettings, CATEGORIES, EDUCATIONAL_THEMES, CHARACTER_TYPES, CHARACTER_TRAITS } from "../types";
 import FairyTaleMap from "./FairyTaleMap";
 import { playClickSound, playOpenBoxClickSound, playFairyChorusSound } from "../utils/audio";
 import { Stage, getVisibleStages } from "../utils/stages";
+import InfoModal from "./InfoModal";
 
 interface HomeViewProps {
   onNavigate: (screen: ScreenType) => void;
@@ -45,6 +46,7 @@ export default function HomeView({
   onDisableKidsMode
 }: HomeViewProps) {
   const [unlockReveal, setUnlockReveal] = useState<{ category?: string; theme?: string; characterType?: string; characterTrait?: string } | null>(null);
+  const [showInfoModal, setShowInfoModal] = useState(false);
 
   const todayStr = new Date().toISOString().split("T")[0];
   const isUnlockAvailableToday = lastUnlockDate !== todayStr && (
@@ -116,6 +118,20 @@ export default function HomeView({
             <span className="text-xs">{settings?.modalitaBambino ? "🔒" : "👶"}</span>
             <span className="text-[9px] font-black uppercase tracking-wider">Bambini</span>
           </button>
+
+          <button
+            onClick={() => {
+              playClickSound();
+              setShowInfoModal(true);
+            }}
+            id="btn-top-menu-info"
+            className="flex items-center gap-1 bg-white hover:bg-blue-100/30 border-2 border-blue-200 px-2 py-1 rounded-full shadow-xs text-blue-600 active:scale-95 transition-all cursor-pointer"
+            title="Info versione"
+          >
+            <Info size={14} />
+            <span className="text-[9px] font-black uppercase tracking-wider">Info</span>
+          </button>
+
           <button
             onClick={() => handleNavigate("settings")}
             id="btn-top-menu-settings"
@@ -385,9 +401,12 @@ export default function HomeView({
             >
               Usa Subito 🪄
             </button>
-          </div>
-        </div>
-      )}
+           </div>
+         </div>
+       )}
+
+      {/* Info Modal */}
+      {showInfoModal && <InfoModal onClose={() => setShowInfoModal(false)} />}
     </div>
   );
 }
