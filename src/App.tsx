@@ -13,6 +13,7 @@ import PinModal from "./components/PinModal";
 import ChangePinModal from "./components/ChangePinModal";
 import ParentalGateModal from "./components/ParentalGateModal";
 import GenerationErrorModal from "./components/GenerationErrorModal";
+import AchievementModal from "./components/AchievementModal";
 import { audioEngine } from "./lib/audioEngine";
 import { playFairyChorusSound, playClickSound } from "./utils/audio";
 import { ChildProfile, DeletedProfile, DeletedStory, Story, AppSettings, ScreenType, Character, CATEGORIES, EDUCATIONAL_THEMES, INITIAL_CATEGORIES, INITIAL_THEMES, CHARACTER_TYPES, INITIAL_CHARACTER_TYPES, CHARACTER_TRAITS, INITIAL_CHARACTER_TRAITS } from "./types";
@@ -21,6 +22,7 @@ import { getEducationalThemeDisplayName } from "./utils/themeNames";
 import { generateStoryClient, StoryGenerationConfig } from "./lib/storyGenerator";
 import { getGeminiApiKeyStatus } from "./config/api";
 import { getGenerationLogs } from "./lib/storyGenerator";
+import { checkMilestoneReached, type Achievement } from "./utils/achievements";
 
 type GeminiRuntimeStatus = {
   state: "unknown" | "ok" | "fallback";
@@ -129,6 +131,7 @@ export default function App() {
   const [continueStoryConfirmConfig, setContinueStoryConfirmConfig] = useState<any | null>(null);
   const [usedUnlockedItems, setUsedUnlockedItems] = useState<string[]>([]);
   const [generationError, setGenerationError] = useState<{ title: string; message: string; reason: string } | null>(null);
+  const [achievementModal, setAchievementModal] = useState<Achievement | null>(null);
 
   // Loading state for story creation parameters to show on generating screen
   const [currentGenerationConfig, setCurrentGenerationConfig] = useState<{
@@ -788,6 +791,12 @@ export default function App() {
       localStorage.setItem("favole_magiche_gen_count", String(nextCount));
       localStorage.setItem("favole_magiche_gen_date", todayStr);
 
+      // Verifica se è stato raggiunto un milestone
+      const milestone = checkMilestoneReached(generatedToday, nextCount);
+      if (milestone) {
+        setAchievementModal(milestone);
+      }
+
       setReaderBackTarget("home");
       setScreen("reader");
 
@@ -1422,6 +1431,20 @@ export default function App() {
            onCancel={() => {
              setGenerationError(null);
              setScreen("new-story");
+           }}
+         />
+       )}
+
+       {/* Achievement Modal */}
+       {achievementModal && (
+         <AchievementModal
+           title={achievementModal.title}
+           message={achievementModal.message}
+           reward={achievementModal.reward}
+           rewardEmoji={achievementModal.rewardEmoji}
+           milestone={achievementModal.milestone}
+           onClaim={() => {
+             setAchievementModal(null);
            }}
          />
        )}

@@ -231,18 +231,20 @@ export default function SettingsView({
           >
             <ArrowLeft size={18} />
           </button>
-          <h3 className="text-lg font-bold text-natural-burgundy font-serif italic">Impostazioni App</h3>
+
           <button
             onClick={() => {
               playClickSound();
               setShowInfoModal(true);
             }}
             id="btn-info-settings"
-            className="ml-auto w-9 h-9 bg-white hover:bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center border-2 border-blue-200 shadow-xs transition-colors"
+            className="w-9 h-9 bg-white hover:bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center border-2 border-blue-200 shadow-xs transition-colors"
             title="Info versione e changelog"
           >
             <Info size={18} />
           </button>
+
+          <h3 className="text-lg font-bold text-natural-burgundy font-serif italic flex-1">Impostazioni App</h3>
         </div>
 
         <div className="bg-white rounded-[2rem] p-4 border-4 border-natural-pink-border shadow-sm space-y-2.5">
