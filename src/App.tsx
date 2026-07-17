@@ -825,11 +825,6 @@ export default function App() {
               VITE_GEMINI_API_KEY sembra un placeholder: la generazione AI usera il piano di riserva. Inserisci una chiave reale nel file <code style={{ background: "rgba(0,0,0,0.15)", borderRadius: 4, padding: "1px 5px" }}>.env</code>.
             </>
           )}
-          {geminiKeyStatus === "unexpected_format" && (
-            <>
-              VITE_GEMINI_API_KEY ha un formato inatteso: verifica la chiave in <code style={{ background: "rgba(0,0,0,0.15)", borderRadius: 4, padding: "1px 5px" }}>.env</code>. Se Gemini fallisce, l'app usa il piano di riserva.
-            </>
-          )}
         </div>
       )}
     <PhoneMockup
