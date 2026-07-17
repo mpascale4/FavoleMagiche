@@ -7,6 +7,12 @@ import ChangePinModal from "./ChangePinModal";
 interface SettingsViewProps {
   settings: AppSettings;
   storiesCount: number;
+  geminiRuntimeStatus: {
+    state: "unknown" | "ok" | "fallback";
+    message: string;
+    model?: string;
+    updatedAt?: string;
+  };
   onUpdateSettings: (settings: Partial<AppSettings>) => void;
   onClearArchive: () => void;
   onBack: () => void;
@@ -15,6 +21,7 @@ interface SettingsViewProps {
 export default function SettingsView({
   settings,
   storiesCount,
+  geminiRuntimeStatus,
   onUpdateSettings,
   onBack,
   onClearArchive
@@ -218,6 +225,33 @@ export default function SettingsView({
             <ArrowLeft size={18} />
           </button>
           <h3 className="text-lg font-bold text-natural-burgundy font-serif italic">Impostazioni App</h3>
+        </div>
+
+        <div className="bg-white rounded-[2rem] p-4 border-4 border-natural-pink-border shadow-sm space-y-2.5">
+          <div className="flex items-center justify-between gap-2">
+            <h4 className="font-extrabold text-[11px] uppercase tracking-wider text-natural-burgundy">Stato Gemini</h4>
+            <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full ${
+              geminiRuntimeStatus.state === "ok"
+                ? "bg-emerald-100 text-emerald-700"
+                : geminiRuntimeStatus.state === "fallback"
+                  ? "bg-amber-100 text-amber-700"
+                  : "bg-slate-100 text-slate-600"
+            }`}>
+              {geminiRuntimeStatus.state === "ok" ? "AI ATTIVA" : geminiRuntimeStatus.state === "fallback" ? "FALLBACK ATTIVO" : "NON TESTATO"}
+            </span>
+          </div>
+
+          <p className="text-[10px] font-bold text-natural-text">{geminiRuntimeStatus.message}</p>
+
+          {geminiRuntimeStatus.model && (
+            <p className="text-[9px] text-slate-500 font-semibold">Modello usato: {geminiRuntimeStatus.model}</p>
+          )}
+
+          {geminiRuntimeStatus.updatedAt && (
+            <p className="text-[9px] text-slate-400 font-semibold">
+              Ultimo aggiornamento: {new Date(geminiRuntimeStatus.updatedAt).toLocaleString("it-IT")}
+            </p>
+          )}
         </div>
 
         {/* VOICE SELECTION CARD (Requested Feature) */}

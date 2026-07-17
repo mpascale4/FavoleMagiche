@@ -20,6 +20,13 @@ import { getEducationalThemeDisplayName } from "./utils/themeNames";
 import { generateStoryClient, StoryGenerationConfig } from "./lib/storyGenerator";
 import { getGeminiApiKeyStatus } from "./config/api";
 
+type GeminiRuntimeStatus = {
+  state: "unknown" | "ok" | "fallback";
+  message: string;
+  model?: string;
+  updatedAt?: string;
+};
+
 // Seeding standard child profiles for instant trial
 const INITIAL_PROFILES: ChildProfile[] = [
   { id: "p1", nome: "Celeste", annoNascita: 2021, temaVisivo: "🌸 Giardino delle Fate" },
@@ -90,6 +97,23 @@ export default function App() {
   const [isPremium, setIsPremium] = useState(false);
   const [generatedToday, setGeneratedToday] = useState(0);
   const [lastGenDate, setLastGenDate] = useState("");
+  const [geminiRuntimeStatus, setGeminiRuntimeStatus] = useState<GeminiRuntimeStatus>(() => {
+    const defaultState: GeminiRuntimeStatus = {
+      state: "unknown",
+      message: "Nessuna generazione eseguita in questa sessione"
+    };
+
+    if (typeof window === "undefined") {
+      return defaultState;
+    }
+
+    try {
+      const raw = localStorage.getItem("favole_magiche_gemini_runtime_status");
+      return raw ? JSON.parse(raw) : defaultState;
+    } catch {
+      return defaultState;
+    }
+  });
 
   // Daily content unlocking states
   const [unlockedCategories, setUnlockedCategories] = useState<string[]>(INITIAL_CATEGORIES);
@@ -705,6 +729,21 @@ export default function App() {
         return;
       }
 
+      const statusUpdate: GeminiRuntimeStatus = generatedData.generationSource === "gemini"
+        ? {
+            state: "ok",
+            message: "Generazione AI attiva",
+            model: generatedData.usedModel,
+            updatedAt: new Date().toISOString()
+          }
+        : {
+            state: "fallback",
+            message: generatedData.fallbackReason || "Piano di riserva attivato",
+            updatedAt: new Date().toISOString()
+          };
+      setGeminiRuntimeStatus(statusUpdate);
+      localStorage.setItem("favole_magiche_gemini_runtime_status", JSON.stringify(statusUpdate));
+
       const newStory: Story = {
         id: "s_" + Date.now(),
         titolo: (config.chapter && config.chapter > 1 && config.parentStoryTitle)
@@ -748,11 +787,22 @@ export default function App() {
 
       setReaderBackTarget("home");
       setScreen("reader");
+
+      if (generatedData.generationSource === "fallback") {
+        alert(`La storia e stata creata con il piano di riserva.\nMotivo: ${generatedData.fallbackReason || "Gemini non disponibile"}`);
+      }
     } catch (err) {
       if ((err as Error).message === "GENERATION_CANCELLED") {
         return;
       }
       console.error("API error during initiate:", err);
+      const statusUpdate: GeminiRuntimeStatus = {
+        state: "fallback",
+        message: "Errore durante la chiamata Gemini",
+        updatedAt: new Date().toISOString()
+      };
+      setGeminiRuntimeStatus(statusUpdate);
+      localStorage.setItem("favole_magiche_gemini_runtime_status", JSON.stringify(statusUpdate));
       alert("Uh oh! C'è stato un piccolo errore con l'incantesimo dell'IA. Verifica la tua connessione e riprova!");
       setScreen("new-story");
     } finally {
@@ -1002,6 +1052,7 @@ export default function App() {
         <SettingsView
           settings={settings}
           storiesCount={stories.length}
+          geminiRuntimeStatus={geminiRuntimeStatus}
           onUpdateSettings={handleUpdateSettings}
           onClearArchive={handleClearArchive}
           onBack={() => setScreen("home")}

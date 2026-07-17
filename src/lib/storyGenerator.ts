@@ -26,6 +26,9 @@ export interface StoryGenerationResult {
   copertinaDescrizione: string;
   personaggiGenerati: string[];
   isOffline?: boolean;
+  generationSource?: "gemini" | "fallback";
+  usedModel?: string;
+  fallbackReason?: string;
 }
 
 interface GenerationOptions {
@@ -34,6 +37,7 @@ interface GenerationOptions {
 }
 
 const COLORS = ["pastel-pink", "pastel-blue", "pastel-purple", "pastel-green", "pastel-yellow"];
+const MODEL_CANDIDATES = ["gemini-flash-latest", "gemini-2.0-flash", "gemini-2.5-flash"];
 const COVER_THEMES: Record<string, string> = {
   Fantasy: "unicorn",
   Avventura: "castle",
@@ -138,7 +142,34 @@ function normalizeGeminiResponse(raw: string, config: StoryGenerationConfig): St
   };
 }
 
-function generateFallbackStory(config: StoryGenerationConfig): StoryGenerationResult {
+function describeGeminiFailure(error: unknown): string {
+  const anyError = error as { message?: string; status?: number; code?: number };
+  const message = anyError?.message || "Errore Gemini sconosciuto";
+  const status = anyError?.status ?? anyError?.code;
+
+  if (status === 429 || message.toLowerCase().includes("quota")) {
+    return "Quota Gemini esaurita o non disponibile per il tuo progetto";
+  }
+
+  if (status === 404 || message.toLowerCase().includes("no longer available")) {
+    return "Modello Gemini non disponibile per questo account";
+  }
+
+  if (status === 401 || status === 403) {
+    return "Chiave API Gemini non autorizzata o senza permessi";
+  }
+
+  return "Gemini non raggiungibile in questo momento";
+}
+
+function isDeprecatedModelError(error: unknown): boolean {
+  const anyError = error as { message?: string; status?: number; code?: number };
+  const message = (anyError?.message || "").toLowerCase();
+  const status = anyError?.status ?? anyError?.code;
+  return status === 404 || message.includes("no longer available");
+}
+
+function generateFallbackStory(config: StoryGenerationConfig, reason?: string): StoryGenerationResult {
   const pageCount = expectedPages(config.durata);
   const mainCharacter = config.personaggi[0]?.nome || "Nuvola";
   const child = config.nomeBambino || "Piccolo lettore";
@@ -176,7 +207,9 @@ function generateFallbackStory(config: StoryGenerationConfig): StoryGenerationRe
     coverColor: COLORS[Math.floor(Math.random() * COLORS.length)],
     copertinaDescrizione: `${child} e ${mainCharacter} in un mondo color pastello pieno di stelle e magia.`,
     personaggiGenerati: config.personaggi.map((p) => p.nome),
-    isOffline: true
+    isOffline: true,
+    generationSource: "fallback",
+    fallbackReason: reason
   };
 }
 
@@ -189,7 +222,7 @@ export async function generateStoryClient(
 
   if (!GEMINI_API_KEY) {
     options.onProgress?.(75, "Chiave API non trovata. Uso il piano di riserva...");
-    return generateFallbackStory(config);
+    return generateFallbackStory(config, "Chiave API Gemini mancante nel file .env");
   }
 
   try {
@@ -197,43 +230,62 @@ export async function generateStoryClient(
     options.onProgress?.(40, "Gemini sta scrivendo la favola lato client...");
     ensureNotCancelled(options.isCancelled);
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: buildPrompt(config),
-      config: {
-        temperature: 0.9,
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            titolo: { type: Type.STRING },
-            pagine: { type: Type.ARRAY, items: { type: Type.STRING } },
-            morale: { type: Type.STRING },
-            coverTheme: { type: Type.STRING },
-            coverColor: { type: Type.STRING },
-            copertinaDescrizione: { type: Type.STRING },
-            personaggiGenerati: { type: Type.ARRAY, items: { type: Type.STRING } }
-          },
-          required: ["titolo", "pagine", "morale", "coverTheme", "coverColor", "copertinaDescrizione", "personaggiGenerati"]
+    let response: Awaited<ReturnType<typeof ai.models.generateContent>> | null = null;
+    let usedModel = "";
+
+    for (const modelName of MODEL_CANDIDATES) {
+      try {
+        response = await ai.models.generateContent({
+          model: modelName,
+          contents: buildPrompt(config),
+          config: {
+            temperature: 0.9,
+            responseMimeType: "application/json",
+            responseSchema: {
+              type: Type.OBJECT,
+              properties: {
+                titolo: { type: Type.STRING },
+                pagine: { type: Type.ARRAY, items: { type: Type.STRING } },
+                morale: { type: Type.STRING },
+                coverTheme: { type: Type.STRING },
+                coverColor: { type: Type.STRING },
+                copertinaDescrizione: { type: Type.STRING },
+                personaggiGenerati: { type: Type.ARRAY, items: { type: Type.STRING } }
+              },
+              required: ["titolo", "pagine", "morale", "coverTheme", "coverColor", "copertinaDescrizione", "personaggiGenerati"]
+            }
+          }
+        });
+        usedModel = modelName;
+        break;
+      } catch (modelError) {
+        if (isDeprecatedModelError(modelError)) {
+          continue;
         }
+        throw modelError;
       }
-    });
+    }
 
     ensureNotCancelled(options.isCancelled);
     options.onProgress?.(85, "Rifinitura delle pagine e della morale...");
 
-    if (!response.text) {
+    if (!response?.text) {
       throw new Error("Risposta Gemini vuota");
     }
 
-    return normalizeGeminiResponse(response.text, config);
+    return {
+      ...normalizeGeminiResponse(response.text, config),
+      generationSource: "gemini",
+      usedModel
+    };
   } catch (error) {
     if ((error as Error).message === "GENERATION_CANCELLED") {
       throw error;
     }
 
-    options.onProgress?.(78, "Connessione instabile. Creo una favola offline...");
-    return generateFallbackStory(config);
+    const fallbackReason = describeGeminiFailure(error);
+    options.onProgress?.(78, `${fallbackReason}. Creo una favola offline...`);
+    return generateFallbackStory(config, fallbackReason);
   }
 }
 
