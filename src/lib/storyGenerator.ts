@@ -327,6 +327,7 @@ export async function generateStoryClient(
 
     let response: Awaited<ReturnType<typeof ai.models.generateContent>> | null = null;
     let usedModel = "";
+    let lastError: Error | null = null;
 
     for (const modelName of availableModels) {
       try {
@@ -356,12 +357,28 @@ export async function generateStoryClient(
         console.log(`[Gemini] Generazione completata con: ${usedModel}`);
         break;
       } catch (modelError) {
-        if (isDeprecatedModelError(modelError)) {
+        lastError = modelError as Error;
+        const isDeprecated = isDeprecatedModelError(modelError);
+        const isQuotaError = (modelError as any)?.message?.toLowerCase().includes("quota") ||
+                            (modelError as any)?.status === 429;
+
+        if (isDeprecated) {
           console.warn(`[Gemini] Modello deprecato/non disponibile: ${modelName}`);
           continue;
         }
+
+        if (isQuotaError && availableModels.length > 1) {
+          console.warn(`[Gemini] Quota esaurita per ${modelName}, provo il prossimo...`);
+          continue;
+        }
+
         throw modelError;
       }
+    }
+
+    // Se nessun modello ha funzionato ma abbiamo tentato più modelli, riporta l'ultimo errore
+    if (!response && lastError) {
+      throw lastError;
     }
 
     ensureNotCancelled(options.isCancelled);

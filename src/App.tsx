@@ -12,6 +12,7 @@ import GrowthTree from "./components/GrowthTree";
 import PinModal from "./components/PinModal";
 import ChangePinModal from "./components/ChangePinModal";
 import ParentalGateModal from "./components/ParentalGateModal";
+import GenerationErrorModal from "./components/GenerationErrorModal";
 import { audioEngine } from "./lib/audioEngine";
 import { playFairyChorusSound, playClickSound } from "./utils/audio";
 import { ChildProfile, DeletedProfile, DeletedStory, Story, AppSettings, ScreenType, Character, CATEGORIES, EDUCATIONAL_THEMES, INITIAL_CATEGORIES, INITIAL_THEMES, CHARACTER_TYPES, INITIAL_CHARACTER_TYPES, CHARACTER_TRAITS, INITIAL_CHARACTER_TRAITS } from "./types";
@@ -127,6 +128,7 @@ export default function App() {
   const [bedtimeConfirmConfig, setBedtimeConfirmConfig] = useState<any | null>(null);
   const [continueStoryConfirmConfig, setContinueStoryConfirmConfig] = useState<any | null>(null);
   const [usedUnlockedItems, setUsedUnlockedItems] = useState<string[]>([]);
+  const [generationError, setGenerationError] = useState<{ title: string; message: string; reason: string } | null>(null);
 
   // Loading state for story creation parameters to show on generating screen
   const [currentGenerationConfig, setCurrentGenerationConfig] = useState<{
@@ -800,12 +802,17 @@ export default function App() {
 
       const errorMsg = (err as Error)?.message || "Errore sconosciuto";
 
-      // Se il messaggio è "Nessun modello disponibile", mostra un errore specifico
+      let title = "Errore nella Generazione";
+      let message = "Si è verificato un errore durante la creazione della storia.";
+      let reason = errorMsg;
+
       if (errorMsg.includes("Nessun modello Gemini disponibile")) {
-        alert("❌ Nessun modello Gemini disponibile con quota.\n\nOpzioni:\n1. Aspetta che la quota si rinnovi\n2. Abilita la fatturazione nel progetto Google AI\n3. Usa il piano di riserva");
-      } else {
-        alert("Uh oh! C'è stato un piccolo errore con l'incantesimo dell'IA. Verifica la tua connessione e riprova!");
+        title = "Nessun Modello Disponibile";
+        message = "Non è possibile generare la storia con l'IA al momento.";
+        reason = "Nessun modello Gemini ha quota disponibile. Aspetta che la quota si rinnovi (solitamente ogni 24h) oppure abilita la fatturazione nel progetto Google AI.";
       }
+
+      setGenerationError({ title, message, reason });
 
       const statusUpdate: GeminiRuntimeStatus = {
         state: "fallback",
@@ -1386,11 +1393,40 @@ export default function App() {
               setScreen(action.target);
             }
           }}
-          onCancel={() => setPendingGateAction(null)}
-        />
-      )}
+           onCancel={() => setPendingGateAction(null)}
+         />
+       )}
 
-      {/* COZY SLEEPING MOON OVERLAY (TIMER NANNA SCADUTO) */}
+       {/* Generation Error Modal */}
+       {generationError && (
+         <GenerationErrorModal
+           title={generationError.title}
+           message={generationError.message}
+           reason={generationError.reason}
+           onRetry={() => {
+             setGenerationError(null);
+             if (currentGenerationConfig) {
+               handleGenerateStory(
+                 {
+                   categoria: currentGenerationConfig.categoria,
+                   temaEducativo: currentGenerationConfig.temaEducativo,
+                   durata: "Media",
+                   personaggi: [],
+                   nomeBambino: activeProfile?.nome || "Piccolo lettore",
+                   etaBambino: activeProfile ? new Date().getFullYear() - activeProfile.annoNascita : 5
+                 },
+                 isBedtimeMode
+               );
+             }
+           }}
+           onCancel={() => {
+             setGenerationError(null);
+             setScreen("new-story");
+           }}
+         />
+       )}
+
+       {/* COZY SLEEPING MOON OVERLAY (TIMER NANNA SCADUTO) */}
       {isNannaTriggered && (
         <div className="fixed inset-0 bg-slate-950 flex flex-col items-center justify-center p-6 text-center z-[190] overflow-hidden select-none">
           {/* Sparkling background stars */}
