@@ -51,6 +51,40 @@ const COVER_THEMES: Record<string, string> = {
   Abissi: "sea"
 };
 
+/**
+ * Verifica quali modelli Gemini sono effettivamente disponibili e utilizzabili via API.
+ * Ritorna una lista ordinata di modelli con quota disponibile.
+ */
+async function getAvailableModels(apiKey: string): Promise<string[]> {
+  try {
+    console.log("[Gemini] Verifico modelli disponibili...");
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`
+    );
+
+    if (!response.ok) {
+      console.warn(`[Gemini] Verifica modelli fallita (${response.status}), uso fallback list`);
+      return MODEL_CANDIDATES;
+    }
+
+    const data = (await response.json()) as {
+      models?: Array<{ name: string; supportedGenerationMethods?: string[] }>;
+    };
+
+    const available = (data.models || [])
+      .filter((m) => m.supportedGenerationMethods?.includes("generateContent"))
+      .map((m) => m.name.replace("models/", ""))
+      .filter((name) => MODEL_CANDIDATES.includes(name));
+
+    console.log(`[Gemini] Modelli disponibili: ${available.join(", ") || "nessuno trovato"}`);
+
+    return available.length > 0 ? available : MODEL_CANDIDATES;
+  } catch (error) {
+    console.warn("[Gemini] Errore durante verifica modelli:", (error as Error)?.message);
+    return MODEL_CANDIDATES;
+  }
+}
+
 function expectedPages(durata: StoryGenerationConfig["durata"]): number {
   if (durata === "Breve") return 3;
   if (durata === "Lunga") return 7;
@@ -226,15 +260,25 @@ export async function generateStoryClient(
   }
 
   try {
+    // Verifica quali modelli sono effettivamente disponibili
+    const availableModels = await getAvailableModels(GEMINI_API_KEY);
+    
+    if (availableModels.length === 0) {
+      console.warn("[Gemini] Nessun modello disponibile, attivo fallback");
+      options.onProgress?.(75, "Nessun modello Gemini disponibile. Uso il piano di riserva...");
+      return generateFallbackStory(config, "Nessun modello Gemini con quota disponibile");
+    }
+
     const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
-    options.onProgress?.(40, "Gemini sta scrivendo la favola lato client...");
+    options.onProgress?.(40, `Gemini sta scrivendo la favola (modello: ${availableModels[0]})...`);
     ensureNotCancelled(options.isCancelled);
 
     let response: Awaited<ReturnType<typeof ai.models.generateContent>> | null = null;
     let usedModel = "";
 
-    for (const modelName of MODEL_CANDIDATES) {
+    for (const modelName of availableModels) {
       try {
+        console.log(`[Gemini] Tentativo con modello: ${modelName}`);
         response = await ai.models.generateContent({
           model: modelName,
           contents: buildPrompt(config),
@@ -257,9 +301,11 @@ export async function generateStoryClient(
           }
         });
         usedModel = modelName;
+        console.log(`[Gemini] Generazione completata con: ${usedModel}`);
         break;
       } catch (modelError) {
         if (isDeprecatedModelError(modelError)) {
+          console.warn(`[Gemini] Modello deprecato/non disponibile: ${modelName}`);
           continue;
         }
         throw modelError;
