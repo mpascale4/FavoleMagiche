@@ -13,6 +13,15 @@ const THEME_MAP: Record<string, { bg: string; border: string; accentText: string
   "🦄 Prateria degli Unicorni": { bg: "bg-[#F3E5F5]", border: "border-[#E1BEE7]", accentText: "text-[#6A1B9A]" },
 };
 
+// Mappa logica per i temi notturni - background scuro con testi e accenti chiari e leggibili
+const NIGHT_THEME_MAP: Record<string, { bg: string; border: string; accentText: string; textColor: string }> = {
+  "🌸 Giardino delle Fate": { bg: "bg-slate-900", border: "border-pink-900", accentText: "text-pink-300", textColor: "text-pink-50" },
+  "🌲 Bosco delle Meraviglie": { bg: "bg-slate-900", border: "border-green-900", accentText: "text-green-300", textColor: "text-green-50" },
+  "🌊 Oceano Incantato": { bg: "bg-slate-900", border: "border-blue-900", accentText: "text-blue-300", textColor: "text-blue-50" },
+  "✨ Isola del Sole Dorato": { bg: "bg-slate-900", border: "border-amber-900", accentText: "text-amber-300", textColor: "text-amber-50" },
+  "🦄 Prateria degli Unicorni": { bg: "bg-slate-900", border: "border-purple-900", accentText: "text-purple-300", textColor: "text-purple-50" },
+};
+
 interface PhoneMockupProps {
   children: React.ReactNode;
   generatedToday: number;
@@ -39,7 +48,17 @@ export default function PhoneMockup({
     else if (name === "Giallo Sole") cleanName = "✨ Isola del Sole Dorato";
     else if (name === "Lavanda") cleanName = "🦄 Prateria degli Unicorni";
 
-    return THEME_MAP[cleanName] || THEME_MAP["🌸 Giardino delle Fate"];
+    const dayTheme = THEME_MAP[cleanName] || THEME_MAP["🌸 Giardino delle Fate"];
+    if (isNightTheme) {
+      const nightTheme = NIGHT_THEME_MAP[cleanName] || NIGHT_THEME_MAP["🌸 Giardino delle Fate"];
+      return {
+        bg: nightTheme.bg,
+        border: nightTheme.border,
+        accentText: nightTheme.accentText,
+        textColor: nightTheme.textColor,
+      };
+    }
+    return dayTheme;
   };
 
   const themeStyles = getThemeStyles(temaVisivo);

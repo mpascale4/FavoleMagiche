@@ -76,6 +76,7 @@
   background: linear-gradient(180deg, #0f172a 0%, #111827 100%) !important;
 }
 
+/* Background conversions for night theme - convert light backgrounds to dark */
 .night-theme .bg-white,
 .night-theme .bg-white\/95,
 .night-theme .bg-white\/90,
@@ -85,21 +86,53 @@
 .night-theme .bg-slate-100,
 .night-theme .bg-natural-pink-light,
 .night-theme .bg-natural-bg {
-  background-color: #1f2937 !important;
+  background-color: #1e293b !important;
 }
 
+/* Text color conversions - ensure high contrast */
 .night-theme .text-natural-text,
 .night-theme .text-natural-burgundy,
 .night-theme .text-slate-700,
 .night-theme .text-slate-600,
-.night-theme .text-slate-500 {
-  color: #e5e7eb !important;
+.night-theme .text-slate-500,
+.night-theme .text-slate-400,
+.night-theme .text-slate-300 {
+  color: #f1f5f9 !important;
 }
 
+/* Border color adjustments for night theme */
 .night-theme .border-natural-pink-border,
 .night-theme .border-slate-200,
 .night-theme .border-slate-100,
 .night-theme .border-natural-green-light,
 .night-theme .border-natural-blue-light {
-  border-color: #374151 !important;
+  border-color: #475569 !important;
+}
+
+/* Ensure accent colors remain visible in night mode */
+.night-theme .text-[#880E4F] {
+  color: #fca5a5 !important;
+}
+
+.night-theme .text-[#2E7D32] {
+  color: #86efac !important;
+}
+
+.night-theme .text-[#0277BD] {
+  color: #7dd3fc !important;
+}
+
+.night-theme .text-[#E65100] {
+  color: #fbbf24 !important;
+}
+
+.night-theme .text-[#6A1B9A] {
+  color: #d8b4fe !important;
+}
+
+/* Light text that should stay readable */
+.night-theme .text-white,
+.night-theme .text-slate-100,
+.night-theme .text-slate-50 {
+  color: #f8fafc !important;
 }
