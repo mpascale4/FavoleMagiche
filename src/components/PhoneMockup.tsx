@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Wifi, Battery, ShieldAlert, Sparkles, Star, Music, Volume2, VolumeX } from "lucide-react";
+import { Wifi, Battery, ShieldAlert, Sparkles, Star, Music, Volume2, VolumeX, Info } from "lucide-react";
 import { playClickSound } from "../utils/audio";
 import { AppSettings } from "../types";
+import InfoModal from "./InfoModal";
+import { shouldApplyNightTheme } from "../utils/theme";
 
 const THEME_MAP: Record<string, { bg: string; border: string; accentText: string }> = {
   "🌸 Giardino delle Fate": { bg: "bg-[#FEF9F0]", border: "border-natural-pink-light", accentText: "text-[#880E4F]" },
@@ -27,6 +29,7 @@ export default function PhoneMockup({
   temaVisivo = "🌸 Giardino delle Fate"
 }: PhoneMockupProps) {
   const [time, setTime] = useState("");
+  const [showInfoModal, setShowInfoModal] = useState(false);
 
   const getThemeStyles = (name: string) => {
     let cleanName = name;
@@ -40,6 +43,7 @@ export default function PhoneMockup({
   };
 
   const themeStyles = getThemeStyles(temaVisivo);
+  const isNightTheme = shouldApplyNightTheme();
 
   const musicOn = settings?.musicaSottofondo !== false;
   const sfxOn = settings?.effettiAudio !== false;
@@ -114,11 +118,28 @@ export default function PhoneMockup({
           </div>
 
           {/* Phone Screen Screen Area */}
-          <div className={`w-full h-full ${themeStyles.bg} rounded-[38px] overflow-hidden flex flex-col relative z-30 select-none text-natural-text`}>
-            
+          <div className={`w-full h-full ${themeStyles.bg} rounded-[38px] overflow-hidden flex flex-col relative z-30 select-none text-natural-text ${isNightTheme ? "bg-slate-900" : ""}`}>
+
             {/* Status Bar */}
-            <div className={`h-11 bg-white/60 border-b-4 ${themeStyles.border} flex items-center justify-between px-5 pt-1 shrink-0 text-natural-text font-bold text-xs z-30`}>
-              <span className={`tracking-wide text-[11px] font-extrabold ${themeStyles.accentText}`}>{time || "09:41"}</span>
+            <div className={`h-11 ${isNightTheme ? "bg-slate-900/90 border-slate-700" : `bg-white/60 ${themeStyles.border}`} border-b-4 flex items-center justify-between px-5 pt-1 shrink-0 text-natural-text font-bold text-xs z-30`}>
+              <div className="flex items-center gap-1.5">
+                <span className={`tracking-wide text-[11px] font-extrabold ${isNightTheme ? "text-slate-100" : themeStyles.accentText}`}>{time || "09:41"}</span>
+                <button
+                  onClick={() => {
+                    playClickSound();
+                    setShowInfoModal(true);
+                  }}
+                  className={`w-7 h-7 rounded-full flex items-center justify-center transition-all active:scale-90 cursor-pointer ${
+                    isNightTheme
+                      ? "bg-slate-800 text-cyan-300 border border-slate-600"
+                      : "bg-blue-100 text-blue-600 border border-blue-200"
+                  }`}
+                  title="Info versione"
+                  id="btn-status-info"
+                >
+                  <Info size={11} />
+                </button>
+              </div>
               <div className="flex items-center gap-2">
                 {settings && onUpdateSettings && (
                   <div className="flex items-center gap-1 bg-white/80 border border-natural-pink-border rounded-full p-0.5">
@@ -149,7 +170,7 @@ export default function PhoneMockup({
                     </button>
                   </div>
                 )}
-                <div className="flex items-center gap-1 text-slate-500">
+                <div className={`flex items-center gap-1 ${isNightTheme ? "text-slate-300" : "text-slate-500"}`}>
                   <Wifi size={12} />
                   <Battery size={12} />
                 </div>
@@ -162,7 +183,7 @@ export default function PhoneMockup({
             </div>
 
             {/* Home Indicator Bar */}
-            <div className="h-4 bg-white/40 flex items-center justify-center shrink-0 z-30">
+            <div className={`h-4 flex items-center justify-center shrink-0 z-30 ${isNightTheme ? "bg-slate-900/70" : "bg-white/40"}`}>
               <div className="w-28 h-1 bg-[#5D4037]/20 rounded-full mb-1"></div>
             </div>
 
@@ -170,6 +191,8 @@ export default function PhoneMockup({
         </div>
 
       </div>
+
+      {showInfoModal && <InfoModal onClose={() => setShowInfoModal(false)} />}
     </div>
   );
 }

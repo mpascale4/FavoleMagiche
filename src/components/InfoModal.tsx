@@ -66,18 +66,18 @@ export default function InfoModal({ onClose }: InfoModalProps) {
 
   return (
     <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-[250] animate-in fade-in">
-      <div className="bg-white rounded-[2rem] border-4 border-natural-pink-border shadow-[0_20px_60px_rgba(0,0,0,0.3)] max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="bg-[#110D26] text-slate-100 rounded-[2rem] border-4 border-[#EC407A]/50 shadow-[0_20px_60px_rgba(0,0,0,0.45)] max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="bg-gradient-to-r from-natural-pink/10 to-pink-50 border-b-2 border-natural-pink-border p-5 flex items-start justify-between gap-4">
+        <div className="bg-[#1a1438] border-b border-slate-700/60 p-4 flex items-start justify-between gap-4">
           <div className="flex items-start gap-3 flex-1">
-            <div className="w-12 h-12 bg-natural-pink rounded-xl flex items-center justify-center text-white text-xl shrink-0">
+            <div className="w-11 h-11 bg-[#EC407A] rounded-xl flex items-center justify-center text-white text-xl shrink-0">
               ✨
             </div>
             <div className="flex-1">
-              <h2 className="text-xl font-black text-natural-burgundy font-serif">
+              <h2 className="text-lg font-black text-pink-200 font-serif">
                 Favole Magiche
               </h2>
-              <p className="text-sm font-bold text-natural-pink mt-0.5">
+              <p className="text-[11px] font-bold text-pink-300/90 mt-0.5">
                 {versionInfo.description}
               </p>
             </div>
@@ -88,39 +88,49 @@ export default function InfoModal({ onClose }: InfoModalProps) {
               playClickSound();
               onClose();
             }}
-            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 hover:text-slate-800 transition-colors cursor-pointer shrink-0"
+            className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-300 hover:text-white transition-colors cursor-pointer shrink-0"
           >
             <X size={18} />
           </button>
         </div>
 
         {/* Content */}
-        <div className="overflow-y-auto scrollbar-none flex-1 p-5 space-y-6">
-          {/* Version Info */}
-          <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border-2 border-slate-200 p-4 space-y-3">
+        <div className="overflow-y-auto scrollbar-none flex-1 p-4 space-y-4">
+          <div className="w-full bg-[#0d0a1f] text-slate-100 rounded-2xl p-3 shadow-md text-left font-mono text-[10px] border-2 border-[#EC407A]/40">
+            <div className="flex items-center justify-between border-b border-slate-700/50 pb-1.5 mb-2">
+              <span className="font-extrabold text-[#F06292] uppercase tracking-wider flex items-center gap-1 text-[9px]">
+                <span>📋</span> Changelog e Info Versione
+              </span>
+              <span className="flex h-1.5 w-1.5 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+              </span>
+            </div>
+
+            {/* Version Info */}
             <div className="flex items-center gap-2">
-              <Info size={18} className="text-natural-pink" />
-              <h3 className="font-extrabold text-sm uppercase tracking-wider text-natural-burgundy">
+              <Info size={14} className="text-pink-300" />
+              <h3 className="font-extrabold text-[10px] uppercase tracking-wider text-pink-300">
                 Informazioni Versione
               </h3>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-white rounded-lg p-3 border border-slate-200">
-                <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+            <div className="grid grid-cols-2 gap-2 mt-2">
+              <div className="bg-[#1a1438] rounded-lg p-2 border border-slate-700">
+                <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">
                   Versione
                 </div>
-                <div className="text-2xl font-black text-natural-burgundy font-serif">
+                <div className="text-lg font-black text-pink-200 font-serif">
                   v{versionInfo.version}
                 </div>
               </div>
 
-              <div className="bg-white rounded-lg p-3 border border-slate-200">
-                <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+              <div className="bg-[#1a1438] rounded-lg p-2 border border-slate-700">
+                <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">
                   <Calendar size={12} className="inline mr-1" />
                   Data
                 </div>
-                <div className="text-sm font-bold text-slate-700">
+                <div className="text-[11px] font-bold text-slate-200">
                   {new Date(versionInfo.releaseDate).toLocaleDateString("it-IT", {
                     year: "numeric",
                     month: "long",
@@ -129,28 +139,27 @@ export default function InfoModal({ onClose }: InfoModalProps) {
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Recent Changes */}
-          <div className="space-y-2.5">
-            <div className="flex items-center gap-2">
-              <Sparkles size={18} className="text-natural-pink" />
-              <h3 className="font-extrabold text-sm uppercase tracking-wider text-natural-burgundy">
+            {/* Recent Changes */}
+            <div className="space-y-1.5 mt-3">
+              <div className="flex items-center gap-2">
+                <Sparkles size={14} className="text-pink-300" />
+                <h3 className="font-extrabold text-[10px] uppercase tracking-wider text-pink-300">
                 Ultime Modifiche
-              </h3>
-            </div>
+                </h3>
+              </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1.5 max-h-44 overflow-y-auto scrollbar-none">
               {versionInfo.recentChanges.map((change, idx) => (
                 <div
                   key={idx}
-                  className={`rounded-xl border-l-4 p-3 ${getTypeColor(change.type)}`}
+                  className="rounded-lg border-l-2 border-pink-400/70 p-2 bg-[#1a1438]"
                 >
-                  <div className="flex items-start gap-2">
-                    <span className="text-lg mt-0.5">{getTypeIcon(change.type)}</span>
+                  <div className="flex items-start gap-2 text-slate-200">
+                    <span className="text-sm mt-0.5">{getTypeIcon(change.type)}</span>
                     <div className="flex-1">
-                      <div className="font-bold text-[13px]">{change.title}</div>
-                      <div className="text-[11px] opacity-80 mt-0.5">
+                      <div className="font-bold text-[11px]">{change.title}</div>
+                      <div className="text-[10px] text-slate-400 mt-0.5">
                         {change.description}
                       </div>
                     </div>
@@ -161,29 +170,31 @@ export default function InfoModal({ onClose }: InfoModalProps) {
           </div>
 
           {/* Features Grid */}
-          <div className="space-y-2.5">
+          <div className="space-y-1.5 mt-3">
             <div className="flex items-center gap-2">
-              <GitBranch size={18} className="text-natural-pink" />
-              <h3 className="font-extrabold text-sm uppercase tracking-wider text-natural-burgundy">
+              <GitBranch size={14} className="text-pink-300" />
+              <h3 className="font-extrabold text-[10px] uppercase tracking-wider text-pink-300">
                 Caratteristiche
               </h3>
             </div>
 
             <div className="grid grid-cols-1 gap-2">
               {versionInfo.features.map((feature, idx) => (
-                <div key={idx} className="bg-slate-50 rounded-lg p-2.5 border border-slate-200">
-                  <p className="text-[12px] font-bold text-slate-700">{feature}</p>
+                <div key={idx} className="bg-[#1a1438] rounded-lg p-2 border border-slate-700">
+                  <p className="text-[10px] font-bold text-slate-200">{feature}</p>
                 </div>
               ))}
             </div>
           </div>
+
+          </div>
         </div>
 
         {/* Footer */}
-        <div className="border-t border-slate-200 bg-slate-50 p-4 text-center">
-          <p className="text-[11px] text-slate-500 font-bold">
+        <div className="border-t border-slate-700/60 bg-[#1a1438] p-3 text-center">
+          <p className="text-[10px] text-slate-300 font-bold">
             📖 Leggi il changelog completo su{" "}
-            <span className="text-natural-pink font-black">CHANGELOG.md</span>
+            <span className="text-pink-300 font-black">CHANGELOG.md</span>
           </p>
         </div>
       </div>

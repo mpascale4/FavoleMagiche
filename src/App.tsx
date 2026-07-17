@@ -16,7 +16,7 @@ import GenerationErrorModal from "./components/GenerationErrorModal";
 import AchievementModal from "./components/AchievementModal";
 import { audioEngine } from "./lib/audioEngine";
 import { playFairyChorusSound, playClickSound } from "./utils/audio";
-import { ChildProfile, DeletedProfile, DeletedStory, Story, AppSettings, ScreenType, Character, CATEGORIES, EDUCATIONAL_THEMES, INITIAL_CATEGORIES, INITIAL_THEMES, CHARACTER_TYPES, INITIAL_CHARACTER_TYPES, CHARACTER_TRAITS, INITIAL_CHARACTER_TRAITS } from "./types";
+import { ChildProfile, DeletedProfile, DeletedStory, Story, AppSettings, ScreenType, Character, CATEGORIES, EDUCATIONAL_THEMES, INITIAL_CATEGORIES, INITIAL_THEMES, CHARACTER_TYPES, INITIAL_CHARACTER_TYPES, CHARACTER_TRAITS, INITIAL_CHARACTER_TRAITS, getGenderAwareTrait } from "./types";
 import { generateStage } from "./utils/stages";
 import { getEducationalThemeDisplayName } from "./utils/themeNames";
 import { generateStoryClient, StoryGenerationConfig } from "./lib/storyGenerator";
@@ -33,8 +33,8 @@ type GeminiRuntimeStatus = {
 
 // Seeding standard child profiles for instant trial
 const INITIAL_PROFILES: ChildProfile[] = [
-  { id: "p1", nome: "Celeste", annoNascita: 2021, temaVisivo: "🌸 Giardino delle Fate" },
-  { id: "p2", nome: "Davide", annoNascita: 2018, temaVisivo: "🌊 Oceano Incantato" }
+  { id: "p1", nome: "Celeste", annoNascita: 2021, temaVisivo: "🌸 Giardino delle Fate", genere: "F" },
+  { id: "p2", nome: "Davide", annoNascita: 2018, temaVisivo: "🌊 Oceano Incantato", genere: "M" }
 ];
 
 // Seeding a beautiful initial bedtime story so the library isn't empty on first open
@@ -696,14 +696,25 @@ export default function App() {
     const activeBedtime = forceBedtime !== undefined ? forceBedtime : isBedtimeMode;
     setIsBedtimeMode(activeBedtime);
 
+    // Adatta i trait al femminile se il profilo attivo è femminile
+    const normalizedConfig: StoryGenerationConfig = {
+      ...config,
+      personaggi: (config.personaggi || []).map((p) => ({
+        ...p,
+        caratteristica: p.caratteristica
+          ? getGenderAwareTrait(p.caratteristica, activeProfile?.genere)
+          : p.caratteristica
+      }))
+    };
+
     // Save choices as default for future generations
-    localStorage.setItem("favole_magiche_last_categoria", config.categoria);
-    localStorage.setItem("favole_magiche_last_temaEducativo", config.temaEducativo);
-    localStorage.setItem("favole_magiche_last_durata", config.durata);
+    localStorage.setItem("favole_magiche_last_categoria", normalizedConfig.categoria);
+    localStorage.setItem("favole_magiche_last_temaEducativo", normalizedConfig.temaEducativo);
+    localStorage.setItem("favole_magiche_last_durata", normalizedConfig.durata);
 
     setCurrentGenerationConfig({
-      categoria: config.categoria,
-      temaEducativo: config.temaEducativo
+      categoria: normalizedConfig.categoria,
+      temaEducativo: normalizedConfig.temaEducativo
     });
 
     const localJobId = `local_${Date.now()}`;
@@ -716,7 +727,7 @@ export default function App() {
     try {
       const generatedData = await generateStoryClient(
         {
-          ...config,
+          ...normalizedConfig,
           isBedtimeMode: activeBedtime
         },
         {
@@ -760,9 +771,9 @@ export default function App() {
         data: new Date().toISOString(),
         dataCreazione: new Date().toISOString(),
         ultimaLettura: "",
-        durata: config.durata,
-        categoria: config.categoria,
-        temaEducativo: config.temaEducativo,
+        durata: normalizedConfig.durata,
+        categoria: normalizedConfig.categoria,
+        temaEducativo: normalizedConfig.temaEducativo,
         preferita: false,
         coverTheme: generatedData.coverTheme || "star",
         coverColor: generatedData.coverColor || "pastel-blue",
@@ -771,9 +782,9 @@ export default function App() {
         isOffline: !!generatedData.isOffline,
         volteLetta: 0,
         isBedtimeMode: activeBedtime,
-        seriesId: config.seriesId,
-        chapter: config.chapter || 1,
-        personaggi: config.personaggi
+        seriesId: normalizedConfig.seriesId,
+        chapter: normalizedConfig.chapter || 1,
+        personaggi: normalizedConfig.personaggi
       };
 
       setActiveJobProgress(100);
