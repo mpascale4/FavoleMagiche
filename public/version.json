@@ -1,5 +1,5 @@
 {
-  "version": "1.2.0",
+  "version": "1.2.1",
   "releaseDate": "2026-07-17",
   "description": "Favole Magiche - Generatore di storie AI per bambini",
   "features": [
@@ -13,33 +13,7 @@
     "🔒 Modalità bambino protetta con PIN",
     "🎵 Audio interattivo"
   ],
-  "recentChanges": [
-    {
-      "type": "feature",
-      "title": "Modal di errore esplicito",
-      "description": "Nuovo componente GenerationErrorModal con design di errore stilizzato"
-    },
-    {
-      "type": "feature",
-      "title": "Retry su tutti i modelli",
-      "description": "Retry automatico su modelli alternativi se uno ha quota esaurita"
-    },
-    {
-      "type": "feature",
-      "title": "Verifica modelli disponibili",
-      "description": "Controllo preventivo dei modelli Gemini disponibili prima di generare"
-    },
-    {
-      "type": "feature",
-      "title": "Log generazione salvati",
-      "description": "Ultimi 20 log di generazione visibili in Impostazioni (GEMINI/FALLBACK/ERROR)"
-    },
-    {
-      "type": "fix",
-      "title": "Logging esplicito",
-      "description": "Console log dettagliato del processo di generazione (modello, stato, errori)"
-    }
-  ],
+  "recentChanges": [],
   "techStack": {
     "framework": "React 19 + Vite",
     "styling": "Tailwind CSS",
@@ -53,4 +27,3 @@
     "changelog": "./CHANGELOG.md"
   }
 }
-
