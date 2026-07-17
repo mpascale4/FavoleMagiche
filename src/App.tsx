@@ -18,6 +18,7 @@ import { ChildProfile, DeletedProfile, DeletedStory, Story, AppSettings, ScreenT
 import { generateStage } from "./utils/stages";
 import { getEducationalThemeDisplayName } from "./utils/themeNames";
 import { generateStoryClient, StoryGenerationConfig } from "./lib/storyGenerator";
+import { GEMINI_API_KEY } from "./config/api";
 
 // Seeding standard child profiles for instant trial
 const INITIAL_PROFILES: ChildProfile[] = [
@@ -804,6 +805,17 @@ export default function App() {
   };
 
   return (
+    <>
+      {import.meta.env.DEV && !GEMINI_API_KEY && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, right: 0, zIndex: 9999,
+          background: "#f59e0b", color: "#1c1917", padding: "8px 16px",
+          fontSize: "13px", fontWeight: 600, textAlign: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.2)"
+        }}>
+          ⚠️ VITE_GEMINI_API_KEY mancante — La generazione AI usa il piano di riserva.
+          Crea il file <code style={{background:"rgba(0,0,0,0.15)", borderRadius:4, padding:"1px 5px"}}>.env</code> con la tua chiave Gemini. Vedi <strong>CONTRIBUTING.md</strong>.
+        </div>
+      )}
     <PhoneMockup
       generatedToday={generatedToday}
       settings={settings}
@@ -1351,5 +1363,6 @@ export default function App() {
         </div>
       )}
     </PhoneMockup>
+    </>
   );
 }

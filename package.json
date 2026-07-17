@@ -9,7 +9,8 @@
     "start": "vite preview",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "pull": "git pull origin develop && git pull origin main"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.2",

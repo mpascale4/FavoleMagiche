@@ -1,0 +1,36 @@
+# Cursor Rules – Favole Magiche
+
+## Flusso Git obbligatorio (Git Flow)
+
+Prima di qualsiasi modifica al codice, aprire una feature Git Flow:
+```bash
+git flow feature start <nome-feature>
+```
+
+Al termine di tutte le modifiche, chiudere la feature e fare la push:
+```bash
+git flow feature finish <nome-feature>
+git push origin develop
+git push origin --tags
+```
+
+Non eseguire mai commit direttamente su `main` o `develop` senza passare per una feature branch di Git Flow.
+
+---
+
+## Comandi personalizzati
+
+Quando l'utente scrive `/pull` o `#pull`, esegui immediatamente questi comandi senza chiedere conferma:
+
+```powershell
+git pull origin develop
+git pull origin main
+```
+
+Se è attivo un feature branch, esegui anche il pull del branch corrente:
+```powershell
+git pull origin <branch-corrente>
+```
+
+Usa `git branch --show-current` per determinare il branch corrente.
+
