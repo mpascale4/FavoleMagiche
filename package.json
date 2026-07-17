@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
-    "pull": "git pull origin develop && git pull origin main"
+    "pull": "git pull origin develop && git pull origin main",
+    "update:changelog": "node scripts/update-changelog.js"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.2",

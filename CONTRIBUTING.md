@@ -68,3 +68,51 @@ Assicurarsi di avere Git Flow installato:
 git flow init
 ```
 
+---
+
+## 📝 Aggiornare il Changelog
+
+Dopo ogni feature/fix, aggiorna il **CHANGELOG.md** e la **version.json**:
+
+```bash
+npm run update:changelog
+```
+
+Questo script ti guida attraverso:
+1. **Nuova versione** (es. 1.2.0)
+2. **Numero di modifiche** (1-5)
+3. **Dettagli per ogni modifica**:
+   - Titolo
+   - Descrizione
+   - Tipo (feature/fix/improvement)
+
+Il script:
+- ✅ Aggiorna `version.json` con i dati della versione
+- ✅ Aggiorna `CHANGELOG.md` con le modifiche
+- ✅ Suggerisce i comandi git per il commit
+
+Esempio:
+
+```bash
+npm run update:changelog
+
+# Seguito da:
+git add CHANGELOG.md version.json
+git commit -m "chore: aggiorna changelog v1.2.0"
+git tag v1.2.0
+git push origin develop
+git push origin --tags
+```
+
+### Come vedranno i dati gli utenti
+
+Il changelog è visualizzabile **nell'app**:
+- Apri **Impostazioni**
+- Clicca il bottone **ℹ️ Info** (in alto a destra)
+- Visualizza:
+  - Versione attuale
+  - Data release
+  - Ultime 5 modifiche (con tipo e descrizione)
+  - Link al changelog completo
+
+---

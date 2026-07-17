@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import { ArrowLeft, HardDrive, Bell, Trash2, Volume2, Play, Square, Music, Sliders, Settings, Lock, Terminal } from "lucide-react";
+import { ArrowLeft, HardDrive, Bell, Trash2, Volume2, Play, Square, Music, Sliders, Settings, Lock, Terminal, Info } from "lucide-react";
 import { AppSettings } from "../types";
 import { playClickSound } from "../utils/audio";
 import ChangePinModal from "./ChangePinModal";
 import { getGenerationLogs, GenerationLog } from "../lib/storyGenerator";
+import InfoModal from "./InfoModal";
 
 interface SettingsViewProps {
   settings: AppSettings;
@@ -33,6 +34,7 @@ export default function SettingsView({
   const [showConfirmClear, setShowConfirmClear] = useState(false);
   const [showChangePinModal, setShowChangePinModal] = useState(false);
   const [generationLogs, setGenerationLogs] = useState<GenerationLog[]>([]);
+  const [showInfoModal, setShowInfoModal] = useState(false);
   const synthRef = useRef<SpeechSynthesis | null>(null);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
@@ -211,7 +213,8 @@ export default function SettingsView({
   };
 
   return (
-    <div className="flex-1 flex flex-col p-5 justify-between scrollbar-none overflow-y-auto max-h-[640px]">
+    <>
+      <div className="flex-1 flex flex-col p-5 justify-between scrollbar-none overflow-y-auto max-h-[640px]">
       <div className="space-y-4">
         {/* Back Header */}
         <div className="flex items-center gap-2 mb-2 shrink-0">
@@ -229,6 +232,17 @@ export default function SettingsView({
             <ArrowLeft size={18} />
           </button>
           <h3 className="text-lg font-bold text-natural-burgundy font-serif italic">Impostazioni App</h3>
+          <button
+            onClick={() => {
+              playClickSound();
+              setShowInfoModal(true);
+            }}
+            id="btn-info-settings"
+            className="ml-auto w-9 h-9 bg-white hover:bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center border-2 border-blue-200 shadow-xs transition-colors"
+            title="Info versione e changelog"
+          >
+            <Info size={18} />
+          </button>
         </div>
 
         <div className="bg-white rounded-[2rem] p-4 border-4 border-natural-pink-border shadow-sm space-y-2.5">
@@ -765,6 +779,9 @@ export default function SettingsView({
           onCancel={() => setShowChangePinModal(false)}
         />
       )}
-    </div>
+      </div>
+
+      {showInfoModal && <InfoModal onClose={() => setShowInfoModal(false)} />}
+    </>
   );
 }
