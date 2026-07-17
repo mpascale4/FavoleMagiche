@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-import { ArrowLeft, HardDrive, Bell, Trash2, Volume2, Play, Square, Music, Sliders, Settings, Lock } from "lucide-react";
+import { ArrowLeft, HardDrive, Bell, Trash2, Volume2, Play, Square, Music, Sliders, Settings, Lock, Terminal } from "lucide-react";
 import { AppSettings } from "../types";
 import { playClickSound } from "../utils/audio";
 import ChangePinModal from "./ChangePinModal";
+import { getGenerationLogs, GenerationLog } from "../lib/storyGenerator";
 
 interface SettingsViewProps {
   settings: AppSettings;
@@ -31,6 +32,7 @@ export default function SettingsView({
   const [isPreviewPlaying, setIsPreviewPlaying] = useState(false);
   const [showConfirmClear, setShowConfirmClear] = useState(false);
   const [showChangePinModal, setShowChangePinModal] = useState(false);
+  const [generationLogs, setGenerationLogs] = useState<GenerationLog[]>([]);
   const synthRef = useRef<SpeechSynthesis | null>(null);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
@@ -58,6 +60,8 @@ export default function SettingsView({
 
   // Sync available system speech voices
   useEffect(() => {
+    setGenerationLogs(getGenerationLogs());
+
     if (typeof window !== "undefined" && window.speechSynthesis) {
       synthRef.current = window.speechSynthesis;
       const updateVoices = () => {
@@ -251,6 +255,48 @@ export default function SettingsView({
             <p className="text-[9px] text-slate-400 font-semibold">
               Ultimo aggiornamento: {new Date(geminiRuntimeStatus.updatedAt).toLocaleString("it-IT")}
             </p>
+          )}
+
+          {/* Log viewer */}
+          {generationLogs.length > 0 && (
+            <div className="space-y-2 mt-3 border-t border-slate-200/50 pt-3">
+              <div className="flex items-center gap-1.5 text-slate-700 font-bold text-[10px]">
+                <Terminal size={12} className="text-natural-pink" />
+                <span>Log Generazioni (ultimi {generationLogs.length})</span>
+              </div>
+
+              <div className="max-h-48 overflow-y-auto bg-slate-50/80 rounded-lg p-2 space-y-1.5 border border-slate-200/50">
+                {generationLogs
+                  .slice()
+                  .reverse()
+                  .map((log, idx) => (
+                    <div key={idx} className="text-[8.5px] font-mono text-slate-600 leading-tight">
+                      <div className="flex items-start gap-1.5">
+                        <span className={`font-bold shrink-0 ${
+                          log.source === "gemini" ? "text-emerald-600" :
+                          log.source === "fallback" ? "text-amber-600" :
+                          "text-red-600"
+                        }`}>
+                          [{log.source.toUpperCase()}]
+                        </span>
+                        <div className="flex-1">
+                          <div className="text-[7px] text-slate-400 mb-0.5">
+                            {new Date(log.timestamp).toLocaleTimeString("it-IT")}
+                          </div>
+                          <div className="text-slate-700">
+                            {log.model && <div>Modello: {log.model}</div>}
+                            {log.reason && <div>Motivo: {log.reason}</div>}
+                            {log.error && <div>Errore: {log.error}</div>}
+                            {log.availableModels && log.availableModels.length > 0 && (
+                              <div>Disponibili: {log.availableModels.join(", ")}</div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
           )}
         </div>
 

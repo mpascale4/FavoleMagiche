@@ -2,6 +2,45 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { Character } from "../types";
 import { GEMINI_API_KEY } from "../config/api";
 
+export interface GenerationLog {
+  timestamp: string;
+  source: "gemini" | "fallback" | "error";
+  model?: string;
+  reason?: string;
+  availableModels?: string[];
+  error?: string;
+}
+
+/**
+ * Salva il log della generazione in localStorage
+ */
+export function saveGenerationLog(log: GenerationLog): void {
+  try {
+    const existing = localStorage.getItem("favole_magiche_generation_log");
+    const logs: GenerationLog[] = existing ? JSON.parse(existing) : [];
+    logs.push(log);
+    // Mantieni solo gli ultimi 20 log
+    const trimmed = logs.slice(-20);
+    localStorage.setItem("favole_magiche_generation_log", JSON.stringify(trimmed));
+    console.log(`[Gemini Log] Salvato: ${log.source} - ${log.reason || log.model || log.error}`);
+  } catch (e) {
+    console.warn("[Gemini Log] Errore nel salvataggio log:", e);
+  }
+}
+
+/**
+ * Legge i log salvati
+ */
+export function getGenerationLogs(): GenerationLog[] {
+  try {
+    const raw = localStorage.getItem("favole_magiche_generation_log");
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    console.warn("[Gemini Log] Errore nel caricamento log:", e);
+    return [];
+  }
+}
+
 export interface StoryGenerationConfig {
   categoria: string;
   temaEducativo: string;
@@ -266,8 +305,21 @@ export async function generateStoryClient(
     if (availableModels.length === 0) {
       console.warn("[Gemini] Nessun modello disponibile, attivo fallback");
       options.onProgress?.(75, "Nessun modello Gemini disponibile. Uso il piano di riserva...");
-      return generateFallbackStory(config, "Nessun modello Gemini con quota disponibile");
+       const errorMsg = "Nessun modello Gemini disponibile con quota su questo account";
+       saveGenerationLog({
+         timestamp: new Date().toISOString(),
+         source: "error",
+         error: errorMsg,
+         availableModels: []
+       });
+       throw new Error(errorMsg);
     }
+
+      saveGenerationLog({
+        timestamp: new Date().toISOString(),
+        source: "gemini",
+        availableModels: availableModels
+      });
 
     const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
     options.onProgress?.(40, `Gemini sta scrivendo la favola (modello: ${availableModels[0]})...`);
@@ -324,12 +376,20 @@ export async function generateStoryClient(
       generationSource: "gemini",
       usedModel
     };
+
   } catch (error) {
     if ((error as Error).message === "GENERATION_CANCELLED") {
       throw error;
     }
 
     const fallbackReason = describeGeminiFailure(error);
+    saveGenerationLog({
+      timestamp: new Date().toISOString(),
+      source: "fallback",
+      reason: fallbackReason,
+      error: (error as Error)?.message
+    });
+
     options.onProgress?.(78, `${fallbackReason}. Creo una favola offline...`);
     return generateFallbackStory(config, fallbackReason);
   }

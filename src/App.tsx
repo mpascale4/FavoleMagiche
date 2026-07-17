@@ -19,6 +19,7 @@ import { generateStage } from "./utils/stages";
 import { getEducationalThemeDisplayName } from "./utils/themeNames";
 import { generateStoryClient, StoryGenerationConfig } from "./lib/storyGenerator";
 import { getGeminiApiKeyStatus } from "./config/api";
+import { getGenerationLogs } from "./lib/storyGenerator";
 
 type GeminiRuntimeStatus = {
   state: "unknown" | "ok" | "fallback";
@@ -796,6 +797,16 @@ export default function App() {
         return;
       }
       console.error("API error during initiate:", err);
+
+      const errorMsg = (err as Error)?.message || "Errore sconosciuto";
+
+      // Se il messaggio è "Nessun modello disponibile", mostra un errore specifico
+      if (errorMsg.includes("Nessun modello Gemini disponibile")) {
+        alert("❌ Nessun modello Gemini disponibile con quota.\n\nOpzioni:\n1. Aspetta che la quota si rinnovi\n2. Abilita la fatturazione nel progetto Google AI\n3. Usa il piano di riserva");
+      } else {
+        alert("Uh oh! C'è stato un piccolo errore con l'incantesimo dell'IA. Verifica la tua connessione e riprova!");
+      }
+
       const statusUpdate: GeminiRuntimeStatus = {
         state: "fallback",
         message: "Errore durante la chiamata Gemini",
@@ -803,7 +814,6 @@ export default function App() {
       };
       setGeminiRuntimeStatus(statusUpdate);
       localStorage.setItem("favole_magiche_gemini_runtime_status", JSON.stringify(statusUpdate));
-      alert("Uh oh! C'è stato un piccolo errore con l'incantesimo dell'IA. Verifica la tua connessione e riprova!");
       setScreen("new-story");
     } finally {
       if (generationSessionRef.current?.id === localJobId) {
