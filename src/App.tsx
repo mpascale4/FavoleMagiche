@@ -18,7 +18,7 @@ import { ChildProfile, DeletedProfile, DeletedStory, Story, AppSettings, ScreenT
 import { generateStage } from "./utils/stages";
 import { getEducationalThemeDisplayName } from "./utils/themeNames";
 import { generateStoryClient, StoryGenerationConfig } from "./lib/storyGenerator";
-import { GEMINI_API_KEY } from "./config/api";
+import { getGeminiApiKeyStatus } from "./config/api";
 
 // Seeding standard child profiles for instant trial
 const INITIAL_PROFILES: ChildProfile[] = [
@@ -804,16 +804,32 @@ export default function App() {
     }
   };
 
+  const geminiKeyStatus = getGeminiApiKeyStatus();
+  const showGeminiBanner = import.meta.env.DEV && geminiKeyStatus !== "loaded";
+
   return (
     <>
-      {import.meta.env.DEV && !GEMINI_API_KEY && (
+      {showGeminiBanner && (
         <div style={{
           position: "fixed", top: 0, left: 0, right: 0, zIndex: 9999,
           background: "#f59e0b", color: "#1c1917", padding: "8px 16px",
           fontSize: "13px", fontWeight: 600, textAlign: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.2)"
         }}>
-          ⚠️ VITE_GEMINI_API_KEY mancante — La generazione AI usa il piano di riserva.
-          Crea il file <code style={{background:"rgba(0,0,0,0.15)", borderRadius:4, padding:"1px 5px"}}>.env</code> con la tua chiave Gemini. Vedi <strong>CONTRIBUTING.md</strong>.
+          {geminiKeyStatus === "missing" && (
+            <>
+              VITE_GEMINI_API_KEY mancante: la generazione AI usa il piano di riserva. Crea il file <code style={{ background: "rgba(0,0,0,0.15)", borderRadius: 4, padding: "1px 5px" }}>.env</code> e segui <strong>CONTRIBUTING.md</strong>.
+            </>
+          )}
+          {geminiKeyStatus === "placeholder" && (
+            <>
+              VITE_GEMINI_API_KEY sembra un placeholder: la generazione AI usera il piano di riserva. Inserisci una chiave reale nel file <code style={{ background: "rgba(0,0,0,0.15)", borderRadius: 4, padding: "1px 5px" }}>.env</code>.
+            </>
+          )}
+          {geminiKeyStatus === "unexpected_format" && (
+            <>
+              VITE_GEMINI_API_KEY ha un formato inatteso: verifica la chiave in <code style={{ background: "rgba(0,0,0,0.15)", borderRadius: 4, padding: "1px 5px" }}>.env</code>. Se Gemini fallisce, l'app usa il piano di riserva.
+            </>
+          )}
         </div>
       )}
     <PhoneMockup
