@@ -65,8 +65,8 @@ export default function InfoModal({ onClose }: InfoModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-[250] animate-in fade-in">
-      <div className="bg-[#110D26] text-slate-100 rounded-[2rem] border-4 border-[#EC407A]/50 shadow-[0_20px_60px_rgba(0,0,0,0.45)] max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+    <div className="absolute inset-0 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-3 z-[120] animate-in fade-in">
+      <div className="bg-[#110D26] text-slate-100 rounded-[1.5rem] border-3 border-[#EC407A]/50 shadow-[0_20px_60px_rgba(0,0,0,0.45)] w-full max-h-[96%] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="bg-[#1a1438] border-b border-slate-700/60 p-4 flex items-start justify-between gap-4">
           <div className="flex items-start gap-3 flex-1">
