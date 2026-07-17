@@ -6,3 +6,31 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# JetBrains IDEs (IntelliJ, WebStorm, Android Studio, ecc.)
+.idea/
+!.idea/runConfigurations/
+*.iml
+*.iws
+*.ipr
+
+# Visual Studio Code
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Eclipse
+.classpath
+.project
+.settings/
+*.launch
+
+# Vim / Emacs
+*.swp
+*.swo
+*~
+\#*\#
+
+# macOS
+.DS_Store
+Thumbs.db
