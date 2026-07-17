@@ -131,8 +131,8 @@ export default function PhoneMockup({
                   }}
                   className={`w-7 h-7 rounded-full flex items-center justify-center transition-all active:scale-90 cursor-pointer ${
                     isNightTheme
-                      ? "bg-slate-800 text-cyan-300 border border-slate-600"
-                      : "bg-blue-100 text-blue-600 border border-blue-200"
+                      ? "bg-slate-800 text-pink-300 border border-slate-600"
+                      : "bg-white/80 text-natural-burgundy border border-natural-pink-border shadow-xs"
                   }`}
                   title="Info versione"
                   id="btn-status-info"
@@ -178,7 +178,7 @@ export default function PhoneMockup({
             </div>
 
             {/* Application Screen Content */}
-            <div className={`flex-1 overflow-y-auto relative flex flex-col ${themeStyles.bg}`}>
+            <div className={`flex-1 overflow-y-auto relative flex flex-col ${themeStyles.bg} ${isNightTheme ? "night-theme" : ""}`}>
               {children}
             </div>
 
@@ -187,12 +187,12 @@ export default function PhoneMockup({
               <div className="w-28 h-1 bg-[#5D4037]/20 rounded-full mb-1"></div>
             </div>
 
+            {showInfoModal && <InfoModal onClose={() => setShowInfoModal(false)} />}
+
           </div>
         </div>
 
       </div>
-
-      {showInfoModal && <InfoModal onClose={() => setShowInfoModal(false)} />}
     </div>
   );
 }

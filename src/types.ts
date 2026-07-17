@@ -3,7 +3,6 @@ export interface ChildProfile {
   nome: string;
   annoNascita: number;
   temaVisivo?: string; // e.g. "Rosa Pastello" | "Verde Bosco" | "Azzurro Cielo" | "Giallo Sole" | "Lavanda"
-  genere?: "M" | "F"; // Genere: M=maschile, F=femminile
 }
 
 export interface DeletedProfile {
@@ -150,7 +149,7 @@ export const CHARACTER_TRAITS = [
 
 /**
  * Mappa dai trait maschili ai femminili
- * Utile per personalizzare i caratteri in base al genere del profilo
+ * Utile per personalizzare i caratteri in base al tipo personaggio
  */
 export const FEMININE_CHARACTER_TRAITS: Record<string, string> = {
   "Curioso": "Curiosa",
@@ -165,11 +164,13 @@ export const FEMININE_CHARACTER_TRAITS: Record<string, string> = {
   "Timido": "Timida"
 };
 
+const FEMININE_CHARACTER_TYPES = new Set(["Bambina", "Fata", "Sirena"]);
+
 /**
- * Ritorna il trait adatto al genere del profilo
+ * Ritorna il trait adatto al tipo personaggio selezionato.
  */
-export function getGenderAwareTrait(trait: string, genere?: "M" | "F"): string {
-  if (genere === "F" && FEMININE_CHARACTER_TRAITS[trait]) {
+export function getTraitForCharacterType(trait: string, characterType?: string): string {
+  if (characterType && FEMININE_CHARACTER_TYPES.has(characterType) && FEMININE_CHARACTER_TRAITS[trait]) {
     return FEMININE_CHARACTER_TRAITS[trait];
   }
   return trait;

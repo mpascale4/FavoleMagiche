@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Inter:wght@400;500;600;700;800;950&family=Outfit:wght@300..900&display=swap');
+do@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Inter:wght@400;500;600;700;800;950&family=Outfit:wght@300..900&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -71,3 +71,36 @@
 .animate-button-blink {
   animation: buttonBlink 1.4s ease-in-out infinite;
 }
+/* Night theme overrides for internal app components */
+.night-theme {
+  background: linear-gradient(180deg, #0f172a 0%, #111827 100%) !important;
+}
+
+.night-theme .bg-white,
+.night-theme .bg-white\/95,
+.night-theme .bg-white\/90,
+.night-theme .bg-white\/80,
+.night-theme .bg-white\/70,
+.night-theme .bg-slate-50,
+.night-theme .bg-slate-100,
+.night-theme .bg-natural-pink-light,
+.night-theme .bg-natural-bg {
+  background-color: #1f2937 !important;
+}
+
+.night-theme .text-natural-text,
+.night-theme .text-natural-burgundy,
+.night-theme .text-slate-700,
+.night-theme .text-slate-600,
+.night-theme .text-slate-500 {
+  color: #e5e7eb !important;
+}
+
+.night-theme .border-natural-pink-border,
+.night-theme .border-slate-200,
+.night-theme .border-slate-100,
+.night-theme .border-natural-green-light,
+.night-theme .border-natural-blue-light {
+  border-color: #374151 !important;
+}
+

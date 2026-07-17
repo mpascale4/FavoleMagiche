@@ -14,7 +14,9 @@ import {
   INITIAL_CATEGORIES,
   INITIAL_THEMES,
   INITIAL_CHARACTER_TYPES,
-  INITIAL_CHARACTER_TRAITS
+  INITIAL_CHARACTER_TRAITS,
+  FEMININE_CHARACTER_TRAITS,
+  getTraitForCharacterType
 } from "../types";
 
 const TYPE_EMOJIS: Record<string, string> = {
@@ -107,6 +109,12 @@ const FANTASY_PREFIXES_BY_TYPE: Record<string, string[]> = {
   "Folletto": ["Puck", "Kiko", "Spilletto", "Briciola"],
   "Sirena": ["Ondina", "Ariel", "Coral", "Marina"]
 };
+
+const FEMININE_TO_BASE_TRAIT: Record<string, string> = Object.fromEntries(
+  Object.entries(FEMININE_CHARACTER_TRAITS).map(([base, feminine]) => [feminine, base])
+);
+
+const toBaseTrait = (trait: string): string => FEMININE_TO_BASE_TRAIT[trait] || trait;
 
 const generateFantasyNames = (type: string, trait: string): string[] => {
   const prefixes = FANTASY_PREFIXES_BY_TYPE[type] || ["Mago", "Fanta"];
@@ -512,7 +520,7 @@ export default function NewStoryView({
     const newChar: Character = {
       nome: capitalizedName,
       tipo: charType,
-      caratteristica: charTrait.trim() ? charTrait.trim() : undefined
+      caratteristica: charTrait.trim() ? getTraitForCharacterType(charTrait.trim(), charType) : undefined
     };
 
     setCustomCharacters([...customCharacters, newChar]);
@@ -566,7 +574,7 @@ export default function NewStoryView({
       generated.push({ 
         nome: name, 
         tipo: type, 
-        caratteristica: trait 
+        caratteristica: getTraitForCharacterType(trait, type)
       });
     }
     setCustomCharacters(generated);
@@ -1414,6 +1422,7 @@ export default function NewStoryView({
                           {paginatedCharacterTraits.map((tr) => {
                             const isSelected = charTrait === tr;
                             const emoji = TRAIT_EMOJIS[tr] || "⭐";
+                            const displayTrait = getTraitForCharacterType(tr, charType);
                             const usage = getUsage(tr);
                             const isNew = unlockedCharacterTraits.includes(tr) && !INITIAL_CHARACTER_TRAITS.includes(tr) && !usedUnlockedItems.includes(tr) && usage === 0;
                             return (
@@ -1421,7 +1430,7 @@ export default function NewStoryView({
                                 key={tr}
                                 type="button"
                                 onClick={() => {
-                                  setCharTrait(tr);
+                                  setCharTrait(toBaseTrait(tr));
                                   if (onMarkItemAsUsed) onMarkItemAsUsed(tr);
                                 }}
                                 className={`py-1.5 px-3 rounded-xl font-extrabold text-[10px] border-2 flex items-center gap-1 transition-all cursor-pointer relative ${
@@ -1436,7 +1445,7 @@ export default function NewStoryView({
                                   </span>
                                 )}
                                 <span>{emoji}</span>
-                                <span>{tr}</span>
+                                <span>{displayTrait}</span>
                                 {usage > 0 && (
                                   <span className="text-[8px] bg-pink-100 text-pink-800 font-black px-1 rounded-full ml-0.5">
                                     {usage}
@@ -1499,12 +1508,12 @@ export default function NewStoryView({
                                 type="button"
                                 onClick={() => setLockedBannerMsg({
                                   section: "charTrait",
-                                  text: `La caratteristica '${tr}' è ancora segreta! Si sbloccarà casualmente completando gli obiettivi o aprendo il Box Regalo Giornaliero!`
+                                  text: `La caratteristica '${getTraitForCharacterType(tr, charType)}' è ancora segreta! Si sbloccherà casualmente completando gli obiettivi o aprendo il Box Regalo Giornaliero!`
                                 })}
                                 className="py-1 px-2 bg-slate-200/40 hover:bg-slate-200/70 text-slate-400 text-[9px] rounded-lg font-bold flex items-center gap-1 border border-slate-200/30 transition-all cursor-pointer"
                               >
                                 <span>{TRAIT_EMOJIS[tr] || "❓"}</span>
-                                <span>{tr}</span>
+                                <span>{getTraitForCharacterType(tr, charType)}</span>
                                 <Lock size={8} className="text-slate-400" />
                               </button>
                             ))}
