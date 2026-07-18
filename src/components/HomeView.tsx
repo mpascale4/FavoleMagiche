@@ -20,7 +20,7 @@ interface HomeViewProps {
   isGenerating?: boolean;
   stories: Story[];
   claimedAchievements: string[];
-  onClaimAchievement: (id: string) => { category: string; theme: string; characterType: string; characterTrait: string } | null;
+  onClaimAchievement: (id: string) => void;
   settings?: AppSettings;
   onDisableKidsMode?: () => void;
 }

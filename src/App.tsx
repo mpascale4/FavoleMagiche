@@ -139,6 +139,7 @@ export default function App() {
   const [achievementReturnTarget, setAchievementReturnTarget] = useState<"app" | "developer">("app");
   const [showDeveloperPinModal, setShowDeveloperPinModal] = useState<boolean>(false);
   const [isDeveloperMode, setIsDeveloperMode] = useState<boolean>(false);
+  type UnlockPoolType = "category" | "theme" | "characterType" | "characterTrait";
 
   const getPrioritizedAchievementFlow = (achievements: Achievement[]): { current: Achievement; queue: Achievement[] } | null => {
     if (achievements.length === 0) return null;
@@ -174,35 +175,34 @@ export default function App() {
       : [{ emoji: "✨", text: "Hai già sbloccato tutti i premi disponibili!" }];
   };
 
-  const getLockedRewardCandidates = (): AchievementReward[] => {
-    const rewards: AchievementReward[] = [];
-
-    CATEGORIES.filter(c => !unlockedCategories.includes(c)).forEach(category => {
-      rewards.push({ emoji: "🌲", text: `Nuova categoria: ${category}` });
-    });
-
-    EDUCATIONAL_THEMES.filter(t => !unlockedThemes.includes(t)).forEach(theme => {
-      rewards.push({ emoji: "🤝", text: `Nuovo tema: ${theme}` });
-    });
-
-    CHARACTER_TYPES.filter(t => !unlockedCharacterTypes.includes(t)).forEach(characterType => {
-      rewards.push({ emoji: "🧙‍♂️", text: `Nuovo tipo: ${characterType}` });
-    });
-
-    CHARACTER_TRAITS.filter(tr => !unlockedCharacterTraits.includes(tr)).forEach(characterTrait => {
-      rewards.push({ emoji: "⭐", text: `Nuova caratteristica: ${characterTrait}` });
-    });
-
-    return rewards;
-  };
-
   const getDeveloperPreviewRewards = (isWorldCompletion: boolean): AchievementReward[] => {
-    const candidates = getLockedRewardCandidates();
-    if (candidates.length === 0) {
+    const byType: AchievementReward[] = [];
+
+    const firstLockedCategory = CATEGORIES.find(c => !unlockedCategories.includes(c));
+    if (firstLockedCategory) {
+      byType.push({ emoji: "🌲", text: `Nuova categoria: ${firstLockedCategory}` });
+    }
+
+    const firstLockedTheme = EDUCATIONAL_THEMES.find(t => !unlockedThemes.includes(t));
+    if (firstLockedTheme) {
+      byType.push({ emoji: "🤝", text: `Nuovo tema: ${firstLockedTheme}` });
+    }
+
+    const firstLockedType = CHARACTER_TYPES.find(t => !unlockedCharacterTypes.includes(t));
+    if (firstLockedType) {
+      byType.push({ emoji: "🧙‍♂️", text: `Nuovo tipo: ${firstLockedType}` });
+    }
+
+    const firstLockedTrait = CHARACTER_TRAITS.find(tr => !unlockedCharacterTraits.includes(tr));
+    if (firstLockedTrait) {
+      byType.push({ emoji: "⭐", text: `Nuova caratteristica: ${firstLockedTrait}` });
+    }
+
+    if (byType.length === 0) {
       return [{ emoji: "🧪", text: "Test mode: nessun elemento bloccato da mostrare" }];
     }
 
-    return isWorldCompletion ? candidates.slice(0, 3) : [candidates[0]];
+    return isWorldCompletion ? byType.slice(0, 3) : [byType[0]];
   };
 
   // Loading state for story creation parameters to show on generating screen
@@ -383,17 +383,24 @@ export default function App() {
   }, [activeProfile?.id]);
 
   // Unlock exactly one single random locked element from any category
-  const handleUnlockSingle = () => {
+  const handleUnlockSingle = (preferredType?: UnlockPoolType) => {
     const lockedCategories = CATEGORIES.filter(c => !unlockedCategories.includes(c));
     const lockedThemes = EDUCATIONAL_THEMES.filter(t => !unlockedThemes.includes(t));
     const lockedTypes = CHARACTER_TYPES.filter(t => !unlockedCharacterTypes.includes(t));
     const lockedTraits = CHARACTER_TRAITS.filter(tr => !unlockedCharacterTraits.includes(tr));
     
-    const pools: { type: "category" | "theme" | "characterType" | "characterTrait"; list: string[] }[] = [];
-    if (lockedCategories.length > 0) pools.push({ type: "category", list: lockedCategories });
-    if (lockedThemes.length > 0) pools.push({ type: "theme", list: lockedThemes });
-    if (lockedTypes.length > 0) pools.push({ type: "characterType", list: lockedTypes });
-    if (lockedTraits.length > 0) pools.push({ type: "characterTrait", list: lockedTraits });
+    const pools: { type: UnlockPoolType; list: string[] }[] = [];
+    if (preferredType) {
+      if (preferredType === "category" && lockedCategories.length > 0) pools.push({ type: "category", list: lockedCategories });
+      if (preferredType === "theme" && lockedThemes.length > 0) pools.push({ type: "theme", list: lockedThemes });
+      if (preferredType === "characterType" && lockedTypes.length > 0) pools.push({ type: "characterType", list: lockedTypes });
+      if (preferredType === "characterTrait" && lockedTraits.length > 0) pools.push({ type: "characterTrait", list: lockedTraits });
+    } else {
+      if (lockedCategories.length > 0) pools.push({ type: "category", list: lockedCategories });
+      if (lockedThemes.length > 0) pools.push({ type: "theme", list: lockedThemes });
+      if (lockedTypes.length > 0) pools.push({ type: "characterType", list: lockedTypes });
+      if (lockedTraits.length > 0) pools.push({ type: "characterTrait", list: lockedTraits });
+    }
     
     if (pools.length === 0) {
       return null;
@@ -451,17 +458,34 @@ export default function App() {
   // Claim achievement reward trigger
   const handleClaimAchievement = (id: string): AchievementReward[] => {
     const isWorldCompletion = id.startsWith("world_");
-    const unlockAttempts = isWorldCompletion ? 3 : 1;
     const collectedRewards: AchievementReward[] = [];
 
-    for (let i = 0; i < unlockAttempts; i++) {
+    if (isWorldCompletion) {
+      const preferredTypes: UnlockPoolType[] = ["category", "theme", "characterType", "characterTrait"];
+
+      for (const type of preferredTypes) {
+        if (collectedRewards.length >= 3) break;
+        const unlocked = handleUnlockSingle(type);
+        if (unlocked) {
+          collectedRewards.push(...mapUnlockedToRewards(unlocked));
+        }
+      }
+
+      while (collectedRewards.length < 3) {
+        const fallbackUnlock = handleUnlockSingle();
+        if (!fallbackUnlock) break;
+        collectedRewards.push(...mapUnlockedToRewards(fallbackUnlock));
+      }
+
+      if (collectedRewards.length === 0) {
+        collectedRewards.push(...mapUnlockedToRewards(null));
+      }
+    } else {
       const unlocked = handleUnlockSingle();
       const mapped = mapUnlockedToRewards(unlocked);
-
       if (unlocked) {
         collectedRewards.push(...mapped);
-      } else if (collectedRewards.length === 0) {
-        // Keep one fallback when everything is already unlocked.
+      } else {
         collectedRewards.push(...mapped);
       }
     }
