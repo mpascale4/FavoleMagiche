@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { X } from "lucide-react";
 import { playClickSound } from "../utils/audio";
 
 interface DeveloperPinModalProps {
@@ -14,99 +15,94 @@ export default function DeveloperPinModal({
   const [error, setError] = useState(false);
   const correctPin = "1357";
 
-  const handleSubmit = () => {
+  const handleNumberClick = (num: string) => {
     playClickSound();
-    if (pin === correctPin) {
-      onSuccess();
-      setPin("");
+    if (pin.length < 4) {
+      const newPin = pin + num;
+      setPin(newPin);
       setError(false);
-    } else {
-      setError(true);
-      setPin("");
-      setTimeout(() => setError(false), 1500);
+
+      if (newPin.length === 4) {
+        if (newPin === correctPin) {
+          setTimeout(onSuccess, 300);
+        } else {
+          setError(true);
+          setTimeout(() => setPin(""), 500);
+        }
+      }
     }
   };
 
-  const appendDigit = (digit: string) => {
-    if (pin.length >= 4) return;
-    setPin(prev => `${prev}${digit}`);
-  };
-
-  const handleBackspace = () => {
-    setPin(prev => prev.slice(0, -1));
+  const handleDelete = () => {
+    playClickSound();
+    setPin(pin.slice(0, -1));
+    setError(false);
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-[450]">
-      <div className={`rounded-2xl border-4 p-6 max-w-xs w-full space-y-4 transition-all ${
-        error
-          ? "bg-red-900 border-red-600 animate-shake"
-          : "bg-slate-900 border-cyan-500"
-      }`}>
-        <h3 className={`text-lg font-black text-center ${error ? "text-red-300" : "text-cyan-400"}`}>
-          {error ? "❌ PIN Errato" : "🔐 Developer Mode"}
-        </h3>
+    <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-5 z-[450] animate-fade-in">
+      <div className="bg-white rounded-3xl p-6 border-4 border-slate-200 shadow-2xl max-w-xs w-full text-center relative overflow-hidden">
+        <button
+          onClick={() => { playClickSound(); onCancel(); }}
+          className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-full w-8 h-8 flex items-center justify-center cursor-pointer transition-colors"
+        >
+          <X size={16} />
+        </button>
 
-        <input
-          type="password"
-          inputMode="numeric"
-          pattern="[0-9]*"
-          value={pin}
-          onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
-          onKeyPress={(e) => e.key === "Enter" && handleSubmit()}
-          placeholder="PIN"
-          className="w-full px-4 py-2 bg-slate-800 border-2 border-cyan-500 rounded text-white font-mono text-center text-2xl tracking-widest"
-          autoFocus
-        />
+        <div className="w-14 h-14 bg-cyan-50 text-cyan-500 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm border border-cyan-100">
+          <span className="text-2xl">🔐</span>
+        </div>
 
-        <div className="grid grid-cols-3 gap-2">
-          {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((digit) => (
-            <button
-              key={digit}
-              type="button"
-              onClick={() => appendDigit(digit)}
-              className="py-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-black rounded transition-all active:scale-95"
+        <h3 className="font-extrabold text-xl text-slate-800 font-serif italic mb-1">Developer Mode</h3>
+        <p className="text-xs text-slate-500 font-medium mb-6 px-4">Inserisci il PIN per accedere</p>
+
+        {/* PIN Display */}
+        <div className={`flex justify-center gap-3 mb-8 ${error ? "animate-wiggle" : ""}`}>
+          {[...Array(4)].map((_, i) => (
+            <div
+              key={i}
+              className={`w-10 h-10 rounded-full flex items-center justify-center text-xl font-bold transition-all ${
+                i < pin.length 
+                  ? (error ? "bg-red-500 text-white scale-110" : "bg-cyan-500 text-white scale-110") 
+                  : "bg-slate-100 text-transparent border-2 border-slate-200"
+              }`}
             >
-              {digit}
+              {i < pin.length ? "•" : ""}
+            </div>
+          ))}
+        </div>
+
+        {/* Keypad */}
+        <div className="grid grid-cols-3 gap-3 mb-2 px-2">
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+            <button
+              key={num}
+              onClick={() => handleNumberClick(num.toString())}
+              className="h-14 rounded-2xl bg-slate-50 border-2 border-slate-100 text-xl font-bold text-slate-700 hover:bg-cyan-50 hover:border-cyan-200 hover:text-cyan-600 active:bg-cyan-100 active:scale-95 transition-all flex items-center justify-center cursor-pointer"
+            >
+              {num}
             </button>
           ))}
+          <div className="h-14" /> {/* Empty spot */}
           <button
-            type="button"
-            onClick={handleBackspace}
-            className="py-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-black rounded transition-all active:scale-95"
-          >
-            ⌫
-          </button>
-          <button
-            type="button"
-            onClick={() => appendDigit("0")}
-            className="py-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-black rounded transition-all active:scale-95"
+            onClick={() => handleNumberClick("0")}
+            className="h-14 rounded-2xl bg-slate-50 border-2 border-slate-100 text-xl font-bold text-slate-700 hover:bg-cyan-50 hover:border-cyan-200 hover:text-cyan-600 active:bg-cyan-100 active:scale-95 transition-all flex items-center justify-center cursor-pointer"
           >
             0
           </button>
           <button
-            type="button"
-            onClick={() => setPin("")}
-            className="py-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-black rounded transition-all active:scale-95"
+            onClick={handleDelete}
+            className="h-14 rounded-2xl bg-slate-100 border-2 border-slate-200 text-slate-600 hover:bg-red-50 hover:border-red-200 hover:text-red-500 active:scale-95 transition-all flex items-center justify-center cursor-pointer"
           >
-            C
+            <X size={20} />
           </button>
         </div>
 
-        <div className="flex gap-2">
-          <button
-            onClick={onCancel}
-            className="flex-1 py-2 px-3 bg-slate-700 hover:bg-slate-600 text-white rounded font-black transition-all"
-          >
-            Annulla
-          </button>
-          <button
-            onClick={handleSubmit}
-            className="flex-1 py-2 px-3 bg-cyan-600 hover:bg-cyan-700 text-black rounded font-black transition-all active:scale-95"
-          >
-            Accedi
-          </button>
-        </div>
+        {error && (
+          <p className="text-xs text-red-500 font-bold mt-2 animate-fade-in">
+            PIN errato, riprova
+          </p>
+        )}
       </div>
     </div>
   );

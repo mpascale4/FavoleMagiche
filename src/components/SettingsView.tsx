@@ -4,6 +4,11 @@ import { AppSettings } from "../types";
 import { playClickSound } from "../utils/audio";
 import ChangePinModal from "./ChangePinModal";
 import { getGenerationLogs, GenerationLog } from "../lib/storyGenerator";
+import { audioEngine } from "../lib/audioEngine";
+import { setForcedNightTheme } from "../utils/theme";
+
+const DEV_FORCED_NIGHT_KEY = "dev_forced_night_mode";
+const DEV_PREV_STYLE_KEY = "dev_prev_stile_visuale";
 
 interface SettingsViewProps {
   settings: AppSettings;
@@ -35,6 +40,14 @@ export default function SettingsView({
   const [showConfirmClear, setShowConfirmClear] = useState(false);
   const [showChangePinModal, setShowChangePinModal] = useState(false);
   const [generationLogs, setGenerationLogs] = useState<GenerationLog[]>([]);
+  const [isDeveloperNightForced, setIsDeveloperNightForced] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      return localStorage.getItem(DEV_FORCED_NIGHT_KEY) === "true";
+    } catch {
+      return false;
+    }
+  });
   const synthRef = useRef<SpeechSynthesis | null>(null);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
@@ -91,6 +104,34 @@ export default function SettingsView({
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      setIsDeveloperNightForced(localStorage.getItem(DEV_FORCED_NIGHT_KEY) === "true");
+    } catch {
+      setIsDeveloperNightForced(false);
+    }
+  }, [settings.stileVisuale]);
+
+  const handleDisableDeveloperNightForce = () => {
+    playClickSound();
+    if (typeof window === "undefined") return;
+
+    try {
+      const previousStyle = (localStorage.getItem(DEV_PREV_STYLE_KEY) || "auto") as AppSettings["stileVisuale"];
+      localStorage.removeItem(DEV_FORCED_NIGHT_KEY);
+      localStorage.removeItem(DEV_PREV_STYLE_KEY);
+
+      audioEngine.setForcedNightMode(null);
+      setForcedNightTheme(null);
+      setIsDeveloperNightForced(false);
+      onUpdateSettings({ stileVisuale: previousStyle });
+    } catch {
+      // In case of storage errors, fallback to non-forced auto style.
+      onUpdateSettings({ stileVisuale: "auto" });
+    }
+  };
 
   // Helper to trigger live voice preview
   const handlePlayPreview = () => {
@@ -215,25 +256,57 @@ export default function SettingsView({
   return (
     <>
       <div className="flex-1 flex flex-col gap-4 p-5 scrollbar-none overflow-y-auto max-h-[640px]">
-      <div className="space-y-4">
-        {/* Back Header */}
-        <div className="flex items-center gap-2 mb-2 shrink-0">
-          <button
-            onClick={() => {
-              playClickSound();
-              if (synthRef.current) {
-                synthRef.current.cancel();
-              }
-              onBack();
-            }}
-            id="btn-back-settings"
-            className="w-9 h-9 bg-white hover:bg-natural-pink-light text-natural-burgundy rounded-xl flex items-center justify-center border-2 border-natural-pink-border shadow-xs transition-colors"
-          >
-            <ArrowLeft size={18} />
-          </button>
+       <div className="space-y-4">
+         {/* Back Header + Developer Mode Button */}
+         <div className="flex items-center gap-2 mb-2 shrink-0">
+           <button
+             onClick={() => {
+               playClickSound();
+               if (synthRef.current) {
+                 synthRef.current.cancel();
+               }
+               onBack();
+             }}
+             id="btn-back-settings"
+             className="w-9 h-9 bg-white hover:bg-natural-pink-light text-natural-burgundy rounded-xl flex items-center justify-center border-2 border-natural-pink-border shadow-xs transition-colors cursor-pointer"
+           >
+             <ArrowLeft size={18} />
+           </button>
 
-          <h3 className="text-lg font-bold text-natural-burgundy font-serif italic flex-1">Impostazioni App</h3>
-        </div>
+           <h3 className="text-lg font-bold text-natural-burgundy font-serif italic flex-1">Impostazioni App</h3>
+
+           {/* Developer Mode Button - Top Right */}
+           <button
+             onClick={() => {
+               playClickSound();
+               onOpenDeveloperMode?.();
+             }}
+             className="w-9 h-9 bg-slate-800/40 hover:bg-slate-700/60 border border-slate-600 text-slate-400 hover:text-slate-300 rounded-xl flex items-center justify-center transition-all cursor-pointer"
+             title="🧪 Developer Mode"
+           >
+             <Terminal size={16} />
+           </button>
+         </div>
+
+         {isDeveloperNightForced && (
+           <section
+             className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-3 flex items-start gap-2"
+             aria-label="Tema notturno forzato attivo"
+           >
+             <span aria-hidden="true" className="text-base leading-none mt-0.5">🌙</span>
+             <div className="flex-1 min-w-0">
+               <p className="text-[11px] font-extrabold text-amber-900">Tema notturno forzato da Developer Mode</p>
+               <p className="text-[10px] font-semibold text-amber-800">Puoi disattivarlo qui e ripristinare lo stile precedente.</p>
+             </div>
+             <button
+               type="button"
+               onClick={handleDisableDeveloperNightForce}
+               className="px-2.5 py-1.5 rounded-lg bg-amber-700 hover:bg-amber-800 text-white text-[10px] font-black transition-colors cursor-pointer"
+             >
+               Ripristina
+             </button>
+           </section>
+         )}
 
         <div className="bg-white rounded-[2rem] p-4 border-4 border-natural-pink-border shadow-sm space-y-3">
           <div className="flex items-center justify-between gap-2">
@@ -723,21 +796,22 @@ export default function SettingsView({
           <li><span className="text-emerald-950">Voce Sicura:</span> La sintesi vocale (TTS) è eseguita localmente dal browser e non invia streaming audio a server esterni.</li>
           <li><span className="text-emerald-950">Nessuna Pubblicità:</span> Nessun tracciatore o pubblicità per garantire un'esperienza serena.</li>
         </ul>
-      </div>
+       </div>
+     </div>
 
-      {/* Danger Zone */}
-      <div className="space-y-2 shrink-0 pb-1">
-        <button
-          onClick={() => setShowConfirmClear(true)}
-          id="btn-clear-archive-settings"
-          className="w-full py-2.5 bg-red-50 hover:bg-red-100 text-[#C2185B] border-2 border-red-200 rounded-full text-xs font-black flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm"
-        >
-          <Trash2 size={13} /> Svuota Intero Archivio Storie
-        </button>
-        <p className="text-[8px] text-slate-400 text-center font-bold">
-          Versione dell'applicazione: 2.1.0 &bull; Licenza Apache 2.0
-        </p>
-      </div>
+     {/* Danger Zone */}
+     <div className="px-4 space-y-2 shrink-0 pb-1">
+       <button
+         onClick={() => setShowConfirmClear(true)}
+         id="btn-clear-archive-settings"
+         className="w-full py-2.5 bg-red-50 hover:bg-red-100 text-[#C2185B] border-2 border-red-200 rounded-full text-xs font-black flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm"
+       >
+         <Trash2 size={13} /> Svuota Intero Archivio Storie
+       </button>
+       <p className="text-[8px] text-slate-400 text-center font-bold">
+         Versione dell'applicazione: 2.1.0 &bull; Licenza Apache 2.0
+       </p>
+     </div>
 
       {/* Custom Archive Emptying Confirmation Modal */}
       {showConfirmClear && (
@@ -783,24 +857,8 @@ export default function SettingsView({
           }}
           onCancel={() => setShowChangePinModal(false)}
         />
-      )}
+       )}
 
-      {/* Secret Developer Mode Button */}
-      <div className="px-4">
-        <button
-          onClick={() => {
-            playClickSound();
-            onOpenDeveloperMode?.();
-          }}
-          className="w-full py-2 px-3 bg-slate-800/40 hover:bg-slate-700/60 border border-slate-600 text-slate-400 hover:text-slate-300 rounded-lg text-xs font-mono transition-all flex items-center justify-center gap-2"
-          title="🧪"
-        >
-          <Terminal size={14} />
-          <span>Developer Mode</span>
-        </button>
-      </div>
-      </div>
-
-    </>
-  );
-}
+     </>
+   );
+ }

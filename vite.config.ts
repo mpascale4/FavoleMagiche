@@ -11,6 +11,19 @@ export default defineConfig(() => {
         '@': path.resolve(__dirname, '.'),
       },
     },
+    build: {
+      chunkSizeWarningLimit: 1000, // Aumenta il limite a 1MB per sopprimere l'avviso
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            // Separa le dipendenze principali in chunk separati
+            'motion': ['motion/react'],
+            'lucide': ['lucide-react'],
+            'canvas-confetti': ['canvas-confetti'],
+          },
+        },
+      },
+    },
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
       // Do not modifyâfile watching is disabled to prevent flickering during agent edits.

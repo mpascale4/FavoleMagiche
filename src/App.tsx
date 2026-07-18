@@ -1731,6 +1731,8 @@ export default function App() {
       {/* Developer Mode */}
       {isDeveloperMode && (
         <DeveloperMode
+          settings={settings}
+          onUpdateSettings={handleUpdateSettings}
           onTestStageAchievement={handleTestStageAchievement}
           onTestWorldAchievement={handleTestWorldAchievement}
           onClose={() => setIsDeveloperMode(false)}

@@ -10,8 +10,14 @@ class AudioEngine {
   private musicPlaying = false;
   private currentStep = 0;
   private isNightAudio = false;
+  private forcedNightMode: boolean | null = null;
 
   private shouldUseNightAudio(): boolean {
+    // Check if night mode is forced for testing
+    if (this.forcedNightMode !== null) {
+      return this.forcedNightMode;
+    }
+
     try {
       if (typeof window !== "undefined") {
         const saved = localStorage.getItem("favole_magiche_settings");
@@ -27,6 +33,15 @@ class AudioEngine {
       // Fall back to time-based detection.
     }
     return shouldApplyNightTheme();
+  }
+
+  public setForcedNightMode(forced: boolean | null) {
+    this.forcedNightMode = forced;
+    this.refreshThemeAudioMode();
+  }
+
+  public getForcedNightMode(): boolean | null {
+    return this.forcedNightMode;
   }
 
   public refreshThemeAudioMode() {
