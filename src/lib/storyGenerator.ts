@@ -1,6 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { Character } from "../types";
-import { GEMINI_API_KEY } from "../config/api";
+import { GEMINI_API_KEY, getGeminiApiKeyStatus } from "../config/api";
 
 export interface GenerationLog {
   timestamp: string;
@@ -271,9 +271,13 @@ export async function generateStoryClient(
   options.onProgress?.(12, "Preparazione dell'incantesimo (elaborazione lato client)...");
   ensureNotCancelled(options.isCancelled);
 
-  if (!GEMINI_API_KEY) {
+  const apiStatus = getGeminiApiKeyStatus();
+  if (apiStatus === "missing") {
     options.onProgress?.(75, "Chiave API non trovata. Uso il piano di riserva...");
     return generateFallbackStory(config, "Chiave API Gemini mancante nel file .env");
+  } else if (apiStatus === "placeholder") {
+    options.onProgress?.(75, "Chiave API non valida (placeholder). Uso il piano di riserva...");
+    return generateFallbackStory(config, "Chiave API Gemini non valida (placeholder)");
   }
 
   try {
