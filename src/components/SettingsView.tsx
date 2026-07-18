@@ -17,6 +17,7 @@ interface SettingsViewProps {
   onUpdateSettings: (settings: Partial<AppSettings>) => void;
   onClearArchive: () => void;
   onBack: () => void;
+  onOpenDeveloperMode?: () => void;
 }
 
 export default function SettingsView({
@@ -25,7 +26,8 @@ export default function SettingsView({
   geminiRuntimeStatus,
   onUpdateSettings,
   onBack,
-  onClearArchive
+  onClearArchive,
+  onOpenDeveloperMode
 }: SettingsViewProps) {
   
   const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
@@ -767,6 +769,21 @@ export default function SettingsView({
           onCancel={() => setShowChangePinModal(false)}
         />
       )}
+
+      {/* Secret Developer Mode Button */}
+      <div className="mt-8 px-4">
+        <button
+          onClick={() => {
+            playClickSound();
+            onOpenDeveloperMode?.();
+          }}
+          className="w-full py-2 px-3 bg-slate-800/40 hover:bg-slate-700/60 border border-slate-600 text-slate-400 hover:text-slate-300 rounded-lg text-xs font-mono transition-all flex items-center justify-center gap-2"
+          title="🧪"
+        >
+          <Terminal size={14} />
+          <span>Developer Mode</span>
+        </button>
+      </div>
       </div>
 
     </>

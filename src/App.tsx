@@ -14,6 +14,8 @@ import ChangePinModal from "./components/ChangePinModal";
 import ParentalGateModal from "./components/ParentalGateModal";
 import GenerationErrorModal from "./components/GenerationErrorModal";
 import AchievementModal from "./components/AchievementModal";
+import DeveloperMode from "./components/DeveloperMode";
+import DeveloperPinModal from "./components/DeveloperPinModal";
 import { audioEngine } from "./lib/audioEngine";
 import { playFairyChorusSound, playClickSound } from "./utils/audio";
 import { ChildProfile, DeletedProfile, DeletedStory, Story, AppSettings, ScreenType, Character, CATEGORIES, EDUCATIONAL_THEMES, INITIAL_CATEGORIES, INITIAL_THEMES, CHARACTER_TYPES, INITIAL_CHARACTER_TYPES, CHARACTER_TRAITS, INITIAL_CHARACTER_TRAITS } from "./types";
@@ -133,6 +135,8 @@ export default function App() {
   const [generationError, setGenerationError] = useState<{ title: string; message: string; reason: string } | null>(null);
   const [achievementModal, setAchievementModal] = useState<Achievement | null>(null);
   const [achievementQueue, setAchievementQueue] = useState<Achievement[]>([]);
+  const [showDeveloperPinModal, setShowDeveloperPinModal] = useState<boolean>(false);
+  const [isDeveloperMode, setIsDeveloperMode] = useState<boolean>(false);
 
   // Loading state for story creation parameters to show on generating screen
   const [currentGenerationConfig, setCurrentGenerationConfig] = useState<{
@@ -886,6 +890,30 @@ export default function App() {
     }
   };
 
+  // Developer Mode Test Functions
+  const handleTestStageAchievement = (stageIndex: number) => {
+    const achievements = checkMilestonesReached(stageIndex - 1, stageIndex);
+    console.log(`🧪 Stage ${stageIndex} achievement:`, achievements);
+    if (achievements.length > 0) {
+      setAchievementModal(achievements[0]);
+      if (achievements.length > 1) {
+        setAchievementQueue(prev => [...prev, ...achievements.slice(1)]);
+      }
+    }
+  };
+
+  const handleTestWorldAchievement = (worldIndex: number) => {
+    const lastStageIndex = worldIndex * 5;
+    const achievements = checkMilestonesReached(lastStageIndex - 1, lastStageIndex);
+    console.log(`🧪 World ${worldIndex} achievement:`, achievements);
+    if (achievements.length > 0) {
+      setAchievementModal(achievements[achievements.length - 1]); // Show world completion
+      if (achievements.length > 1) {
+        setAchievementQueue(prev => [...prev, ...achievements.slice(0, -1)]);
+      }
+    }
+  };
+
   const geminiKeyStatus = getGeminiApiKeyStatus();
   const showGeminiBanner = import.meta.env.DEV && geminiKeyStatus !== "loaded";
 
@@ -1088,6 +1116,7 @@ export default function App() {
           onUpdateSettings={handleUpdateSettings}
           onClearArchive={handleClearArchive}
           onBack={() => setScreen("home")}
+          onOpenDeveloperMode={() => setShowDeveloperPinModal(true)}
         />
       )}
 
@@ -1504,6 +1533,26 @@ export default function App() {
             </button>
           </div>
         </div>
+      )}
+
+      {/* Developer Mode PIN Modal */}
+      {showDeveloperPinModal && (
+        <DeveloperPinModal
+          onSuccess={() => {
+            setShowDeveloperPinModal(false);
+            setIsDeveloperMode(true);
+          }}
+          onCancel={() => setShowDeveloperPinModal(false)}
+        />
+      )}
+
+      {/* Developer Mode */}
+      {isDeveloperMode && (
+        <DeveloperMode
+          onTestStageAchievement={handleTestStageAchievement}
+          onTestWorldAchievement={handleTestWorldAchievement}
+          onClose={() => setIsDeveloperMode(false)}
+        />
       )}
     </PhoneMockup>
     </>
