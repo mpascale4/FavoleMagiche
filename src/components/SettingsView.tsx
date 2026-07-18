@@ -1,14 +1,23 @@
 import React, { useState, useEffect, useRef } from "react";
-import { ArrowLeft, HardDrive, AlertTriangle, Trash2, Volume2, Play, Square, Music, Sliders, Settings, Lock, Terminal } from "lucide-react";
+import { ArrowLeft, HardDrive, AlertTriangle, Trash2, Volume2, Play, Square, Music, Sliders, Settings, Lock, Terminal, Sun, Moon, RefreshCcw } from "lucide-react";
 import { AppSettings } from "../types";
 import { playClickSound } from "../utils/audio";
 import ChangePinModal from "./ChangePinModal";
 import { getGenerationLogs, GenerationLog } from "../lib/storyGenerator";
 import { audioEngine } from "../lib/audioEngine";
-import { setForcedNightTheme } from "../utils/theme";
+import { getForcedNightTheme, setForcedNightTheme, shouldApplyNightTheme } from "../utils/theme";
 
 const DEV_FORCED_NIGHT_KEY = "dev_forced_night_mode";
 const DEV_PREV_STYLE_KEY = "dev_prev_stile_visuale";
+
+const isDeveloperForcedNightFromStorage = (): boolean => {
+  if (typeof window === "undefined") return false;
+  try {
+    return localStorage.getItem(DEV_FORCED_NIGHT_KEY) === "true" && !!localStorage.getItem(DEV_PREV_STYLE_KEY);
+  } catch {
+    return false;
+  }
+};
 
 interface SettingsViewProps {
   settings: AppSettings;
@@ -40,14 +49,8 @@ export default function SettingsView({
   const [showConfirmClear, setShowConfirmClear] = useState(false);
   const [showChangePinModal, setShowChangePinModal] = useState(false);
   const [generationLogs, setGenerationLogs] = useState<GenerationLog[]>([]);
-  const [isDeveloperNightForced, setIsDeveloperNightForced] = useState<boolean>(() => {
-    if (typeof window === "undefined") return false;
-    try {
-      return localStorage.getItem(DEV_FORCED_NIGHT_KEY) === "true";
-    } catch {
-      return false;
-    }
-  });
+  const [isDeveloperNightForced, setIsDeveloperNightForced] = useState<boolean>(() => isDeveloperForcedNightFromStorage());
+  const [nowMs, setNowMs] = useState(() => Date.now());
   const synthRef = useRef<SpeechSynthesis | null>(null);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
@@ -108,11 +111,42 @@ export default function SettingsView({
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
-      setIsDeveloperNightForced(localStorage.getItem(DEV_FORCED_NIGHT_KEY) === "true");
+      setIsDeveloperNightForced(isDeveloperForcedNightFromStorage());
     } catch {
       setIsDeveloperNightForced(false);
     }
   }, [settings.stileVisuale]);
+
+  useEffect(() => {
+    const interval = setInterval(() => setNowMs(Date.now()), 60_000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const forcedTheme = getForcedNightTheme();
+  const themeMode: "auto" | "chiaro" | "scuro" = forcedTheme === null ? "auto" : forcedTheme ? "scuro" : "chiaro";
+  const autoNightByTime = (() => {
+    const hour = new Date(nowMs).getHours();
+    return hour >= 18 || hour < 6;
+  })();
+  const effectiveNight = shouldApplyNightTheme();
+
+  const handleThemeModeChange = (mode: "auto" | "chiaro" | "scuro") => {
+    playClickSound();
+    const forced = mode === "auto" ? null : mode === "scuro";
+    try {
+      // User-driven override: clear Developer Mode restore marker.
+      if (typeof window !== "undefined") {
+        localStorage.removeItem(DEV_PREV_STYLE_KEY);
+      }
+    } catch {
+      // Ignore storage errors.
+    }
+    audioEngine.setForcedNightMode(forced);
+    setForcedNightTheme(forced);
+    setIsDeveloperNightForced(false);
+    // Trigger a normal settings update so the whole app rerenders theme-sensitive views.
+    onUpdateSettings({ stileVisuale: settings.stileVisuale || "auto" });
+  };
 
   const handleDisableDeveloperNightForce = () => {
     playClickSound();
@@ -625,6 +659,55 @@ export default function SettingsView({
               className="w-4 h-4 rounded-md accent-[#EC407A] shrink-0"
             />
           </label>
+
+          {/* Light/Dark Theme Mode */}
+          <div className="space-y-2.5 border-t border-slate-100 mt-1 pt-2">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5 pr-2">
+                <span className="font-extrabold text-natural-burgundy block text-xs">Tema Giorno / Notte</span>
+                <span className="text-[9px] text-theme-secondary block font-bold leading-tight">
+                  Stato attuale: {effectiveNight ? "Notte (scuro)" : "Giorno (chiaro)"}
+                </span>
+              </div>
+              <span className={`text-[9px] font-black px-2 py-1 rounded-full border ${effectiveNight ? "bg-indigo-900 text-indigo-100 border-indigo-700" : "bg-amber-100 text-amber-900 border-amber-300"}`} aria-live="polite">
+                {effectiveNight ? "🌙 NOTTE" : "☀️ GIORNO"}
+              </span>
+            </div>
+
+            <p className="text-[9px] text-theme-secondary font-semibold">
+              Momento reale: {autoNightByTime ? "notte" : "giorno"} · Modalita: {themeMode}
+            </p>
+
+            <div role="radiogroup" aria-label="Selezione tema chiaro o scuro" className="grid grid-cols-3 gap-1.5">
+              <button
+                type="button"
+                role="radio"
+                aria-checked={themeMode === "auto"}
+                onClick={() => handleThemeModeChange("auto")}
+                className={`rounded-xl border-2 px-2 py-1.5 text-[9px] font-extrabold transition-all cursor-pointer flex items-center justify-center gap-1 ${themeMode === "auto" ? "bg-natural-pink-light border-natural-pink text-natural-burgundy" : "bg-white border-natural-pink-border text-theme-secondary hover:bg-natural-pink-light/40"}`}
+              >
+                <RefreshCcw size={10} aria-hidden="true" /> Auto
+              </button>
+              <button
+                type="button"
+                role="radio"
+                aria-checked={themeMode === "chiaro"}
+                onClick={() => handleThemeModeChange("chiaro")}
+                className={`rounded-xl border-2 px-2 py-1.5 text-[9px] font-extrabold transition-all cursor-pointer flex items-center justify-center gap-1 ${themeMode === "chiaro" ? "bg-amber-100 border-amber-300 text-amber-900" : "bg-white border-amber-200 text-theme-secondary hover:bg-amber-50"}`}
+              >
+                <Sun size={10} aria-hidden="true" /> Chiaro
+              </button>
+              <button
+                type="button"
+                role="radio"
+                aria-checked={themeMode === "scuro"}
+                onClick={() => handleThemeModeChange("scuro")}
+                className={`rounded-xl border-2 px-2 py-1.5 text-[9px] font-extrabold transition-all cursor-pointer flex items-center justify-center gap-1 ${themeMode === "scuro" ? "bg-indigo-900 border-indigo-700 text-indigo-100" : "bg-white border-indigo-200 text-theme-secondary hover:bg-indigo-50"}`}
+              >
+                <Moon size={10} aria-hidden="true" /> Scuro
+              </button>
+            </div>
+          </div>
 
           {/* Visual Style Theme Dropdown */}
           <div className="flex items-center justify-between text-xs py-1.5 border-t border-slate-100 mt-1">
