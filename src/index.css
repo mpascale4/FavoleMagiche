@@ -51,6 +51,20 @@
   color: color-mix(in srgb, var(--app-text-secondary) 78%, var(--app-text-primary));
 }
 
+/* Enforce high-contrast text inside prominent cards. */
+.hc-card {
+  --hc-card-title: var(--app-text-primary);
+  --hc-card-subtitle: color-mix(in srgb, var(--app-text-secondary) 88%, var(--app-text-primary));
+}
+
+.hc-card .hc-card-title {
+  color: var(--hc-card-title);
+}
+
+.hc-card .hc-card-subtitle {
+  color: var(--hc-card-subtitle);
+}
+
 :focus-visible {
   outline: 3px solid var(--app-primary);
   outline-offset: 3px;

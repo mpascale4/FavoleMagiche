@@ -197,28 +197,30 @@ export default function HomeView({
           aria-disabled={isGenerating}
           aria-label={isGenerating ? "Generazione in corso, pulsante disabilitato" : "Crea una nuova storia"}
           id="btn-menu-new-story"
-          className={`group w-full p-3.5 rounded-2xl border-4 transition-all duration-200 flex items-center gap-3.5 text-left cursor-pointer ${
+          className={`group hc-card w-full p-3.5 rounded-2xl border-4 transition-all duration-200 flex items-center gap-3.5 text-left cursor-pointer ${
             isGenerating 
                 ? "bg-slate-100 border-slate-300 text-theme-secondary cursor-not-allowed opacity-75" 
-              : "bg-[#FFFDE7] hover:bg-[#FFF9C4] text-natural-text border-natural-yellow-light shadow-sm active:scale-[0.98]"
+              : "bg-yellow-50 hover:bg-yellow-100 text-natural-text border-yellow-200 shadow-sm active:scale-[0.98]"
           }`}
         >
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl shadow-xs border shrink-0 transition-transform duration-300 ${
             isGenerating 
               ? "bg-slate-200 border-slate-300 text-theme-secondary" 
-              : "bg-white border-natural-yellow-light group-hover:scale-105"
+              : "bg-white border-yellow-200 group-hover:scale-105"
           }`}>
             {settings?.modalitaBambino ? "🔒" : (isGenerating ? "⏳" : "🪄")}
           </div>
           <div className="flex-1 min-w-0">
             <h3 className={`font-extrabold text-sm flex items-center gap-1 leading-none ${
-              isGenerating ? "text-theme-secondary" : "text-theme-primary"
+              isGenerating ? "text-theme-secondary" : "hc-card-title"
             }`}>
-              {settings?.modalitaBambino && <Lock size={12} className="text-theme-primary shrink-0" />}
+              {settings?.modalitaBambino && <Lock size={12} className="hc-card-title shrink-0" />}
               {isGenerating ? "Generazione in corso..." : "Nuova Storia"}
-              {!isGenerating && <Sparkles size={12} className="text-theme-primary fill-current shrink-0" />}
+              {!isGenerating && <Sparkles size={12} className="hc-card-title fill-current shrink-0" />}
             </h3>
-            <p className="text-[10px] font-bold leading-tight text-theme-secondary">
+            <p className={`text-[10px] font-bold leading-tight ${
+              isGenerating ? "text-theme-secondary" : "hc-card-subtitle"
+            }`}>
               {settings?.modalitaBambino
                 ? "Disattiva la Modalità Bambino per creare una nuova favola" 
                 : (isGenerating 
@@ -240,28 +242,28 @@ export default function HomeView({
           aria-disabled={isGenerating}
           aria-label={isGenerating ? "Generazione in corso, favola della buonanotte non disponibile" : "Crea una favola della buonanotte"}
           id="btn-menu-bedtime-story"
-          className={`group w-full p-3.5 rounded-2xl border-4 transition-all duration-200 flex items-center gap-3.5 text-left ${
+          className={`group hc-card w-full p-3.5 rounded-2xl border-4 transition-all duration-200 flex items-center gap-3.5 text-left ${
             isGenerating 
                 ? "bg-slate-100 border-slate-300 text-theme-secondary cursor-not-allowed opacity-75" 
-              : "bg-[#E8EAF6] hover:bg-[#C5CAE9]/30 text-slate-950 border-[#9FA8DA] shadow-sm active:scale-[0.98] cursor-pointer"
+              : "bg-indigo-50 hover:bg-indigo-100 text-slate-950 border-indigo-300 shadow-sm active:scale-[0.98] cursor-pointer"
           }`}
         >
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl shadow-xs border shrink-0 transition-transform duration-300 ${
             isGenerating 
               ? "bg-slate-200 border-slate-300 text-theme-secondary" 
-              : "bg-[#1A237E] border-[#3F51B5] group-hover:scale-105"
+              : "bg-indigo-900 border-indigo-700 group-hover:scale-105"
           }`}>
             {settings?.modalitaBambino ? "🔒" : "🌙"}
           </div>
           <div className="flex-1 min-w-0">
             <h3 className={`font-extrabold text-xs flex items-center gap-1 ${
-              isGenerating ? "text-theme-secondary" : "text-[#3F51B5]"
+              isGenerating ? "text-theme-secondary" : "hc-card-title"
             }`}>
-              {settings?.modalitaBambino && <Lock size={12} className="text-[#3F51B5] shrink-0" />}
+              {settings?.modalitaBambino && <Lock size={12} className="hc-card-title shrink-0" />}
               Favola della Buonanotte
             </h3>
             <p className={`text-[9px] font-semibold leading-tight ${
-              isGenerating ? "text-theme-secondary" : "text-theme-secondary"
+              isGenerating ? "text-theme-secondary" : "hc-card-subtitle"
             }`}>
               Storie rilassanti, suoni dolci e modalità notte per sogni d'oro ✨
             </p>
