@@ -2,9 +2,13 @@ const DB_NAME = "FavoleMagicheAudioDB";
 const STORE_NAME = "recordings";
 const DB_VERSION = 1;
 
+function isIndexedDbSupported(): boolean {
+  return typeof indexedDB !== "undefined";
+}
+
 function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    if (typeof indexedDB === "undefined") {
+    if (!isIndexedDbSupported()) {
       reject(new Error("IndexedDB is not supported on this platform"));
       return;
     }
@@ -42,6 +46,10 @@ export async function getAudioRecording(
   pageIndex: number,
   readerType: string
 ): Promise<Blob | null> {
+  if (!isIndexedDbSupported()) {
+    return null;
+  }
+
   try {
     const db = await openDB();
     return new Promise((resolve, reject) => {
@@ -76,10 +84,14 @@ export async function deleteAudioRecording(
 
 export async function getStoryRecordingsMap(
   storyId: string,
-  totalPages: number
+  _totalPages: number
 ): Promise<Record<string, string>> {
   const map: Record<string, string> = {};
   const readerTypes = ["user"];
+
+  if (!isIndexedDbSupported()) {
+    return map;
+  }
 
   for (const reader of readerTypes) {
     const blob = await getAudioRecording(storyId, -1, reader);

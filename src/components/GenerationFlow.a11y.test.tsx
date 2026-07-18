@@ -39,7 +39,7 @@ describe('Generation flow accessibility', () => {
       />,
     );
 
-    expect(screen.getByRole('dialog', { name: /Errore/i })).toBeInTheDocument();
+    expect(screen.getByRole('alertdialog', { name: /Errore/i })).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /Chiudi errore e torna indietro/i }));
     expect(onCancel).toHaveBeenCalledTimes(1);

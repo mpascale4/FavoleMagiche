@@ -4,22 +4,27 @@
  */
 
 import { shouldApplyNightTheme } from "./theme";
+import { readJsonStorage } from "./storage";
 
 let audioCtx: AudioContext | null = null;
 
+type AppAudioSettings = {
+  audioAdattivo?: boolean;
+  stileVisuale?: "auto" | "notte" | string;
+  effettiAudio?: boolean;
+};
+
+function readStoredAudioSettings(): AppAudioSettings | null {
+  return readJsonStorage<AppAudioSettings | null>("favole_magiche_settings", null);
+}
+
 function shouldUseNightAudioMode(): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    const saved = localStorage.getItem("favole_magiche_settings");
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (parsed.audioAdattivo === false) return false;
-      const visualStyle = parsed.stileVisuale || "auto";
-      if (visualStyle === "notte") return true;
-      if (visualStyle !== "auto") return false;
-    }
-  } catch (e) {
-    // Ignore and fallback to time-based detection.
+  const parsed = readStoredAudioSettings();
+  if (parsed) {
+    if (parsed.audioAdattivo === false) return false;
+    const visualStyle = parsed.stileVisuale || "auto";
+    if (visualStyle === "notte") return true;
+    if (visualStyle !== "auto") return false;
   }
   return shouldApplyNightTheme();
 }
@@ -40,25 +45,25 @@ function getAudioContext(): AudioContext | null {
 }
 
 function isSfxEnabled(): boolean {
-  if (typeof window === "undefined") return true;
-  try {
-    const saved = localStorage.getItem("favole_magiche_settings");
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      return parsed.effettiAudio !== false;
-    }
-  } catch (e) {}
+  const parsed = readStoredAudioSettings();
+  if (parsed) {
+    return parsed.effettiAudio !== false;
+  }
   return true;
+}
+
+function withAudioContext(play: (ctx: AudioContext) => void): void {
+  if (!isSfxEnabled()) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  play(ctx);
 }
 
 /**
  * A fast, high-pitched magical sparkle when secret options are toggled.
  */
 export function playPlinkSound() {
-  if (!isSfxEnabled()) return;
-  const ctx = getAudioContext();
-  if (!ctx) return;
-
+  withAudioContext((ctx) => {
   const now = ctx.currentTime;
   
   // Note 1
@@ -90,16 +95,14 @@ export function playPlinkSound() {
   gain2.connect(ctx.destination);
   osc2.start(now + 0.05);
   osc2.stop(now + 0.25);
+  });
 }
 
 /**
  * A rich, warm fairy choir chord with slow attack and starry sparkles.
  */
 export function playFairyChorusSound() {
-  if (!isSfxEnabled()) return;
-  const ctx = getAudioContext();
-  if (!ctx) return;
-
+  withAudioContext((ctx) => {
   const now = ctx.currentTime;
   const night = shouldUseNightAudioMode();
   const frequencies = night
@@ -142,16 +145,14 @@ export function playFairyChorusSound() {
     oscChime.start();
     oscChime.stop(ctx.currentTime + 0.5);
   }, 250);
+  });
 }
 
 /**
  * A cute, friendly retro double-beep ("bip-bip") when adding/modifying characters.
  */
 export function playRobotBeepSound() {
-  if (!isSfxEnabled()) return;
-  const ctx = getAudioContext();
-  if (!ctx) return;
-
+  withAudioContext((ctx) => {
   const now = ctx.currentTime;
 
   // Bip 1 (short, square wave for synth texture)
@@ -181,15 +182,14 @@ export function playRobotBeepSound() {
   gain2.connect(ctx.destination);
   osc2.start(now + 0.09);
   osc2.stop(now + 0.22);
+  });
 }
 
 /**
  * A soft, pleasant click/tap sound for general UI interactions.
  */
 export function playClickSound() {
-  if (!isSfxEnabled()) return;
-  const ctx = getAudioContext();
-  if (!ctx) return;
+  withAudioContext((ctx) => {
   const now = ctx.currentTime;
   const night = shouldUseNightAudioMode();
   const osc = ctx.createOscillator();
@@ -206,15 +206,14 @@ export function playClickSound() {
   gain.connect(ctx.destination);
   osc.start(now);
   osc.stop(now + 0.06);
+  });
 }
 
 /**
  * A beautiful upward chime chord for starting a "Nuova Storia".
  */
 export function playNewStoryClickSound() {
-  if (!isSfxEnabled()) return;
-  const ctx = getAudioContext();
-  if (!ctx) return;
+  withAudioContext((ctx) => {
   const now = ctx.currentTime;
   const notes = [392.00, 523.25, 659.25, 783.99]; // G4, C5, E5, G5
   
@@ -235,15 +234,14 @@ export function playNewStoryClickSound() {
     osc.start(time);
     osc.stop(time + 0.3);
   });
+  });
 }
 
 /**
  * A rising, swirling magical frequency sweep for the "Genera" action.
  */
 export function playGenerateClickSound() {
-  if (!isSfxEnabled()) return;
-  const ctx = getAudioContext();
-  if (!ctx) return;
+  withAudioContext((ctx) => {
   const now = ctx.currentTime;
   
   // High-pitched magical whoosh / sweep
@@ -269,15 +267,14 @@ export function playGenerateClickSound() {
   
   osc.start(now);
   osc.stop(now + 0.65);
+  });
 }
 
 /**
  * A mystery chest open sound for "Apri Box" daily rewards.
  */
 export function playOpenBoxClickSound() {
-  if (!isSfxEnabled()) return;
-  const ctx = getAudioContext();
-  if (!ctx) return;
+  withAudioContext((ctx) => {
   const now = ctx.currentTime;
   const night = shouldUseNightAudioMode();
 
@@ -315,6 +312,7 @@ export function playOpenBoxClickSound() {
     
     osc.start(time);
     osc.stop(time + 0.45);
+  });
   });
 }
 

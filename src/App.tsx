@@ -25,12 +25,22 @@ import { generateStoryClient, StoryGenerationConfig } from "./lib/storyGenerator
 import { getGeminiApiKeyStatus } from "./config/api";
 import { getGenerationLogs } from "./lib/storyGenerator";
 import { checkMilestonesReached, getAchievementById, type Achievement, type AchievementReward } from "./utils/achievements";
+import { getProfileStorageKey, hasStorageItem, readJsonStorage, removeStorageItem, setStorageItem, getStorageItem } from "./utils/storage";
 
 type GeminiRuntimeStatus = {
   state: "unknown" | "ok" | "fallback";
   message: string;
   model?: string;
   updatedAt?: string;
+};
+
+type BedtimeStoryConfig = {
+  categoria: string;
+  temaEducativo: string;
+  durata: "Breve";
+  personaggi: Character[];
+  nomeBambino: string;
+  etaBambino: number;
 };
 
 // Seeding standard child profiles for instant trial
@@ -110,16 +120,7 @@ export default function App() {
       message: "Nessuna generazione eseguita in questa sessione"
     };
 
-    if (typeof window === "undefined") {
-      return defaultState;
-    }
-
-    try {
-      const raw = localStorage.getItem("favole_magiche_gemini_runtime_status");
-      return raw ? JSON.parse(raw) : defaultState;
-    } catch {
-      return defaultState;
-    }
+    return readJsonStorage("favole_magiche_gemini_runtime_status", defaultState);
   });
 
   // Daily content unlocking states
@@ -153,6 +154,28 @@ export default function App() {
     settings: "Impostazioni",
     albero: "Albero della crescita",
     premium: "Premium",
+  };
+
+  const buildBedtimeStoryConfig = (): BedtimeStoryConfig => {
+    const targetCat = unlockedCategories.includes("Natura") ? "Natura" : (unlockedCategories[0] || "Fantasy");
+    const targetTema = unlockedThemes.includes("Gentilezza")
+      ? "Gentilezza"
+      : (unlockedThemes.includes("Pazienza")
+          ? "Pazienza"
+          : (unlockedThemes.includes("Gratitudine") ? "Gratitudine" : (unlockedThemes[0] || "Gentilezza")));
+
+    const characterType = unlockedCharacterTypes.includes("Cucciolo") ? "Cucciolo" : (unlockedCharacterTypes[0] || "Cucciolo");
+    const characterTrait = unlockedCharacterTraits.includes("Gentile") ? "Gentile" : (unlockedCharacterTraits[0] || "Sensibile");
+    const profile = activeProfile;
+
+    return {
+      categoria: targetCat,
+      temaEducativo: targetTema,
+      durata: "Breve",
+      personaggi: [{ nome: "Nuvola", tipo: characterType, caratteristica: characterTrait }],
+      nomeBambino: profile?.nome || "Piccolo lettore",
+      etaBambino: profile ? (new Date().getFullYear() - profile.annoNascita) : 5
+    };
   };
 
   const getPrioritizedAchievementFlow = (achievements: Achievement[]): { current: Achievement; queue: Achievement[] } | null => {
@@ -228,16 +251,16 @@ export default function App() {
   // Load state from localStorage on mount
   useEffect(() => {
     // 1. Child Profiles
-    const savedProfiles = localStorage.getItem("favole_magiche_profiles");
+    const savedProfiles = getStorageItem("favole_magiche_profiles");
     if (savedProfiles) {
       setProfiles(JSON.parse(savedProfiles));
     } else {
       setProfiles(INITIAL_PROFILES);
-      localStorage.setItem("favole_magiche_profiles", JSON.stringify(INITIAL_PROFILES));
+      setStorageItem("favole_magiche_profiles", JSON.stringify(INITIAL_PROFILES));
     }
 
     // 1.5. Deleted Profiles (Backup / Recycle Bin)
-    const savedDeletedProfiles = localStorage.getItem("favole_magiche_deleted_profiles");
+    const savedDeletedProfiles = getStorageItem("favole_magiche_deleted_profiles");
     if (savedDeletedProfiles) {
       try {
         const parsed: DeletedProfile[] = JSON.parse(savedDeletedProfiles);
@@ -245,37 +268,37 @@ export default function App() {
         const oneMonthAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
         const validBackups = parsed.filter(dp => new Date(dp.deletedAt).getTime() > oneMonthAgo);
         setDeletedProfiles(validBackups);
-        localStorage.setItem("favole_magiche_deleted_profiles", JSON.stringify(validBackups));
+        setStorageItem("favole_magiche_deleted_profiles", JSON.stringify(validBackups));
       } catch (e) {
         console.error("Error parsing deleted profiles", e);
       }
     }
 
     // 1.6. Deleted Stories
-    const savedDeletedStories = localStorage.getItem("favole_magiche_deleted_stories");
+    const savedDeletedStories = getStorageItem("favole_magiche_deleted_stories");
     if (savedDeletedStories) {
       try {
         const parsed: DeletedStory[] = JSON.parse(savedDeletedStories);
         const oneMonthAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
         const validBackups = parsed.filter(ds => new Date(ds.deletedAt).getTime() > oneMonthAgo);
         setDeletedStories(validBackups);
-        localStorage.setItem("favole_magiche_deleted_stories", JSON.stringify(validBackups));
+        setStorageItem("favole_magiche_deleted_stories", JSON.stringify(validBackups));
       } catch (e) {
         console.error("Error parsing deleted stories", e);
       }
     }
 
     // 2. Active Profile
-    const savedActiveProfile = localStorage.getItem("favole_magiche_active_profile");
+    const savedActiveProfile = getStorageItem("favole_magiche_active_profile");
     if (savedActiveProfile) {
       setActiveProfile(JSON.parse(savedActiveProfile));
     } else {
       setActiveProfile(INITIAL_PROFILES[0]);
-      localStorage.setItem("favole_magiche_active_profile", JSON.stringify(INITIAL_PROFILES[0]));
+      setStorageItem("favole_magiche_active_profile", JSON.stringify(INITIAL_PROFILES[0]));
     }
 
     // 3. App Settings
-    const savedSettings = localStorage.getItem("favole_magiche_settings");
+    const savedSettings = getStorageItem("favole_magiche_settings");
     if (savedSettings) {
       const parsed = JSON.parse(savedSettings);
       if (parsed.pinAccesso === undefined) {
@@ -294,15 +317,15 @@ export default function App() {
     }
 
     // 4. Premium status
-    const savedPremium = localStorage.getItem("favole_magiche_premium");
+    const savedPremium = getStorageItem("favole_magiche_premium");
     if (savedPremium) {
       setIsPremium(JSON.parse(savedPremium));
     }
 
     // 5. Generation limits counter
     const todayStr = new Date().toISOString().split("T")[0];
-    const savedGenDate = localStorage.getItem("favole_magiche_gen_date") || "";
-    const savedGenCount = localStorage.getItem("favole_magiche_gen_count") || "0";
+    const savedGenDate = getStorageItem("favole_magiche_gen_date") || "";
+    const savedGenCount = getStorageItem("favole_magiche_gen_count") || "0";
 
     if (savedGenDate === todayStr) {
       setLastGenDate(todayStr);
@@ -310,8 +333,8 @@ export default function App() {
     } else {
       setLastGenDate(todayStr);
       setGeneratedToday(0);
-      localStorage.setItem("favole_magiche_gen_date", todayStr);
-      localStorage.setItem("favole_magiche_gen_count", "0");
+      setStorageItem("favole_magiche_gen_date", todayStr);
+      setStorageItem("favole_magiche_gen_count", "0");
     }
   }, []);
 
@@ -320,15 +343,11 @@ export default function App() {
     const profileId = activeProfile?.id;
     
     // 1. Stories
-    const storiesKey = profileId ? `favole_magiche_stories_${profileId}` : "favole_magiche_stories";
-    const savedStories = localStorage.getItem(storiesKey);
+    const storiesKey = getProfileStorageKey("favole_magiche_stories", profileId);
+    const hasSavedStories = hasStorageItem(storiesKey);
     let loadedStories: Story[] = [];
-    if (savedStories) {
-      try {
-        loadedStories = JSON.parse(savedStories);
-      } catch (e) {
-        console.error("Error parsing stories", e);
-      }
+    if (hasSavedStories) {
+      loadedStories = readJsonStorage<Story[]>(storiesKey, [], "Error parsing stories");
       setStories(loadedStories);
     } else {
       // New children should start with an empty library (everything empty!).
@@ -346,33 +365,28 @@ export default function App() {
     const totalReadCount = loadedStories.reduce((sum, s) => sum + (s.volteLetta || 0), 0);
 
     // 2. Unlocked Categories
-    const categoriesKey = profileId ? `favole_magiche_unlocked_categories_${profileId}` : "favole_magiche_unlocked_categories";
-    const savedUnlockedCategories = localStorage.getItem(categoriesKey);
-    setUnlockedCategories(savedUnlockedCategories ? JSON.parse(savedUnlockedCategories) : INITIAL_CATEGORIES);
+    const categoriesKey = getProfileStorageKey("favole_magiche_unlocked_categories", profileId);
+    setUnlockedCategories(readJsonStorage<string[]>(categoriesKey, INITIAL_CATEGORIES));
 
     // 3. Unlocked Themes
-    const themesKey = profileId ? `favole_magiche_unlocked_themes_${profileId}` : "favole_magiche_unlocked_themes";
-    const savedUnlockedThemes = localStorage.getItem(themesKey);
-    setUnlockedThemes(savedUnlockedThemes ? JSON.parse(savedUnlockedThemes) : INITIAL_THEMES);
+    const themesKey = getProfileStorageKey("favole_magiche_unlocked_themes", profileId);
+    setUnlockedThemes(readJsonStorage<string[]>(themesKey, INITIAL_THEMES));
 
     // 4. Unlocked Character Types
-    const charTypesKey = profileId ? `favole_magiche_unlocked_character_types_${profileId}` : "favole_magiche_unlocked_character_types";
-    const savedUnlockedCharacterTypes = localStorage.getItem(charTypesKey);
-    setUnlockedCharacterTypes(savedUnlockedCharacterTypes ? JSON.parse(savedUnlockedCharacterTypes) : INITIAL_CHARACTER_TYPES);
+    const charTypesKey = getProfileStorageKey("favole_magiche_unlocked_character_types", profileId);
+    setUnlockedCharacterTypes(readJsonStorage<string[]>(charTypesKey, INITIAL_CHARACTER_TYPES));
 
     // 5. Unlocked Character Traits
-    const charTraitsKey = profileId ? `favole_magiche_unlocked_character_traits_${profileId}` : "favole_magiche_unlocked_character_traits";
-    const savedUnlockedCharacterTraits = localStorage.getItem(charTraitsKey);
-    setUnlockedCharacterTraits(savedUnlockedCharacterTraits ? JSON.parse(savedUnlockedCharacterTraits) : INITIAL_CHARACTER_TRAITS);
+    const charTraitsKey = getProfileStorageKey("favole_magiche_unlocked_character_traits", profileId);
+    setUnlockedCharacterTraits(readJsonStorage<string[]>(charTraitsKey, INITIAL_CHARACTER_TRAITS));
 
     // 6. Last Unlock Date
-    const lastUnlockKey = profileId ? `favole_magiche_last_unlock_date_${profileId}` : "favole_magiche_last_unlock_date";
-    setLastUnlockDate(localStorage.getItem(lastUnlockKey) || "");
+    const lastUnlockKey = getProfileStorageKey("favole_magiche_last_unlock_date", profileId);
+    setLastUnlockDate(getStorageItem(lastUnlockKey) || "");
 
     // 7. Claimed Achievements
-    const achievementsKey = profileId ? `favole_magiche_claimed_achievements_${profileId}` : "favole_magiche_claimed_achievements";
-    const savedClaimed = localStorage.getItem(achievementsKey);
-    const parsedClaimed: string[] = savedClaimed ? JSON.parse(savedClaimed) : [];
+    const achievementsKey = getProfileStorageKey("favole_magiche_claimed_achievements", profileId);
+    const parsedClaimed = readJsonStorage<string[]>(achievementsKey, []);
     
     // Filter out any claimed stage achievement IDs that aren't actually completed
     const validClaimed = parsedClaimed.filter((id: string) => {
@@ -389,14 +403,13 @@ export default function App() {
 
     // If there were invalid claims, sync them back to localStorage immediately
     if (validClaimed.length !== parsedClaimed.length) {
-      localStorage.setItem(achievementsKey, JSON.stringify(validClaimed));
+      setStorageItem(achievementsKey, JSON.stringify(validClaimed));
     }
     setClaimedAchievements(validClaimed);
 
     // 8. Used Unlocked Items
-    const usedKey = profileId ? `favole_magiche_used_unlocked_items_${profileId}` : "favole_magiche_used_unlocked_items";
-    const savedUsedUnlocked = localStorage.getItem(usedKey);
-    setUsedUnlockedItems(savedUsedUnlocked ? JSON.parse(savedUsedUnlocked) : []);
+    const usedKey = getProfileStorageKey("favole_magiche_used_unlocked_items", profileId);
+    setUsedUnlockedItems(readJsonStorage<string[]>(usedKey, []));
   }, [activeProfile?.id]);
 
   // Unlock exactly one single random locked element from any category
@@ -432,26 +445,26 @@ export default function App() {
     if (randomPool.type === "category") {
       const updated = [...unlockedCategories, randomItem];
       setUnlockedCategories(updated);
-      const key = pId ? `favole_magiche_unlocked_categories_${pId}` : "favole_magiche_unlocked_categories";
-      localStorage.setItem(key, JSON.stringify(updated));
+      const key = getProfileStorageKey("favole_magiche_unlocked_categories", pId);
+      setStorageItem(key, JSON.stringify(updated));
       result.category = randomItem;
     } else if (randomPool.type === "theme") {
       const updated = [...unlockedThemes, randomItem];
       setUnlockedThemes(updated);
-      const key = pId ? `favole_magiche_unlocked_themes_${pId}` : "favole_magiche_unlocked_themes";
-      localStorage.setItem(key, JSON.stringify(updated));
+      const key = getProfileStorageKey("favole_magiche_unlocked_themes", pId);
+      setStorageItem(key, JSON.stringify(updated));
       result.theme = randomItem;
     } else if (randomPool.type === "characterType") {
       const updated = [...unlockedCharacterTypes, randomItem];
       setUnlockedCharacterTypes(updated);
-      const key = pId ? `favole_magiche_unlocked_character_types_${pId}` : "favole_magiche_unlocked_character_types";
-      localStorage.setItem(key, JSON.stringify(updated));
+      const key = getProfileStorageKey("favole_magiche_unlocked_character_types", pId);
+      setStorageItem(key, JSON.stringify(updated));
       result.characterType = randomItem;
     } else if (randomPool.type === "characterTrait") {
       const updated = [...unlockedCharacterTraits, randomItem];
       setUnlockedCharacterTraits(updated);
-      const key = pId ? `favole_magiche_unlocked_character_traits_${pId}` : "favole_magiche_unlocked_character_traits";
-      localStorage.setItem(key, JSON.stringify(updated));
+      const key = getProfileStorageKey("favole_magiche_unlocked_character_traits", pId);
+      setStorageItem(key, JSON.stringify(updated));
       result.characterTrait = randomItem;
     }
     
@@ -465,8 +478,8 @@ export default function App() {
     if (unlocked) {
       setLastUnlockDate(todayStr);
       const pId = activeProfile?.id;
-      const key = pId ? `favole_magiche_last_unlock_date_${pId}` : "favole_magiche_last_unlock_date";
-      localStorage.setItem(key, todayStr);
+      const key = getProfileStorageKey("favole_magiche_last_unlock_date", pId);
+      setStorageItem(key, todayStr);
       playFairyChorusSound();
     }
     return unlocked;
@@ -519,8 +532,8 @@ export default function App() {
       const updated = [...claimedAchievements, id];
       setClaimedAchievements(updated);
       const pId = activeProfile?.id;
-      const key = pId ? `favole_magiche_claimed_achievements_${pId}` : "favole_magiche_claimed_achievements";
-      localStorage.setItem(key, JSON.stringify(updated));
+      const key = getProfileStorageKey("favole_magiche_claimed_achievements", pId);
+      setStorageItem(key, JSON.stringify(updated));
     }
 
     playFairyChorusSound();
@@ -555,8 +568,8 @@ export default function App() {
       const updated = [...usedUnlockedItems, item];
       setUsedUnlockedItems(updated);
       const pId = activeProfile?.id;
-      const key = pId ? `favole_magiche_used_unlocked_items_${pId}` : "favole_magiche_used_unlocked_items";
-      localStorage.setItem(key, JSON.stringify(updated));
+      const key = getProfileStorageKey("favole_magiche_used_unlocked_items", pId);
+      setStorageItem(key, JSON.stringify(updated));
     }
   };
 
@@ -638,17 +651,17 @@ export default function App() {
   const saveStories = (updatedStories: Story[]) => {
     setStories(updatedStories);
     const profileId = activeProfile?.id;
-    const storiesKey = profileId ? `favole_magiche_stories_${profileId}` : "favole_magiche_stories";
-    localStorage.setItem(storiesKey, JSON.stringify(updatedStories));
+    const storiesKey = getProfileStorageKey("favole_magiche_stories", profileId);
+    setStorageItem(storiesKey, JSON.stringify(updatedStories));
   };
 
   // Profile Management Action Handlers
   const handleSelectProfile = (profile: ChildProfile | null) => {
     setActiveProfile(profile);
     if (profile) {
-      localStorage.setItem("favole_magiche_active_profile", JSON.stringify(profile));
+      setStorageItem("favole_magiche_active_profile", JSON.stringify(profile));
     } else {
-      localStorage.removeItem("favole_magiche_active_profile");
+      removeStorageItem("favole_magiche_active_profile");
     }
   };
 
@@ -661,7 +674,7 @@ export default function App() {
     };
     const updated = [...profiles, newProfile];
     setProfiles(updated);
-    localStorage.setItem("favole_magiche_profiles", JSON.stringify(updated));
+    setStorageItem("favole_magiche_profiles", JSON.stringify(updated));
     // Auto set active if none was active
     if (!activeProfile) {
       handleSelectProfile(newProfile);
@@ -678,21 +691,21 @@ export default function App() {
       };
       const updatedBackups = [newBackup, ...deletedProfiles];
       setDeletedProfiles(updatedBackups);
-      localStorage.setItem("favole_magiche_deleted_profiles", JSON.stringify(updatedBackups));
+      setStorageItem("favole_magiche_deleted_profiles", JSON.stringify(updatedBackups));
     }
 
     // 2. Remove from active profiles list
     const updated = profiles.filter(p => p.id !== id);
     setProfiles(updated);
-    localStorage.setItem("favole_magiche_profiles", JSON.stringify(updated));
+    setStorageItem("favole_magiche_profiles", JSON.stringify(updated));
     
     if (activeProfile?.id === id) {
       const nextActive = updated.length > 0 ? updated[0] : null;
       setActiveProfile(nextActive);
       if (nextActive) {
-        localStorage.setItem("favole_magiche_active_profile", JSON.stringify(nextActive));
+        setStorageItem("favole_magiche_active_profile", JSON.stringify(nextActive));
       } else {
-        localStorage.removeItem("favole_magiche_active_profile");
+        removeStorageItem("favole_magiche_active_profile");
       }
     }
   };
@@ -702,11 +715,11 @@ export default function App() {
     if (backupItem) {
       const updatedProfiles = [...profiles, backupItem.profile];
       setProfiles(updatedProfiles);
-      localStorage.setItem("favole_magiche_profiles", JSON.stringify(updatedProfiles));
+      setStorageItem("favole_magiche_profiles", JSON.stringify(updatedProfiles));
 
       const updatedBackups = deletedProfiles.filter(dp => dp.profile.id !== id);
       setDeletedProfiles(updatedBackups);
-      localStorage.setItem("favole_magiche_deleted_profiles", JSON.stringify(updatedBackups));
+      setStorageItem("favole_magiche_deleted_profiles", JSON.stringify(updatedBackups));
 
       if (!activeProfile) {
         handleSelectProfile(backupItem.profile);
@@ -717,21 +730,21 @@ export default function App() {
   const handlePermanentlyDeleteProfile = (id: string) => {
     const updatedBackups = deletedProfiles.filter(dp => dp.profile.id !== id);
     setDeletedProfiles(updatedBackups);
-    localStorage.setItem("favole_magiche_deleted_profiles", JSON.stringify(updatedBackups));
+    setStorageItem("favole_magiche_deleted_profiles", JSON.stringify(updatedBackups));
   };
 
   // Toggle Premium simulated state
   const handleTogglePremium = () => {
     const nextPremium = !isPremium;
     setIsPremium(nextPremium);
-    localStorage.setItem("favole_magiche_premium", JSON.stringify(nextPremium));
+    setStorageItem("favole_magiche_premium", JSON.stringify(nextPremium));
   };
 
   // Save Settings helper
   const handleUpdateSettings = (updated: Partial<AppSettings>) => {
     const nextSettings = { ...settings, ...updated };
     setSettings(nextSettings);
-    localStorage.setItem("favole_magiche_settings", JSON.stringify(nextSettings));
+    setStorageItem("favole_magiche_settings", JSON.stringify(nextSettings));
   };
 
   // Clear archive trigger
@@ -758,7 +771,7 @@ export default function App() {
       };
       const updatedBackups = [newBackup, ...deletedStories];
       setDeletedStories(updatedBackups);
-      localStorage.setItem("favole_magiche_deleted_stories", JSON.stringify(updatedBackups));
+      setStorageItem("favole_magiche_deleted_stories", JSON.stringify(updatedBackups));
     }
 
     const updated = stories.filter(s => s.id !== storyId);
@@ -773,14 +786,14 @@ export default function App() {
 
       const updatedBackups = deletedStories.filter(ds => ds.story.id !== storyId);
       setDeletedStories(updatedBackups);
-      localStorage.setItem("favole_magiche_deleted_stories", JSON.stringify(updatedBackups));
+      setStorageItem("favole_magiche_deleted_stories", JSON.stringify(updatedBackups));
     }
   };
 
   const handlePermanentlyDeleteStory = (storyId: string) => {
     const updatedBackups = deletedStories.filter(ds => ds.story.id !== storyId);
     setDeletedStories(updatedBackups);
-    localStorage.setItem("favole_magiche_deleted_stories", JSON.stringify(updatedBackups));
+    setStorageItem("favole_magiche_deleted_stories", JSON.stringify(updatedBackups));
   };
 
   // STORAGE LIMIT MANAGER - Auto prune oldest story if threshold exceeded
@@ -846,9 +859,9 @@ export default function App() {
     setIsBedtimeMode(activeBedtime);
 
     // Save choices as default for future generations
-    localStorage.setItem("favole_magiche_last_categoria", config.categoria);
-    localStorage.setItem("favole_magiche_last_temaEducativo", config.temaEducativo);
-    localStorage.setItem("favole_magiche_last_durata", config.durata);
+    setStorageItem("favole_magiche_last_categoria", config.categoria);
+    setStorageItem("favole_magiche_last_temaEducativo", config.temaEducativo);
+    setStorageItem("favole_magiche_last_durata", config.durata);
 
     setCurrentGenerationConfig({
       categoria: config.categoria,
@@ -897,7 +910,7 @@ export default function App() {
             updatedAt: new Date().toISOString()
           };
       setGeminiRuntimeStatus(statusUpdate);
-      localStorage.setItem("favole_magiche_gemini_runtime_status", JSON.stringify(statusUpdate));
+      setStorageItem("favole_magiche_gemini_runtime_status", JSON.stringify(statusUpdate));
 
       const newStory: Story = {
         id: "s_" + Date.now(),
@@ -937,8 +950,8 @@ export default function App() {
       const todayStr = new Date().toISOString().split("T")[0];
       const nextCount = generatedToday + 1;
       setGeneratedToday(nextCount);
-      localStorage.setItem("favole_magiche_gen_count", String(nextCount));
-      localStorage.setItem("favole_magiche_gen_date", todayStr);
+      setStorageItem("favole_magiche_gen_count", String(nextCount));
+      setStorageItem("favole_magiche_gen_date", todayStr);
 
       // Achievement solo su completamento tappe/mondi, basati su numero storie create
       const previousStoriesCount = stories.length;
@@ -985,7 +998,7 @@ export default function App() {
         updatedAt: new Date().toISOString()
       };
       setGeminiRuntimeStatus(statusUpdate);
-      localStorage.setItem("favole_magiche_gemini_runtime_status", JSON.stringify(statusUpdate));
+      setStorageItem("favole_magiche_gemini_runtime_status", JSON.stringify(statusUpdate));
       setScreen("new-story");
     } finally {
       if (generationSessionRef.current?.id === localJobId) {
@@ -1159,30 +1172,7 @@ export default function App() {
               setPendingGateAction({ type: "bedtime" });
               return;
             }
-            const targetCat = unlockedCategories.includes("Natura") ? "Natura" : (unlockedCategories[0] || "Fantasy");
-            const targetTema = unlockedThemes.includes("Gentilezza") 
-              ? "Gentilezza" 
-              : (unlockedThemes.includes("Pazienza") 
-                  ? "Pazienza" 
-                  : (unlockedThemes.includes("Gratitudine") ? "Gratitudine" : (unlockedThemes[0] || "Gentilezza")));
-            
-            const characterType = unlockedCharacterTypes.includes("Cucciolo") ? "Cucciolo" : (unlockedCharacterTypes[0] || "Cucciolo");
-            const characterTrait = unlockedCharacterTraits.includes("Gentile") ? "Gentile" : (unlockedCharacterTraits[0] || "Sensibile");
-
-            const profile = activeProfile;
-            const nomeBambino = profile?.nome || "Piccolo lettore";
-            const etaBambino = profile ? (new Date().getFullYear() - profile.annoNascita) : 5;
-
-            const config = {
-              categoria: targetCat,
-              temaEducativo: targetTema,
-              durata: "Breve" as const,
-              personaggi: [{ nome: "Nuvola", tipo: characterType, caratteristica: characterTrait }],
-              nomeBambino,
-              etaBambino
-            };
-
-            setBedtimeConfirmConfig(config);
+            setBedtimeConfirmConfig(buildBedtimeStoryConfig());
           }}
           activeProfile={activeProfile}
           profiles={profiles}
@@ -1596,30 +1586,7 @@ export default function App() {
               setIsNannaTriggered(false);
             } else if (action.type === "bedtime") {
               // Trigger bedtime story dialog config
-              const targetCat = unlockedCategories.includes("Natura") ? "Natura" : (unlockedCategories[0] || "Fantasy");
-              const targetTema = unlockedThemes.includes("Gentilezza") 
-                ? "Gentilezza" 
-                : (unlockedThemes.includes("Pazienza") 
-                    ? "Pazienza" 
-                    : (unlockedThemes.includes("Gratitudine") ? "Gratitudine" : (unlockedThemes[0] || "Gentilezza")));
-              
-              const characterType = unlockedCharacterTypes.includes("Cucciolo") ? "Cucciolo" : (unlockedCharacterTypes[0] || "Cucciolo");
-              const characterTrait = unlockedCharacterTraits.includes("Gentile") ? "Gentile" : (unlockedCharacterTraits[0] || "Sensibile");
-
-              const profile = activeProfile;
-              const nomeBambino = profile?.nome || "Piccolo lettore";
-              const etaBambino = profile ? (new Date().getFullYear() - profile.annoNascita) : 5;
-
-              const config = {
-                categoria: targetCat,
-                temaEducativo: targetTema,
-                durata: "Breve" as const,
-                personaggi: [{ nome: "Nuvola", tipo: characterType, caratteristica: characterTrait }],
-                nomeBambino,
-                etaBambino
-              };
-
-              setBedtimeConfirmConfig(config);
+              setBedtimeConfirmConfig(buildBedtimeStoryConfig());
             } else if (action.type === "navigate" && action.target) {
               setScreen(action.target);
             }
