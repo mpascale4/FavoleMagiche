@@ -15,6 +15,8 @@ export default function DeveloperMode({
 }: DeveloperModeProps) {
   const [stageInput, setStageInput] = useState("1");
   const [worldInput, setWorldInput] = useState("1");
+  const normalizedStage = Math.max(1, parseInt(stageInput || "1") || 1);
+  const stageMilestone = `1.${normalizedStage}`;
 
   const handleTestStage = (index: number) => {
     playClickSound();
@@ -65,12 +67,12 @@ export default function DeveloperMode({
             </button>
           </div>
           <div className="text-xs text-cyan-200 space-y-1">
-            <p>💡 Milestone format: 1.1 (Stage completion)</p>
+            <p>💡 Milestone format: {stageMilestone} (Stage completion)</p>
             <button
-              onClick={() => handleTestStage(1)}
+              onClick={() => handleTestStage(normalizedStage)}
               className="block w-full py-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-mono text-xs rounded border border-cyan-600"
             >
-              ⚡ Quick: Stage 1 Complete
+              ⚡ Quick: Stage {normalizedStage} Complete
             </button>
           </div>
         </div>

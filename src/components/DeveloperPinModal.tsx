@@ -27,6 +27,15 @@ export default function DeveloperPinModal({
     }
   };
 
+  const appendDigit = (digit: string) => {
+    if (pin.length >= 4) return;
+    setPin(prev => `${prev}${digit}`);
+  };
+
+  const handleBackspace = () => {
+    setPin(prev => prev.slice(0, -1));
+  };
+
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-[450]">
       <div className={`rounded-2xl border-4 p-6 max-w-xs w-full space-y-4 transition-all ${
@@ -40,13 +49,49 @@ export default function DeveloperPinModal({
 
         <input
           type="password"
+          inputMode="numeric"
+          pattern="[0-9]*"
           value={pin}
-          onChange={(e) => setPin(e.target.value.slice(0, 4))}
+          onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
           onKeyPress={(e) => e.key === "Enter" && handleSubmit()}
           placeholder="PIN"
           className="w-full px-4 py-2 bg-slate-800 border-2 border-cyan-500 rounded text-white font-mono text-center text-2xl tracking-widest"
           autoFocus
         />
+
+        <div className="grid grid-cols-3 gap-2">
+          {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((digit) => (
+            <button
+              key={digit}
+              type="button"
+              onClick={() => appendDigit(digit)}
+              className="py-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-black rounded transition-all active:scale-95"
+            >
+              {digit}
+            </button>
+          ))}
+          <button
+            type="button"
+            onClick={handleBackspace}
+            className="py-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-black rounded transition-all active:scale-95"
+          >
+            ⌫
+          </button>
+          <button
+            type="button"
+            onClick={() => appendDigit("0")}
+            className="py-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-black rounded transition-all active:scale-95"
+          >
+            0
+          </button>
+          <button
+            type="button"
+            onClick={() => setPin("")}
+            className="py-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-black rounded transition-all active:scale-95"
+          >
+            C
+          </button>
+        </div>
 
         <div className="flex gap-2">
           <button
