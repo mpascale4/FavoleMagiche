@@ -83,10 +83,10 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
   // Determine stage (0 to 4)
   const actualGrowthStage = useMemo(() => {
     if (readCount === 0) return 0;
-    if (readCount === 1) return 1;
-    if (readCount <= 3) return 2;
-    if (readCount <= 5) return 3;
-    return 4; // 6+ is fully bloomed!
+    if (readCount <= 4) return 1;
+    if (readCount <= 9) return 2;
+    if (readCount <= 14) return 3;
+    return 4; // 15+ is fully bloomed!
   }, [readCount]);
 
   const growthStage = previewStage !== null ? previewStage : actualGrowthStage;
@@ -177,12 +177,13 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
   }, [gameState]);
 
   const safeStage = Math.max(0, Math.min(4, growthStage));
+  const dynamicPercent = previewStage !== null ? [5, 25, 50, 75, 100][previewStage] : (readCount >= 15 ? 100 : Math.max(5, Math.floor((readCount / 15) * 100)));
   const stageDetails = [
-    { name: "Seme d'Oro 🌱", message: "La terra magica accoglie il seme d'oro. Leggi o crea una storia di questo tema per vederlo spuntare!", percent: 5 },
-    { name: "Germoglio 🌱", message: "Splendido! Sta spuntando una tenera fogliolina dorata. Continua a leggere!", percent: 25 },
-    { name: "Arboscello 🌿", message: "Il tuo albero si sta allungando verso il sole con i primi rami verdi!", percent: 50 },
-    { name: "Albero Rigoglioso 🌳", message: "Un albero forte e pieno di foglie sane! Manca pochissimo alla fioritura!", percent: 75 },
-    { name: "Fioritura Splendente! 🌸✨", message: "Incredibile! Il tuo Albero della virtù è fiorito e risplende di pura magia!", percent: 100 }
+    { name: "Seme d'Oro 🌱", message: "La terra magica accoglie il seme d'oro. Leggi o crea una storia di questo tema per vederlo spuntare!", percent: dynamicPercent },
+    { name: "Germoglio 🌱", message: "Splendido! Sta spuntando una tenera fogliolina dorata. Continua a leggere!", percent: dynamicPercent },
+    { name: "Arboscello 🌿", message: "Il tuo albero si sta allungando verso il sole con i primi rami verdi!", percent: dynamicPercent },
+    { name: "Albero Rigoglioso 🌳", message: "Un albero forte e pieno di foglie sane! Manca pochissimo alla fioritura!", percent: dynamicPercent },
+    { name: "Fioritura Splendente! 🌸✨", message: "Incredibile! Il tuo Albero della virtù è fiorito e risplende di pura magia!", percent: dynamicPercent }
   ][safeStage];
 
   return (

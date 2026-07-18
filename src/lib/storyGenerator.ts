@@ -174,7 +174,11 @@ Requisiti:
 3) Concludi con una morale chiara.
 4) Suggerisci coverTheme in inglese e coverColor tra: ${COLORS.join(", ")}.
 5) Usa un linguaggio positivo, rassicurante e adatto ai bambini.
-6) FORMATTAZIONE SPECIALE PER L'INTERATTIVITÀ (MOLTO IMPORTANTE):
+6) IMPORTANTE PER I DIALOGHI: Adatta fedelmente il modo di parlare dei personaggi alla loro natura. 
+   - Se un personaggio è un "Bebè", il suo linguaggio DEVE essere da bebè (es. usa solo versi, lallazioni, paroline storpiate o molto semplici come "pappa", "ghe-ghe", "brmm"). 
+   - Se un personaggio è un "Robot", DEVE avere un linguaggio meccanico con rumori tecnologici (es. Bip-bop, calcolo in corso, bzzzz). 
+   - Se ci sono animali o altri esseri non umani (Cucciolo, Drago, ecc.), devono fare i loro versi naturali (es. miao, bau, roarr) all'interno delle frasi o avere stili vocali legati alla loro specie.
+7) FORMATTAZIONE SPECIALE PER L'INTERATTIVITÀ (MOLTO IMPORTANTE):
    - Devi SEMPRE evidenziare i nomi dei personaggi e del bambino racchiudendoli rigorosamente tra doppi asterischi ogni volta che compaiono, ad esempio: **${config.nomeBambino}**.
    - Evidenzia anche altre 2-4 parole chiave, magiche o importanti per ciascuna pagina, ad esempio: **magia**, **drago**, **bosco**, **salto**.
    - Inserisci in punti strategici del testo (all'inizio, alla fine o vicino a parole evocative) alcune emoji che rappresentano suoni ed effetti sonori (ad esempio: 🧚, ✨, 🐉, 🦁, 🔔, ⭐, 🌲, 🍃, 🐇, 🐸, 🌌, 👻, 🎉, 🥳, 👋). Queste emoji verranno visualizzate come pulsanti audio interattivi con effetto sonoro. Metti 1 o 2 emoji interattive per pagina.
