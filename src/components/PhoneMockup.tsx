@@ -3,7 +3,10 @@ import { Wifi, Battery, ShieldAlert, Sparkles, Star, Music, Volume2, VolumeX, In
 import { playClickSound } from "../utils/audio";
 import { AppSettings } from "../types";
 import InfoModal from "./InfoModal";
-import { shouldApplyNightTheme } from "../utils/theme";
+import { getForcedNightTheme, setForcedNightTheme, shouldApplyNightTheme } from "../utils/theme";
+import { audioEngine } from "../lib/audioEngine";
+
+const DEV_PREV_STYLE_KEY = "dev_prev_stile_visuale";
 
 const THEME_MAP: Record<string, { bg: string; border: string; accentText: string }> = {
   "🌸 Giardino delle Fate": { bg: "bg-[#FEF9F0]", border: "border-natural-pink-light", accentText: "text-[#880E4F]" },
@@ -39,10 +42,43 @@ export default function PhoneMockup({
 }: PhoneMockupProps) {
   const [time, setTime] = useState("");
   const [showInfoModal, setShowInfoModal] = useState(false);
+  const [themeMode, setThemeMode] = useState<"auto" | "chiaro" | "scuro">(() => {
+    const forced = getForcedNightTheme();
+    if (forced === null) return "auto";
+    return forced ? "scuro" : "chiaro";
+  });
   const isNightTheme = shouldApplyNightTheme();
 
   const musicOn = settings?.musicaSottofondo !== false;
   const sfxOn = settings?.effettiAudio !== false;
+  const hourNow = new Date().getHours();
+  const isNightByClock = hourNow >= 18 || hourNow < 6;
+
+  const applyThemeMode = (mode: "auto" | "chiaro" | "scuro") => {
+    playClickSound();
+    const forced = mode === "auto" ? null : mode === "scuro";
+
+    try {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem(DEV_PREV_STYLE_KEY);
+      }
+    } catch {
+      // Ignore storage errors and proceed.
+    }
+
+    setForcedNightTheme(forced);
+    audioEngine.setForcedNightMode(forced);
+    setThemeMode(mode);
+
+    if (onUpdateSettings) {
+      onUpdateSettings({ stileVisuale: settings?.stileVisuale || "auto" });
+    }
+  };
+
+  useEffect(() => {
+    const forced = getForcedNightTheme();
+    setThemeMode(forced === null ? "auto" : forced ? "scuro" : "chiaro");
+  }, [settings?.stileVisuale]);
 
   const toggleMusic = () => {
     playClickSound();
@@ -159,6 +195,72 @@ export default function PhoneMockup({
                 >
                   <Info size={11} />
                 </button>
+                {settings && onUpdateSettings && (
+                  <div
+                    className={`flex items-center gap-0.5 rounded-full px-1 py-0.5 border ${
+                      isNightTheme ? "bg-slate-800/95 border-slate-600" : "bg-white/90 border-natural-pink-border"
+                    }`}
+                    role="group"
+                    aria-label="Controllo tema giorno notte"
+                  >
+                    <span
+                      className={`text-[8px] font-black px-1 rounded-full ${
+                        isNightTheme ? "text-indigo-100 bg-indigo-900/60" : "text-amber-900 bg-amber-100"
+                      }`}
+                      aria-live="polite"
+                    >
+                      {isNightTheme ? "NOTTE" : "GIORNO"}
+                    </span>
+
+                    <button
+                      onClick={() => applyThemeMode("auto")}
+                      aria-pressed={themeMode === "auto"}
+                      aria-label={`Tema automatico. Momento attuale: ${isNightByClock ? "notte" : "giorno"}`}
+                      title={`Tema automatico (${isNightByClock ? "notte" : "giorno"})`}
+                      className={`w-5 h-5 rounded-full text-[8px] font-black flex items-center justify-center transition-all cursor-pointer ${
+                        themeMode === "auto"
+                          ? "bg-natural-pink text-white"
+                          : isNightTheme
+                            ? "text-slate-200 hover:bg-slate-700"
+                            : "text-theme-secondary hover:bg-slate-100"
+                      }`}
+                    >
+                      A
+                    </button>
+
+                    <button
+                      onClick={() => applyThemeMode("chiaro")}
+                      aria-pressed={themeMode === "chiaro"}
+                      aria-label="Imposta tema chiaro"
+                      title="Tema chiaro"
+                      className={`w-5 h-5 rounded-full text-[8px] font-black flex items-center justify-center transition-all cursor-pointer ${
+                        themeMode === "chiaro"
+                          ? "bg-amber-200 text-amber-900"
+                          : isNightTheme
+                            ? "text-slate-200 hover:bg-slate-700"
+                            : "text-theme-secondary hover:bg-slate-100"
+                      }`}
+                    >
+                      ☀
+                    </button>
+
+                    <button
+                      onClick={() => applyThemeMode("scuro")}
+                      aria-pressed={themeMode === "scuro"}
+                      aria-label="Imposta tema scuro"
+                      title="Tema scuro"
+                      className={`w-5 h-5 rounded-full text-[8px] font-black flex items-center justify-center transition-all cursor-pointer ${
+                        themeMode === "scuro"
+                          ? "bg-indigo-800 text-indigo-100"
+                          : isNightTheme
+                            ? "text-slate-200 hover:bg-slate-700"
+                            : "text-theme-secondary hover:bg-slate-100"
+                      }`}
+                    >
+                      🌙
+                    </button>
+                  </div>
+                )}
               </div>
               <div className="flex items-center gap-2">
                 {settings && onUpdateSettings && (
