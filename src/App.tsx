@@ -24,7 +24,7 @@ import { getEducationalThemeDisplayName } from "./utils/themeNames";
 import { generateStoryClient, StoryGenerationConfig } from "./lib/storyGenerator";
 import { getGeminiApiKeyStatus } from "./config/api";
 import { getGenerationLogs } from "./lib/storyGenerator";
-import { checkMilestonesReached, type Achievement } from "./utils/achievements";
+import { checkMilestonesReached, getAchievementById, type Achievement, type AchievementReward } from "./utils/achievements";
 
 type GeminiRuntimeStatus = {
   state: "unknown" | "ok" | "fallback";
@@ -135,8 +135,33 @@ export default function App() {
   const [generationError, setGenerationError] = useState<{ title: string; message: string; reason: string } | null>(null);
   const [achievementModal, setAchievementModal] = useState<Achievement | null>(null);
   const [achievementQueue, setAchievementQueue] = useState<Achievement[]>([]);
+  const [achievementRewardsOpened, setAchievementRewardsOpened] = useState<Record<string, AchievementReward[]>>({});
   const [showDeveloperPinModal, setShowDeveloperPinModal] = useState<boolean>(false);
   const [isDeveloperMode, setIsDeveloperMode] = useState<boolean>(false);
+
+  const mapUnlockedToRewards = (unlocked: { category: string; theme: string; characterType: string; characterTrait: string } | null): AchievementReward[] => {
+    if (!unlocked) {
+      return [{ emoji: "✨", text: "Hai già sbloccato tutti i premi disponibili!" }];
+    }
+
+    const rewards: AchievementReward[] = [];
+    if (unlocked.category) {
+      rewards.push({ emoji: "🌲", text: `Nuova categoria: ${unlocked.category}` });
+    }
+    if (unlocked.theme) {
+      rewards.push({ emoji: "🤝", text: `Nuovo tema: ${unlocked.theme}` });
+    }
+    if (unlocked.characterType) {
+      rewards.push({ emoji: "🧙‍♂️", text: `Nuovo tipo: ${unlocked.characterType}` });
+    }
+    if (unlocked.characterTrait) {
+      rewards.push({ emoji: "⭐", text: `Nuova caratteristica: ${unlocked.characterTrait}` });
+    }
+
+    return rewards.length > 0
+      ? rewards
+      : [{ emoji: "✨", text: "Hai già sbloccato tutti i premi disponibili!" }];
+  };
 
   // Loading state for story creation parameters to show on generating screen
   const [currentGenerationConfig, setCurrentGenerationConfig] = useState<{
@@ -384,35 +409,40 @@ export default function App() {
   // Claim achievement reward trigger
   const handleClaimAchievement = (id: string) => {
     const unlocked = handleUnlockSingle();
-    if (unlocked) {
+    if (!claimedAchievements.includes(id)) {
       const updated = [...claimedAchievements, id];
       setClaimedAchievements(updated);
       const pId = activeProfile?.id;
       const key = pId ? `favole_magiche_claimed_achievements_${pId}` : "favole_magiche_claimed_achievements";
       localStorage.setItem(key, JSON.stringify(updated));
-      playFairyChorusSound();
-      
-      const stageIndex = parseInt(id.replace("stage_", ""));
-      if (!isNaN(stageIndex) && stageIndex % 5 === 0) {
-        // Firework effect for world completion
-        import("canvas-confetti").then((confetti) => {
-          const duration = 4000;
-          const animationEnd = Date.now() + duration;
-          const defaults = { startVelocity: 35, spread: 360, ticks: 70, zIndex: 1000 };
-
-          const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
-
-          const interval: any = setInterval(function() {
-            const timeLeft = animationEnd - Date.now();
-            if (timeLeft <= 0) return clearInterval(interval);
-
-            const particleCount = 60 * (timeLeft / duration);
-            confetti.default(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
-            confetti.default(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
-          }, 250);
-        });
-      }
     }
+
+    playFairyChorusSound();
+
+    const rewards = mapUnlockedToRewards(unlocked);
+    setAchievementRewardsOpened(prev => ({ ...prev, [id]: rewards }));
+
+    const stageIndex = parseInt(id.replace("stage_", ""));
+    if (!isNaN(stageIndex) && stageIndex % 5 === 0) {
+      // Firework effect for world completion
+      import("canvas-confetti").then((confetti) => {
+        const duration = 4000;
+        const animationEnd = Date.now() + duration;
+        const defaults = { startVelocity: 35, spread: 360, ticks: 70, zIndex: 1000 };
+
+        const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
+
+        const interval: any = setInterval(function() {
+          const timeLeft = animationEnd - Date.now();
+          if (timeLeft <= 0) return clearInterval(interval);
+
+          const particleCount = 60 * (timeLeft / duration);
+          confetti.default(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+          confetti.default(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+        }, 250);
+      });
+    }
+
     return unlocked;
   };
 
@@ -893,7 +923,7 @@ export default function App() {
   // Developer Mode Test Functions
   const handleTestStageAchievement = (stageIndex: number) => {
     setIsDeveloperMode(false);
-    const achievements = checkMilestonesReached(stageIndex - 1, stageIndex);
+    const achievements = checkMilestonesReached(stageIndex * 5 - 1, stageIndex * 5);
     console.log(`🧪 Stage ${stageIndex} achievement:`, achievements);
     if (achievements.length > 0) {
       setAchievementModal(achievements[0]);
@@ -905,8 +935,8 @@ export default function App() {
 
   const handleTestWorldAchievement = (worldIndex: number) => {
     setIsDeveloperMode(false);
-    const lastStageIndex = worldIndex * 5;
-    const achievements = checkMilestonesReached(lastStageIndex - 1, lastStageIndex);
+    const worldCompletionCount = worldIndex * 25;
+    const achievements = checkMilestonesReached(worldCompletionCount - 1, worldCompletionCount);
     console.log(`🧪 World ${worldIndex} achievement:`, achievements);
     if (achievements.length > 0) {
       setAchievementModal(achievements[achievements.length - 1]); // Show world completion
@@ -914,6 +944,29 @@ export default function App() {
         setAchievementQueue(prev => [...prev, ...achievements.slice(0, -1)]);
       }
     }
+  };
+
+  const handleOpenAchievementModalById = (id: string) => {
+    const achievement = getAchievementById(id);
+    if (!achievement) return;
+
+    setAchievementRewardsOpened(prev => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+
+    const queue: Achievement[] = [];
+    const stageIndex = parseInt(id.replace("stage_", ""), 10);
+    if (!Number.isNaN(stageIndex) && stageIndex % 5 === 0) {
+      const worldAchievement = getAchievementById(`world_${Math.ceil(stageIndex / 5)}_complete`);
+      if (worldAchievement) {
+        queue.push(worldAchievement);
+      }
+    }
+
+    setAchievementModal(achievement);
+    setAchievementQueue(queue);
   };
 
   const geminiKeyStatus = getGeminiApiKeyStatus();
@@ -1011,7 +1064,7 @@ export default function App() {
           isGenerating={!!activeJobId}
           stories={stories}
           claimedAchievements={claimedAchievements}
-          onClaimAchievement={handleClaimAchievement}
+          onClaimAchievement={handleOpenAchievementModalById}
         />
       )}
 
@@ -1475,12 +1528,24 @@ export default function App() {
        {/* Achievement Modal */}
        {achievementModal && (
          <AchievementModal
-           title={achievementModal.title}
            message={achievementModal.message}
-            rewards={achievementModal.rewards}
-           milestone={achievementModal.milestone}
+            rewards={achievementRewardsOpened[achievementModal.id] || achievementModal.rewards}
             isWorldCompletion={achievementModal.isWorldCompletion}
+            onOpenReward={() => {
+              const alreadyOpened = achievementRewardsOpened[achievementModal.id];
+              if (alreadyOpened && alreadyOpened.length > 0) {
+                return alreadyOpened;
+              }
+
+              const unlocked = handleClaimAchievement(achievementModal.id);
+              return mapUnlockedToRewards(unlocked);
+            }}
            onClaim={() => {
+              setAchievementRewardsOpened(prev => {
+                const next = { ...prev };
+                if (achievementModal) delete next[achievementModal.id];
+                return next;
+              });
               if (achievementQueue.length > 0) {
                 const [next, ...rest] = achievementQueue;
                 setAchievementModal(next);

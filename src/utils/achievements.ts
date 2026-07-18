@@ -24,12 +24,7 @@ const createStageAchievement = (stageIndex: number): Achievement => {
     milestone,
     title: `Tappa ${stage.stageInWorld} completata`,
     message: `Tappa ${stage.stageInWorld} (${stage.worldName}) completata.`,
-    rewards: [
-      {
-        emoji: "🎁",
-        text: "Hai sbloccato una nuova ricompensa della mappa!"
-      }
-    ],
+    rewards: [],
     isWorldCompletion: false
   };
 };
@@ -43,14 +38,24 @@ const createWorldCompletionAchievement = (worldIndex: number): Achievement => {
     milestone: `${worldIndex}.6`,
     title: `Mondo ${worldIndex} completato`,
     message: `Mondo ${worldIndex} (${cleanWorldName}) completato.`,
-    rewards: [
-      { emoji: "🏆", text: "Ricompensa epica del mondo sbloccata" },
-      { emoji: "✨", text: "Nuovo elemento magico disponibile" },
-      { emoji: "🗺️", text: "Sentiero del prossimo mondo aperto" }
-    ],
+    rewards: [],
     isWorldCompletion: true
   };
 };
+
+export function getAchievementById(id: string): Achievement | null {
+  const stageMatch = id.match(/^stage_(\d+)$/);
+  if (stageMatch) {
+    return createStageAchievement(parseInt(stageMatch[1], 10));
+  }
+
+  const worldMatch = id.match(/^world_(\d+)_complete$/);
+  if (worldMatch) {
+    return createWorldCompletionAchievement(parseInt(worldMatch[1], 10));
+  }
+
+  return null;
+}
 
 /**
  * Restituisce tutti i milestone raggiunti tra previousCount e newCount.

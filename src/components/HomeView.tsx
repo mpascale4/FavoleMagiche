@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Sparkles, Trophy, CheckCircle, Lock, BookOpen, User, Settings } from "lucide-react";
 import { ChildProfile, ScreenType, Story, AppSettings, CATEGORIES, EDUCATIONAL_THEMES, CHARACTER_TYPES, CHARACTER_TRAITS } from "../types";
 import FairyTaleMap from "./FairyTaleMap";
@@ -44,8 +44,6 @@ export default function HomeView({
   settings,
   onDisableKidsMode
 }: HomeViewProps) {
-  const [unlockReveal, setUnlockReveal] = useState<{ category?: string; theme?: string; characterType?: string; characterTrait?: string } | null>(null);
-
   const todayStr = new Date().toISOString().split("T")[0];
   const isUnlockAvailableToday = lastUnlockDate !== todayStr && (
     unlockedCategories.length < CATEGORIES.length || 
@@ -71,14 +69,7 @@ export default function HomeView({
 
   const handleClaimTap = (achievementId: string) => {
     playOpenBoxClickSound();
-    
-    setTimeout(() => {
-      const unlocked = onClaimAchievement(achievementId);
-      if (unlocked) {
-        playFairyChorusSound();
-        setUnlockReveal(unlocked);
-      }
-    }, 1200);
+    onClaimAchievement(achievementId);
   };
 
   // Get calculated age
@@ -327,68 +318,6 @@ export default function HomeView({
         onClaimAchievement={handleClaimTap}
       />
 
-      {/* 7. SECONDARY MODAL: UNLOCK REVEAL DIALOG (Scrigno o Obiettivo) */}
-      {unlockReveal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-5 z-50 animate-fade-in">
-          <div className="bg-white rounded-[2rem] border-4 border-natural-pink-border p-6 max-w-sm w-full text-center space-y-4 shadow-2xl transform scale-100 transition-all">
-            <div className="text-4xl animate-bounce py-1">🎁✨</div>
-            <div className="space-y-1.5">
-              <h4 className="font-extrabold text-base text-natural-burgundy font-serif italic">
-                Incantesimo Compiuto!
-              </h4>
-              <p className="text-[10.5px] text-natural-text font-bold">
-                Il tuo scrigno si è aperto svelando un nuovo meraviglioso elemento per le tue fiabe!
-              </p>
-            </div>
-            
-            <div className="bg-[#FFFDE7] border-2 border-[#FFE082] rounded-2xl p-4 space-y-2 text-left shadow-inner">
-              {unlockReveal.category && (
-                <div className="flex items-center gap-2.5">
-                  <span className="text-2xl">🌲</span>
-                  <div>
-                    <p className="text-[8.5px] uppercase tracking-wider text-[#F9A825] font-extrabold leading-none">Nuova Categoria</p>
-                    <p className="text-[11.5px] font-black text-natural-burgundy mt-1">{unlockReveal.category}</p>
-                  </div>
-                </div>
-              )}
-              {unlockReveal.theme && (
-                <div className="flex items-center gap-2.5">
-                  <span className="text-2xl">🤝</span>
-                  <div>
-                    <p className="text-[8.5px] uppercase tracking-wider text-[#EC407A] font-extrabold leading-none">Nuova Morale (Tema)</p>
-                    <p className="text-[11.5px] font-black text-natural-burgundy mt-1">{unlockReveal.theme}</p>
-                  </div>
-                </div>
-              )}
-              {unlockReveal.characterType && (
-                <div className="flex items-center gap-2.5">
-                  <span className="text-2xl">🧙‍♂️</span>
-                  <div>
-                    <p className="text-[8.5px] uppercase tracking-wider text-[#0288D1] font-extrabold leading-none">Nuovo Tipo Personaggio</p>
-                    <p className="text-[11.5px] font-black text-natural-burgundy mt-1">{unlockReveal.characterType}</p>
-                  </div>
-                </div>
-              )}
-              {unlockReveal.characterTrait && (
-                <div className="flex items-center gap-2.5">
-                  <span className="text-2xl">⭐</span>
-                  <div>
-                    <p className="text-[8.5px] uppercase tracking-wider text-[#7B1FA2] font-extrabold leading-none">Nuova Caratteristica</p>
-                    <p className="text-[11.5px] font-black text-natural-burgundy mt-1">{unlockReveal.characterTrait}</p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <button
-              onClick={() => setUnlockReveal(null)}
-              className="w-full py-2.5 bg-gradient-to-r from-natural-pink to-[#EC407A] hover:brightness-105 border-2 border-[#EC407A] text-white rounded-full text-xs font-black transition-all cursor-pointer shadow-md"
-            >
-              Usa Subito 🪄
-            </button>
-           </div>
-         </div>
-       )}
 
     </div>
   );

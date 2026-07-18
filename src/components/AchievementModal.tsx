@@ -5,23 +5,22 @@ import confetti from "canvas-confetti";
 import { type AchievementReward } from "../utils/achievements";
 
 interface AchievementModalProps {
-  title: string;
   message: string;
   rewards: AchievementReward[];
-  milestone: string;
   isWorldCompletion?: boolean;
+  onOpenReward: () => AchievementReward[];
   onClaim: () => void;
 }
 
 export default function AchievementModal({
-  title,
   message,
   rewards,
-  milestone,
   isWorldCompletion = false,
+  onOpenReward,
   onClaim
 }: AchievementModalProps) {
   const [showRewards, setShowRewards] = useState(false);
+  const [openedRewards, setOpenedRewards] = useState<AchievementReward[]>(rewards);
 
   useEffect(() => {
     confetti({
@@ -61,15 +60,6 @@ export default function AchievementModal({
             <Trophy size={74} className="text-amber-600 mx-auto drop-shadow-lg" />
           </div>
 
-          {/* Main Title */}
-          <h2 className={`font-black text-center leading-tight ${
-            isWorldCompletion 
-              ? "text-amber-900 text-[1.8rem] font-serif" 
-              : "text-[#F9A825] text-2xl font-serif"
-          }`}>
-            Hai completato la milestone {milestone}!
-          </h2>
-
           {/* Tappa/Mondo Info */}
           <p className={`font-bold leading-snug ${
             isWorldCompletion
@@ -83,7 +73,13 @@ export default function AchievementModal({
           <div
             onClick={() => {
               playClickSound();
-              setShowRewards(!showRewards);
+              if (!showRewards) {
+                const unlockedRewards = onOpenReward();
+                setOpenedRewards(unlockedRewards);
+                setShowRewards(true);
+                return;
+              }
+              setShowRewards(false);
             }}
             className="cursor-pointer mt-4"
           >
@@ -116,8 +112,8 @@ export default function AchievementModal({
                 </span>
               </div>
 
-              <div className={`grid gap-3 ${rewards.length > 1 ? "grid-cols-3" : "grid-cols-1"}`}>
-                {rewards.map((reward, idx) => (
+              <div className={`grid gap-3 ${openedRewards.length > 1 ? "grid-cols-3" : "grid-cols-1"}`}>
+                {openedRewards.map((reward, idx) => (
                   <div
                     key={`${reward.text}-${idx}`}
                     className={`rounded-xl border-2 p-3 text-center transform transition-all hover:scale-105 ${
