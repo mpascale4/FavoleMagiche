@@ -980,9 +980,9 @@ export default function App() {
 
       const errorMsg = (err as Error)?.message || "Errore sconosciuto";
 
-      let title = "Errore nella Generazione";
-      let message = "Si è verificato un errore durante la creazione della storia.";
-      let reason = errorMsg;
+      let title = "Ops! Magia Interrotta ✨";
+      let message = "La fatina delle storie ha avuto un piccolo contrattempo.";
+      let reason = "Sembra che i folletti abbiano staccato un filo magico! Prova a ripartire, di solito funziona.";
 
       if (errorMsg.includes("Nessun modello Gemini disponibile") || errorMsg.toLowerCase().includes("failed to call")) {
         title = "Folletti Stanchi 😴";
