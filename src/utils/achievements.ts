@@ -1,67 +1,78 @@
-/**
- * Definizioni degli achievement e milestone nel progetto
- */
+import { generateStage } from "./stages";
+
+export interface AchievementReward {
+  emoji: string;
+  text: string;
+}
 
 export interface Achievement {
   id: string;
-  milestone: number; // Numero di storie per raggiungere l'obiettivo
+  milestone: string; // Formato: "1.1", "1.2", ..., "1.6"
   title: string;
   message: string;
-  reward: string;
-  rewardEmoji: string;
+  rewards: AchievementReward[];
+  isWorldCompletion: boolean;
 }
 
-export const ACHIEVEMENTS: Achievement[] = [
-  {
-    id: "story_five",
-    milestone: 5,
-    title: "Narratore Provetto",
-    message: "5 storie create! Stai diventando un vero narratore di favole magiche.",
-    reward: "Sblocchi il tema 'Mistero'",
-    rewardEmoji: "📖"
-  },
-  {
-    id: "story_ten",
-    milestone: 10,
-    title: "Maestro delle Fiabe",
-    message: "10 storie! La magia della narrazione scorre nelle tue vene.",
-    reward: "Sblocchi il tema 'Mitologia'",
-    rewardEmoji: "✨"
-  },
-  {
-    id: "story_twenty",
-    milestone: 20,
-    title: "Leggenda Vivente",
-    message: "20 storie! Sei diventato una leggenda nel regno delle favole.",
-    reward: "Sblocchi il tema 'Spazio'",
-    rewardEmoji: "🌟"
-  },
-  {
-    id: "story_fifty",
-    milestone: 50,
-    title: "Guardiano del Sapere",
-    message: "50 storie! Hai creato una biblioteca magica di incredibili avventure.",
-    reward: "Sblocchi il tema 'Supereroi'",
-    rewardEmoji: "👑"
+const createStageAchievement = (stageIndex: number): Achievement => {
+  const stage = generateStage(stageIndex);
+  const worldLabel = `${stage.worldIndex}`;
+  const milestone = `${worldLabel}.${stage.stageInWorld}`;
+
+  return {
+    id: stage.id,
+    milestone,
+    title: `Tappa ${stage.stageInWorld} completata`,
+    message: `Tappa ${stage.stageInWorld} (${stage.worldName}) completata.`,
+    rewards: [
+      {
+        emoji: "🎁",
+        text: "Hai sbloccato una nuova ricompensa della mappa!"
+      }
+    ],
+    isWorldCompletion: false
+  };
+};
+
+const createWorldCompletionAchievement = (worldIndex: number): Achievement => {
+  const stage = generateStage(worldIndex * 5);
+  const cleanWorldName = stage.worldName;
+
+  return {
+    id: `world_${worldIndex}_complete`,
+    milestone: `${worldIndex}.6`,
+    title: `Mondo ${worldIndex} completato`,
+    message: `Mondo ${worldIndex} (${cleanWorldName}) completato.`,
+    rewards: [
+      { emoji: "🏆", text: "Ricompensa epica del mondo sbloccata" },
+      { emoji: "✨", text: "Nuovo elemento magico disponibile" },
+      { emoji: "🗺️", text: "Sentiero del prossimo mondo aperto" }
+    ],
+    isWorldCompletion: true
+  };
+};
+
+/**
+ * Restituisce tutti i milestone raggiunti tra previousCount e newCount.
+ * Ogni multiplo di 5 completa una tappa, il 5° step del mondo aggiunge anche il milestone X.6.
+ */
+export function checkMilestonesReached(previousCount: number, newCount: number): Achievement[] {
+  if (newCount <= previousCount) return [];
+
+  const milestones: Achievement[] = [];
+  const prevStageIndex = Math.floor(previousCount / 5);
+  const newStageIndex = Math.floor(newCount / 5);
+
+  for (let stageIndex = prevStageIndex + 1; stageIndex <= newStageIndex; stageIndex++) {
+    const stageAchievement = createStageAchievement(stageIndex);
+    milestones.push(stageAchievement);
+
+    const stage = generateStage(stageIndex);
+    if (stage.stageInWorld === 5) {
+      milestones.push(createWorldCompletionAchievement(stage.worldIndex));
+    }
   }
-];
 
-/**
- * Trova il prossimo achievement da raggiungere
- */
-export function getNextAchievement(storiesGenerated: number): Achievement | null {
-  return ACHIEVEMENTS.find(a => a.milestone > storiesGenerated) || null;
-}
-
-/**
- * Verifica se un numero di storie raggiunge un milestone
- */
-export function checkMilestoneReached(
-  previousCount: number,
-  newCount: number
-): Achievement | null {
-  return ACHIEVEMENTS.find(
-    a => a.milestone <= newCount && a.milestone > previousCount
-  ) || null;
+  return milestones;
 }
 

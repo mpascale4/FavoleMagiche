@@ -1,23 +1,24 @@
 import React, { useState, useEffect } from "react";
-import { Sparkles, Gift, Trophy } from "lucide-react";
+import { Gift, Trophy } from "lucide-react";
 import { playClickSound } from "../utils/audio";
 import confetti from "canvas-confetti";
+import { type AchievementReward } from "../utils/achievements";
 
 interface AchievementModalProps {
   title: string;
   message: string;
-  reward: string;
-  rewardEmoji: string;
-  milestone: number;
+  rewards: AchievementReward[];
+  milestone: string;
+  isWorldCompletion?: boolean;
   onClaim: () => void;
 }
 
 export default function AchievementModal({
   title,
   message,
-  reward,
-  rewardEmoji,
+  rewards,
   milestone,
+  isWorldCompletion = false,
   onClaim
 }: AchievementModalProps) {
   const [isOpened, setIsOpened] = useState(false);
@@ -26,12 +27,20 @@ export default function AchievementModal({
     // Trigger confetti animation when box is opened
     if (isOpened) {
       confetti({
-        particleCount: 150,
-        spread: 80,
+        particleCount: isWorldCompletion ? 260 : 150,
+        spread: isWorldCompletion ? 110 : 80,
         origin: { y: 0.6 }
       });
+
+      if (isWorldCompletion) {
+        confetti({
+          particleCount: 180,
+          spread: 140,
+          origin: { y: 0.72 }
+        });
+      }
     }
-  }, [isOpened]);
+  }, [isOpened, isWorldCompletion]);
 
   return (
     <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-[300] animate-in fade-in">
@@ -66,7 +75,11 @@ export default function AchievementModal({
         </div>
       ) : (
         // Opened Box State
-        <div className="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-[2.5rem] border-4 border-yellow-300 shadow-[0_20px_60px_rgba(0,0,0,0.4)] max-w-sm w-full max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-300">
+        <div className={`rounded-[2.5rem] border-4 shadow-[0_20px_60px_rgba(0,0,0,0.4)] max-w-sm w-full max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-300 ${
+          isWorldCompletion
+            ? "bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 border-amber-400"
+            : "bg-gradient-to-br from-yellow-50 to-amber-50 border-yellow-300"
+        }`}>
           {/* Animated Background Elements */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
             <div className="absolute top-0 left-0 w-40 h-40 bg-yellow-200/20 rounded-full blur-3xl animate-pulse"></div>
@@ -76,13 +89,13 @@ export default function AchievementModal({
           {/* Content */}
           <div className="relative p-6 space-y-4 text-center flex flex-col items-center justify-center flex-1">
             {/* Trophy Icon with Animation */}
-            <div className="animate-bounce">
-              <Trophy size={64} className="text-yellow-600 mx-auto" />
+            <div className={isWorldCompletion ? "animate-bounce" : "animate-bounce"}>
+              <Trophy size={isWorldCompletion ? 74 : 64} className="text-yellow-600 mx-auto" />
             </div>
 
             {/* Title */}
-            <h2 className="text-2xl font-black text-amber-900 font-serif">
-              Hai completato la tappa {milestone}!
+            <h2 className={`font-black text-amber-900 font-serif ${isWorldCompletion ? "text-[1.75rem]" : "text-2xl"}`}>
+              {isWorldCompletion ? `MILESTONE ${milestone} COMPLETATA!` : `Hai completato la milestone ${milestone}!`}
             </h2>
 
             {/* Message */}
@@ -91,13 +104,34 @@ export default function AchievementModal({
             </p>
 
             {/* Reward Box */}
-            <div className="bg-gradient-to-br from-pink-100 to-rose-100 rounded-2xl border-3 border-pink-300 p-4 w-full mt-2">
+            <div className={`rounded-2xl border-3 p-4 w-full mt-2 ${
+              isWorldCompletion
+                ? "bg-gradient-to-br from-amber-100 via-yellow-100 to-orange-100 border-amber-300"
+                : "bg-gradient-to-br from-pink-100 to-rose-100 border-pink-300"
+            }`}>
               <div className="flex items-center justify-center gap-2 mb-2">
-                <Gift size={16} className="text-pink-600" />
-                <span className="text-xs font-black uppercase tracking-wider text-pink-700">Tuo Regalo:</span>
+                <Gift size={16} className={isWorldCompletion ? "text-amber-700" : "text-pink-600"} />
+                <span className={`text-xs font-black uppercase tracking-wider ${isWorldCompletion ? "text-amber-800" : "text-pink-700"}`}>
+                  {isWorldCompletion ? "Super Ricompense del Mondo" : "Tuo Regalo"}
+                </span>
               </div>
-              <div className="text-5xl mb-3 text-center drop-shadow-sm">{rewardEmoji}</div>
-              <div className="text-sm font-black text-pink-800 text-center">{reward}</div>
+              <div className={`grid gap-2 ${rewards.length > 1 ? "grid-cols-3" : "grid-cols-1"}`}>
+                {rewards.map((reward, idx) => (
+                  <div
+                    key={`${reward.text}-${idx}`}
+                    className={`rounded-xl border p-2 text-center ${
+                      isWorldCompletion
+                        ? "bg-white/80 border-amber-300"
+                        : "bg-white/80 border-pink-200"
+                    }`}
+                  >
+                    <div className="text-2xl mb-1">{reward.emoji}</div>
+                    <div className={`text-[11px] font-black leading-tight ${isWorldCompletion ? "text-amber-900" : "text-pink-800"}`}>
+                      {reward.text}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Claim Button (Chiudi) */}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Wifi, Battery, ShieldAlert, Sparkles, Star, Music, Volume2, VolumeX, Info } from "lucide-react";
+import { Wifi, Battery, ShieldAlert, Sparkles, Star, Info } from "lucide-react";
 import { playClickSound } from "../utils/audio";
 import { AppSettings } from "../types";
 import InfoModal from "./InfoModal";
@@ -63,23 +63,6 @@ export default function PhoneMockup({
   };
 
   const themeStyles = getThemeStyles(temaVisivo);
-
-  const musicOn = settings?.musicaSottofondo !== false;
-  const sfxOn = settings?.effettiAudio !== false;
-
-  const toggleMusic = () => {
-    playClickSound();
-    if (onUpdateSettings) {
-      onUpdateSettings({ musicaSottofondo: !musicOn });
-    }
-  };
-
-  const toggleSfx = () => {
-    playClickSound();
-    if (onUpdateSettings) {
-      onUpdateSettings({ effettiAudio: !sfxOn });
-    }
-  };
 
   useEffect(() => {
     const updateTime = () => {
@@ -160,35 +143,6 @@ export default function PhoneMockup({
                 </button>
               </div>
               <div className="flex items-center gap-2">
-                {settings && onUpdateSettings && (
-                  <div className={`flex items-center gap-1 border rounded-full p-0.5 ${isNightTheme ? "bg-slate-800 border-slate-600" : "bg-white/80 border-natural-pink-border"}`}>
-                    {/* Music Toggle */}
-                    <button
-                      onClick={toggleMusic}
-                      className={`w-7 h-7 rounded-full flex items-center justify-center transition-all active:scale-90 cursor-pointer ${
-                        musicOn
-                          ? (isNightTheme ? "bg-slate-700 text-amber-300 border border-slate-500" : "bg-amber-100 text-amber-600 border border-amber-200 shadow-xs")
-                          : "text-slate-400 hover:text-slate-600 bg-transparent"
-                      }`}
-                      title={musicOn ? "Spegni Musica" : "Accendi Musica"}
-                    >
-                      <Music size={11} />
-                    </button>
-
-                    {/* SFX Toggle */}
-                    <button
-                      onClick={toggleSfx}
-                      className={`w-7 h-7 rounded-full flex items-center justify-center transition-all active:scale-90 cursor-pointer ${
-                        sfxOn
-                          ? (isNightTheme ? "bg-slate-700 text-pink-300 border border-slate-500" : "bg-pink-100 text-pink-600 border border-pink-200 shadow-xs")
-                          : "text-slate-400 hover:text-slate-600 bg-transparent"
-                      }`}
-                      title={sfxOn ? "Spegni Effetti Audio" : "Accendi Effetti Audio"}
-                    >
-                      {sfxOn ? <Volume2 size={11} /> : <VolumeX size={11} />}
-                    </button>
-                  </div>
-                )}
                 <div className={`flex items-center gap-1 ${isNightTheme ? "text-slate-300" : "text-slate-500"}`}>
                   <Wifi size={12} />
                   <Battery size={12} />

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Volume2, VolumeX, Share2, Star, ChevronLeft, ChevronRight, Play, Pause, Square, Sparkles, Copy, Check, Music, Mic, Trash2, CheckCircle } from "lucide-react";
+import { ArrowLeft, Share2, Star, ChevronLeft, ChevronRight, Play, Pause, Square, Sparkles, Copy, Check, Mic, Trash2, CheckCircle } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Story, AppSettings, ChildProfile } from "../types";
 import { audioEngine } from "../lib/audioEngine";
@@ -127,7 +127,6 @@ export default function StoryReaderView({
   const [showShareModal, setShowShareModal] = useState(false);
   const [voiceType, setVoiceType] = useState<"narratore" | "femminile" | "maschile" | "robotica">("narratore");
   const [musicOn, setMusicOn] = useState<boolean>(settings?.musicaSottofondo !== false);
-  const [sfxOn, setSfxOn] = useState<boolean>(settings?.effettiAudio !== false);
   const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [selectedVoiceName, setSelectedVoiceName] = useState<string>("");
 
@@ -412,9 +411,6 @@ export default function StoryReaderView({
       }
       if (settings.musicaSottofondo !== undefined) {
         setMusicOn(settings.musicaSottofondo);
-      }
-      if (settings.effettiAudio !== undefined) {
-        setSfxOn(settings.effettiAudio);
       }
     }
   }, [settings]);
@@ -1104,45 +1100,6 @@ export default function StoryReaderView({
             </button>
           </div>
 
-          {/* Music Toggle */}
-          <button
-            onClick={() => {
-              const newVal = !musicOn;
-              setMusicOn(newVal);
-              if (onUpdateSettings) {
-                onUpdateSettings({ musicaSottofondo: newVal });
-              }
-            }}
-            id="btn-toggle-music"
-            className={`w-9 h-9 rounded-xl flex items-center justify-center border-2 transition-all active:scale-90 cursor-pointer ${
-              musicOn
-                ? "bg-amber-100 text-amber-600 border-amber-300 shadow-xs"
-                : `${currentThemeClasses.buttonBack} opacity-50`
-            }`}
-            title={musicOn ? "Spegni Musica" : "Accendi Musica"}
-          >
-            <Music size={16} />
-          </button>
-
-          {/* SFX Toggle */}
-          <button
-            onClick={() => {
-              const newVal = !sfxOn;
-              setSfxOn(newVal);
-              if (onUpdateSettings) {
-                onUpdateSettings({ effettiAudio: newVal });
-              }
-            }}
-            id="btn-toggle-sfx"
-            className={`w-9 h-9 rounded-xl flex items-center justify-center border-2 transition-all active:scale-90 cursor-pointer ${
-              sfxOn
-                ? "bg-pink-100 text-pink-600 border-pink-300 shadow-xs"
-                : `${currentThemeClasses.buttonBack} opacity-50`
-            }`}
-            title={sfxOn ? "Spegni Effetti Audio" : "Accendi Effetti Audio"}
-          >
-            {sfxOn ? <Volume2 size={16} /> : <VolumeX size={16} />}
-          </button>
 
           {/* Bedtime Sleep Timer Button */}
           <button

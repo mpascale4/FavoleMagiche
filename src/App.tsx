@@ -22,7 +22,7 @@ import { getEducationalThemeDisplayName } from "./utils/themeNames";
 import { generateStoryClient, StoryGenerationConfig } from "./lib/storyGenerator";
 import { getGeminiApiKeyStatus } from "./config/api";
 import { getGenerationLogs } from "./lib/storyGenerator";
-import { checkMilestoneReached, type Achievement } from "./utils/achievements";
+import { checkMilestonesReached, type Achievement } from "./utils/achievements";
 
 type GeminiRuntimeStatus = {
   state: "unknown" | "ok" | "fallback";
@@ -132,6 +132,7 @@ export default function App() {
   const [usedUnlockedItems, setUsedUnlockedItems] = useState<string[]>([]);
   const [generationError, setGenerationError] = useState<{ title: string; message: string; reason: string } | null>(null);
   const [achievementModal, setAchievementModal] = useState<Achievement | null>(null);
+  const [achievementQueue, setAchievementQueue] = useState<Achievement[]>([]);
 
   // Loading state for story creation parameters to show on generating screen
   const [currentGenerationConfig, setCurrentGenerationConfig] = useState<{
@@ -791,10 +792,15 @@ export default function App() {
       localStorage.setItem("favole_magiche_gen_count", String(nextCount));
       localStorage.setItem("favole_magiche_gen_date", todayStr);
 
-      // Verifica se è stato raggiunto un milestone
-      const milestone = checkMilestoneReached(generatedToday, nextCount);
-      if (milestone) {
-        setAchievementModal(milestone);
+      // Achievement solo su completamento tappe/mondi, basati su numero storie create
+      const previousStoriesCount = stories.length;
+      const newStoriesCount = updatedStoriesList.length;
+      const milestonesReached = checkMilestonesReached(previousStoriesCount, newStoriesCount);
+      if (milestonesReached.length > 0) {
+        setAchievementModal(milestonesReached[0]);
+        if (milestonesReached.length > 1) {
+          setAchievementQueue(prev => [...prev, ...milestonesReached.slice(1)]);
+        }
       }
 
       setReaderBackTarget("home");
@@ -1440,11 +1446,17 @@ export default function App() {
          <AchievementModal
            title={achievementModal.title}
            message={achievementModal.message}
-           reward={achievementModal.reward}
-           rewardEmoji={achievementModal.rewardEmoji}
+            rewards={achievementModal.rewards}
            milestone={achievementModal.milestone}
+            isWorldCompletion={achievementModal.isWorldCompletion}
            onClaim={() => {
-             setAchievementModal(null);
+              if (achievementQueue.length > 0) {
+                const [next, ...rest] = achievementQueue;
+                setAchievementModal(next);
+                setAchievementQueue(rest);
+              } else {
+                setAchievementModal(null);
+              }
            }}
          />
        )}
