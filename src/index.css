@@ -16,6 +16,39 @@
   --color-natural-yellow-light: #FFE082;
   --color-natural-blue-light: #B3E5FC;
   --color-natural-green-light: #C8E6C9;
+
+  /* Accessible app tokens */
+  --color-app-bg: #FFFFFF;
+  --color-app-surface: #F8FAFC;
+  --color-app-text-primary: #1F2937;
+  --color-app-text-secondary: #4B5563;
+  --color-app-primary: #1D4ED8;
+  --color-app-success: #059669;
+  --color-app-warning: #D97706;
+  --color-app-error: #DC2626;
+}
+
+:root {
+  --app-bg: #ffffff;
+  --app-surface: #f8fafc;
+  --app-text-primary: #1f2937;
+  --app-text-secondary: #4b5563;
+  --app-primary: #1d4ed8;
+  --app-success: #059669;
+  --app-warning: #d97706;
+  --app-error: #dc2626;
+}
+
+.night-theme,
+:root[data-theme='dark'] {
+  --app-bg: #111827;
+  --app-surface: #1f2937;
+  --app-text-primary: #f9fafb;
+  --app-text-secondary: #d1d5db;
+  --app-primary: #60a5fa;
+  --app-success: #34d399;
+  --app-warning: #fbbf24;
+  --app-error: #f87171;
 }
 
 /* Custom scrolling classes */
@@ -40,19 +73,19 @@
 }
 
 @keyframes magicBlink {
-  0%, 100% { opacity: 1; filter: drop-shadow(0 0 10px rgba(249, 168, 37, 0.8)); }
-  50% { opacity: 0.2; filter: drop-shadow(0 0 2px rgba(249, 168, 37, 0.2)); }
+  0%, 100% { opacity: 1; filter: drop-shadow(0 0 10px color-mix(in srgb, var(--app-warning) 80%, transparent)); }
+  50% { opacity: 0.2; filter: drop-shadow(0 0 2px color-mix(in srgb, var(--app-warning) 20%, transparent)); }
 }
 
 @keyframes buttonBlink {
   0%, 100% {
-    border-color: #FFE082;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 0 6px rgba(249, 168, 37, 0.2);
+    border-color: var(--color-natural-yellow-light);
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 0 6px color-mix(in srgb, var(--app-warning) 20%, transparent);
   }
   50% {
-    border-color: #F57C00;
-    box-shadow: 0 0 18px rgba(249, 168, 37, 0.75);
-    background-color: #FFFDE7;
+    border-color: var(--app-warning);
+    box-shadow: 0 0 18px color-mix(in srgb, var(--app-warning) 75%, transparent);
+    background-color: color-mix(in srgb, var(--app-warning) 14%, var(--app-bg));
   }
 }
 

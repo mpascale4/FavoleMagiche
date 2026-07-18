@@ -50,8 +50,8 @@ export default function AchievementModal({
         onClick={(e) => e.stopPropagation()}
         className={`relative z-[310] rounded-[2.5rem] border-4 shadow-[0_20px_60px_rgba(0,0,0,0.4)] w-full max-w-sm max-h-[90vh] overflow-y-auto flex flex-col animate-in zoom-in-95 duration-300 ${
         isWorldCompletion
-          ? "bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 border-amber-400"
-          : "bg-[#FFFDE7] border-[#FFE082]"
+          ? "bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-100 border-amber-500"
+          : "bg-amber-50 border-amber-300"
       }`}>
         {/* Content Container */}
         <div className="relative p-8 space-y-6 text-center flex flex-col items-center justify-center">
@@ -100,7 +100,7 @@ export default function AchievementModal({
           {showRewards && (
             <div className={`w-full rounded-2xl border-4 p-5 animate-in fade-in zoom-in-95 duration-300 ${
               isWorldCompletion
-                ? "bg-gradient-to-br from-amber-100 via-yellow-100 to-orange-100 border-amber-400"
+                ? "bg-gradient-to-br from-amber-100 via-yellow-100 to-orange-200 border-amber-500"
                 : "bg-gradient-to-br from-pink-100 to-rose-100 border-pink-300"
             }`}>
               <div className="flex items-center justify-center gap-2 mb-4">

@@ -674,7 +674,7 @@ export default function NewStoryView({
         <button
           onClick={handleRandomizeAll}
           id="btn-random-story-config"
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-400 hover:from-amber-500 hover:to-amber-600 text-slate-950 text-[10.5px] font-black rounded-full shadow-md border-b-2 border-amber-600 active:border-b-0 active:translate-y-[2px] transition-all cursor-pointer uppercase tracking-wider animate-pulse ring-4 ring-amber-400/60 shadow-[0_0_15px_rgba(245,124,0,0.4)] shrink-0"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-400 hover:from-amber-500 hover:to-amber-600 text-slate-950 text-[10.5px] font-black rounded-full shadow-md border-b-2 border-amber-700 active:border-b-0 active:translate-y-[2px] transition-all cursor-pointer uppercase tracking-wider animate-pulse ring-4 ring-amber-400/60 shrink-0"
           title="Genera casualmente categoria, tema, tipo e caratteristica personaggio!"
         >
           <Sparkles size={11} className="animate-bounce" />
@@ -686,7 +686,7 @@ export default function NewStoryView({
         
         {/* Bedtime Mode Cozy Banner */}
         {isBedtimeMode && (
-          <div className="bg-gradient-to-r from-[#1A237E] via-[#283593] to-[#1A237E] border-4 border-[#7986CB] rounded-[2rem] p-3.5 text-white shadow-lg space-y-1.5 relative overflow-hidden shrink-0">
+          <div className="bg-gradient-to-r from-indigo-900 via-indigo-800 to-indigo-900 border-4 border-indigo-300 rounded-[2rem] p-3.5 text-white shadow-lg space-y-1.5 relative overflow-hidden shrink-0">
             {/* Stars overlay in background */}
             <div className="absolute top-2 right-4 text-xs animate-pulse opacity-80">✨</div>
             <div className="absolute bottom-2 left-4 text-xs animate-pulse opacity-60">⭐</div>

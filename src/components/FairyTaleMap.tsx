@@ -56,24 +56,24 @@ export default function FairyTaleMap({
   };
 
   return (
-    <div className="w-full bg-gradient-to-b from-[#FFFDF0] to-[#FFF9E6] border-4 border-[#FFE082] rounded-[2rem] p-4 shadow-sm relative overflow-hidden shrink-0">
+    <div className="w-full bg-linear-to-b from-amber-50 to-amber-100 border-4 border-natural-yellow-light rounded-[2rem] p-4 shadow-sm relative overflow-hidden shrink-0">
       {/* Sparkles on corner */}
       <div className="absolute top-3 right-3 text-sm animate-pulse">✨</div>
       <div className="absolute bottom-3 left-3 text-sm animate-pulse">✨</div>
 
       {/* Map Header */}
       <div className="flex items-center gap-2 border-b-2 border-amber-200/50 pb-2.5 mb-5 shrink-0">
-        <Trophy className="text-[#FFB300] shrink-0 animate-bounce" size={18} />
+        <Trophy className="text-amber-600 shrink-0 animate-bounce" size={18} />
         <div className="text-left">
           <h4 className="font-extrabold text-xs text-natural-burgundy leading-none">Mappa delle Fiabe Magiche</h4>
-          <p className="text-[8.5px] text-[#EC407A] font-black uppercase tracking-wider mt-0.5">Il tuo sentiero dei sogni</p>
+          <p className="text-[8.5px] text-natural-pink font-black uppercase tracking-wider mt-0.5">Il tuo sentiero dei sogni</p>
         </div>
       </div>
 
       {/* Scrollable Map Path Container */}
       <div className="px-1 py-2 relative">
         {/* Winding connecting line behind */}
-        <div className="absolute left-1/2 -translate-x-1/2 top-4 bottom-12 w-1.5 bg-dashed border-l-4 border-dashed border-[#FFD54F]/60 z-0"></div>
+        <div className="absolute left-1/2 -translate-x-1/2 top-4 bottom-12 w-1.5 bg-dashed border-l-4 border-dashed border-amber-300/70 z-0"></div>
         <div className="flex flex-col gap-8 relative z-10">
           {stages.map((ach, index) => {
             const currentTotal = createdCount; // Using createdCount as progress metric
@@ -105,7 +105,7 @@ export default function FairyTaleMap({
                 <div className={`flex ${alignClass} items-center relative w-full`}>
                   
                   {/* Visual Connection Pin pointing to center line */}
-                  <div className={`absolute top-1/2 -translate-y-1/2 w-8 h-0.5 border-t-2 border-dashed border-[#FFD54F]/70 hidden sm:block ${
+                  <div className={`absolute top-1/2 -translate-y-1/2 w-8 h-0.5 border-t-2 border-dashed border-amber-300/80 hidden sm:block ${
                     isLeft ? "left-1/2" : "right-1/2"
                   }`} />
 
@@ -115,9 +115,9 @@ export default function FairyTaleMap({
                     onClick={() => setSelectedMilestone(ach)}
                     className={`relative p-3 rounded-2xl border-4 max-w-[170px] text-left transition-all duration-300 shadow-md ${
                       isClaimed
-                        ? "bg-gradient-to-br from-[#E8F5E9] to-[#C8E6C9] border-[#81C784] hover:scale-103 cursor-pointer"
+                        ? "bg-gradient-to-br from-emerald-50 to-emerald-100 border-emerald-300 hover:scale-103 cursor-pointer"
                         : isClaimable
-                          ? "bg-gradient-to-br from-[#FFFDE7] to-[#FFF59D] border-[#FBC02D] animate-button-blink hover:scale-105 cursor-pointer shadow-[0_0_15px_rgba(253,216,53,0.4)]"
+                          ? "bg-gradient-to-br from-amber-50 to-amber-200 border-amber-500 animate-button-blink hover:scale-105 cursor-pointer shadow-[0_0_15px_rgba(253,216,53,0.4)]"
                           : isUnlocked 
                             ? "bg-white border-sky-300 opacity-100 hover:scale-102 cursor-pointer shadow-[0_0_10px_rgba(129,212,250,0.5)]" 
                             : "bg-slate-100/90 border-slate-300 opacity-60 cursor-pointer"
@@ -139,7 +139,7 @@ export default function FairyTaleMap({
 
                     {/* Claimable gift box bounce */}
                     {isClaimable && (
-                      <div className="absolute -top-3.5 -right-3 px-1.5 py-0.5 bg-gradient-to-r from-[#EC407A] to-pink-500 text-white text-[8px] font-black uppercase rounded-full border-2 border-white animate-bounce shadow-md">
+                      <div className="absolute -top-3.5 -right-3 px-1.5 py-0.5 bg-gradient-to-r from-natural-pink to-pink-600 text-white text-[8px] font-black uppercase rounded-full border-2 border-white animate-bounce shadow-md">
                         Apri 🎁
                       </div>
                     )}
@@ -186,7 +186,7 @@ export default function FairyTaleMap({
 
         return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-5 z-50 animate-fade-in">
-          <div className="bg-white rounded-[2rem] border-4 border-[#FFB300] p-5 max-w-xs w-full text-center space-y-4 shadow-2xl relative">
+          <div className="bg-white rounded-[2rem] border-4 border-amber-500 p-5 max-w-xs w-full text-center space-y-4 shadow-2xl relative">
             <button
               onClick={() => setSelectedMilestone(null)}
               className="absolute -top-3.5 -right-3.5 bg-rose-500 hover:bg-rose-600 active:scale-95 text-white font-bold w-11 h-11 flex items-center justify-center rounded-full border-4 border-white shadow-lg cursor-pointer z-50 transition-all"
@@ -219,7 +219,7 @@ export default function FairyTaleMap({
               </div>
               <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden border">
                 <div
-                  className="bg-gradient-to-r from-amber-400 to-[#FFB300] h-full transition-all duration-500"
+                  className="bg-gradient-to-r from-amber-400 to-amber-600 h-full transition-all duration-500"
                   style={{
                     width: `${(progressInStage / 5) * 100}%`
                   }}
@@ -238,7 +238,7 @@ export default function FairyTaleMap({
                   type="button"
                   onClick={() => handleClaim(selectedMilestone.id)}
                   disabled={!!claimingId}
-                  className="w-full py-2.5 bg-gradient-to-r from-amber-400 to-[#FFB300] hover:brightness-105 active:scale-98 border-b-4 border-amber-700 text-slate-800 rounded-full text-[11px] font-black transition-transform cursor-pointer"
+                  className="w-full py-2.5 bg-gradient-to-r from-amber-400 to-amber-600 hover:brightness-105 active:scale-98 border-b-4 border-amber-800 text-slate-900 rounded-full text-[11px] font-black transition-transform cursor-pointer"
                 >
                   {claimingId ? "Apertura scrigno... 🪄" : (selectedMilestone.stageInWorld === 5 ? "Riscatta GRANDE Ricompensa del Mondo! 🎆" : "Riscatta Ricompensa Segreta! 🎁")}
                 </button>
