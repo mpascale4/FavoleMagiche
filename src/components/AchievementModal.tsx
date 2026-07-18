@@ -131,13 +131,18 @@ export default function AchievementModal({
                   </div>
                 ))}
               </div>
-            </div>
-          )}
 
-          {/* Auto-close after a delay if user clicks box */}
-          {showRewards && (
-            <div className="mt-4 text-[12px] font-bold text-slate-600">
-              Tocca altrove per continuare
+              <button
+                type="button"
+                onClick={() => {
+                  playClickSound();
+                  setShowRewards(false);
+                  onClaim();
+                }}
+                className="mt-4 w-full py-3 px-4 bg-slate-900 hover:bg-slate-800 active:scale-95 text-white font-black text-base rounded-xl transition-all cursor-pointer shadow-md"
+              >
+                Chiudi
+              </button>
             </div>
           )}
         </div>
