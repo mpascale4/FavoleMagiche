@@ -892,6 +892,7 @@ export default function App() {
 
   // Developer Mode Test Functions
   const handleTestStageAchievement = (stageIndex: number) => {
+    setIsDeveloperMode(false);
     const achievements = checkMilestonesReached(stageIndex - 1, stageIndex);
     console.log(`🧪 Stage ${stageIndex} achievement:`, achievements);
     if (achievements.length > 0) {
@@ -903,6 +904,7 @@ export default function App() {
   };
 
   const handleTestWorldAchievement = (worldIndex: number) => {
+    setIsDeveloperMode(false);
     const lastStageIndex = worldIndex * 5;
     const achievements = checkMilestonesReached(lastStageIndex - 1, lastStageIndex);
     console.log(`🧪 World ${worldIndex} achievement:`, achievements);

@@ -21,31 +21,35 @@ export default function AchievementModal({
   isWorldCompletion = false,
   onClaim
 }: AchievementModalProps) {
-  const [isOpened, setIsOpened] = useState(false);
   const [showRewards, setShowRewards] = useState(false);
 
   useEffect(() => {
-    // Trigger confetti animation when box is opened
-    if (isOpened) {
-      confetti({
-        particleCount: isWorldCompletion ? 260 : 150,
-        spread: isWorldCompletion ? 110 : 80,
-        origin: { y: 0.6 }
-      });
+    confetti({
+      particleCount: isWorldCompletion ? 260 : 150,
+      spread: isWorldCompletion ? 110 : 80,
+      origin: { y: 0.6 }
+    });
 
-      if (isWorldCompletion) {
-        confetti({
-          particleCount: 180,
-          spread: 140,
-          origin: { y: 0.72 }
-        });
-      }
+    if (isWorldCompletion) {
+      confetti({
+        particleCount: 180,
+        spread: 140,
+        origin: { y: 0.72 }
+      });
     }
-  }, [isOpened, isWorldCompletion]);
+  }, [isWorldCompletion]);
 
   return (
-    <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-[300] animate-in fade-in">
-      <div className={`rounded-[2.5rem] border-4 shadow-[0_20px_60px_rgba(0,0,0,0.4)] w-full max-w-sm max-h-[90vh] overflow-y-auto flex flex-col animate-in zoom-in-95 duration-300 ${
+    <div
+      className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-[300] animate-in fade-in"
+      onClick={() => {
+        playClickSound();
+        onClaim();
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className={`relative z-[310] rounded-[2.5rem] border-4 shadow-[0_20px_60px_rgba(0,0,0,0.4)] w-full max-w-sm max-h-[90vh] overflow-y-auto flex flex-col animate-in zoom-in-95 duration-300 ${
         isWorldCompletion
           ? "bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 border-amber-400"
           : "bg-[#FFFDE7] border-[#FFE082]"
@@ -142,16 +146,6 @@ export default function AchievementModal({
           )}
         </div>
       </div>
-
-      {/* Click outside to close */}
-      <div
-        className="absolute inset-0 z-[250]"
-        onClick={() => {
-          playClickSound();
-          onClaim();
-        }}
-        aria-hidden="true"
-      />
     </div>
   );
 }
