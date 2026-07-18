@@ -136,6 +136,7 @@ export default function App() {
   const [achievementModal, setAchievementModal] = useState<Achievement | null>(null);
   const [achievementQueue, setAchievementQueue] = useState<Achievement[]>([]);
   const [achievementRewardsOpened, setAchievementRewardsOpened] = useState<Record<string, AchievementReward[]>>({});
+  const [achievementReturnTarget, setAchievementReturnTarget] = useState<"app" | "developer">("app");
   const [showDeveloperPinModal, setShowDeveloperPinModal] = useState<boolean>(false);
   const [isDeveloperMode, setIsDeveloperMode] = useState<boolean>(false);
 
@@ -831,6 +832,7 @@ export default function App() {
       const newStoriesCount = updatedStoriesList.length;
       const milestonesReached = checkMilestonesReached(previousStoriesCount, newStoriesCount);
       if (milestonesReached.length > 0) {
+        setAchievementReturnTarget("app");
         setAchievementModal(milestonesReached[0]);
         if (milestonesReached.length > 1) {
           setAchievementQueue(prev => [...prev, ...milestonesReached.slice(1)]);
@@ -923,6 +925,7 @@ export default function App() {
   // Developer Mode Test Functions
   const handleTestStageAchievement = (stageIndex: number) => {
     setIsDeveloperMode(false);
+    setAchievementReturnTarget("developer");
     const achievements = checkMilestonesReached(stageIndex * 5 - 1, stageIndex * 5);
     console.log(`🧪 Stage ${stageIndex} achievement:`, achievements);
     if (achievements.length > 0) {
@@ -935,6 +938,7 @@ export default function App() {
 
   const handleTestWorldAchievement = (worldIndex: number) => {
     setIsDeveloperMode(false);
+    setAchievementReturnTarget("developer");
     const worldCompletionCount = worldIndex * 25;
     const achievements = checkMilestonesReached(worldCompletionCount - 1, worldCompletionCount);
     console.log(`🧪 World ${worldIndex} achievement:`, achievements);
@@ -949,6 +953,8 @@ export default function App() {
   const handleOpenAchievementModalById = (id: string) => {
     const achievement = getAchievementById(id);
     if (!achievement) return;
+
+    setAchievementReturnTarget("app");
 
     setAchievementRewardsOpened(prev => {
       const next = { ...prev };
@@ -1541,17 +1547,20 @@ export default function App() {
               return mapUnlockedToRewards(unlocked);
             }}
            onClaim={() => {
+              const returnTarget = achievementReturnTarget;
+
               setAchievementRewardsOpened(prev => {
                 const next = { ...prev };
                 if (achievementModal) delete next[achievementModal.id];
                 return next;
               });
-              if (achievementQueue.length > 0) {
-                const [next, ...rest] = achievementQueue;
-                setAchievementModal(next);
-                setAchievementQueue(rest);
-              } else {
-                setAchievementModal(null);
+
+              // Close the full achievement flow and go back to the original context.
+              setAchievementModal(null);
+              setAchievementQueue([]);
+
+              if (returnTarget === "developer") {
+                setIsDeveloperMode(true);
               }
            }}
          />
