@@ -194,3 +194,24 @@
 .night-theme [class*="border-blue-"], .night-theme [class*="border-sky-"] { border-color: #0c4a6e !important; } /* sky-900 */
 .night-theme [class*="border-indigo-"] { border-color: #312e81 !important; } /* indigo-900 */
 .night-theme [class*="border-purple-"], .night-theme [class*="border-pink-"], .night-theme [class*="border-fuchsia-"] { border-color: #581c87 !important; } /* purple-900 */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-fade-in,
+  .animate-shake,
+  .animate-magic-blink,
+  .animate-button-blink,
+  .animate-pulse,
+  .animate-bounce-slow {
+    animation: none !important;
+  }
+}
+

@@ -99,15 +99,15 @@ export default function PhoneMockup({
   return (
     <div id="app-container" className="min-h-screen bg-natural-bg flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-hidden relative font-sans text-natural-text">
       {/* Decorative Background Elements from Design HTML */}
-      <div className="absolute top-10 left-10 w-32 h-16 bg-white opacity-60 rounded-full blur-xl"></div>
-      <div className="absolute top-40 right-20 w-40 h-20 bg-white opacity-40 rounded-full blur-2xl"></div>
-      <div className="absolute bottom-10 left-1/2 w-48 h-24 bg-[#FFF176] opacity-20 rounded-full blur-3xl"></div>
+      <div aria-hidden="true" className="absolute top-10 left-10 w-32 h-16 bg-white opacity-60 rounded-full blur-xl"></div>
+      <div aria-hidden="true" className="absolute top-40 right-20 w-40 h-20 bg-white opacity-40 rounded-full blur-2xl"></div>
+      <div aria-hidden="true" className="absolute bottom-10 left-1/2 w-48 h-24 bg-[#FFF176] opacity-20 rounded-full blur-3xl"></div>
 
       {/* Main Container */}
       <div className="flex flex-col lg:flex-row items-center gap-6 max-w-5xl w-full z-10 justify-center">
         
         {/* Desktop Side Info Panel */}
-        <div className="hidden lg:flex flex-col max-w-xs text-natural-text bg-white/80 p-6 rounded-[2rem] border-4 border-natural-pink-border shadow-sm gap-4">
+        <aside aria-label="Informazioni app" className="hidden lg:flex flex-col max-w-xs text-natural-text bg-white/80 p-6 rounded-[2rem] border-4 border-natural-pink-border shadow-sm gap-4">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 bg-gradient-to-br from-natural-pink to-[#F06292] rounded-2xl flex items-center justify-center shadow-lg transform -rotate-3 shrink-0">
               <span className="text-3xl">✨</span>
@@ -126,7 +126,7 @@ export default function PhoneMockup({
               <span className="font-bold bg-white px-2 py-0.5 rounded-full border border-natural-blue-light">{generatedToday}</span>
             </div>
           </div>
-        </div>
+        </aside>
 
         {/* Smartphone Container Mockup with Espresso Bezel matching the Natural Tones mood */}
         <div id="phone-frame" className="relative w-full max-w-[400px] h-[780px] bg-[#5D4037] rounded-[50px] p-3 shadow-2xl border-4 border-[#3E2723] flex flex-col overflow-hidden shrink-0">
@@ -154,6 +154,7 @@ export default function PhoneMockup({
                       : "bg-white/80 text-natural-burgundy border border-natural-pink-border shadow-xs"
                   }`}
                   title="Info versione"
+                  aria-label="Apri informazioni versione"
                   id="btn-status-info"
                 >
                   <Info size={11} />
@@ -171,6 +172,8 @@ export default function PhoneMockup({
                           : "text-slate-400 hover:text-slate-600 bg-transparent"
                       }`}
                       title={musicOn ? "Spegni Musica" : "Accendi Musica"}
+                      aria-label={musicOn ? "Disattiva musica di sottofondo" : "Attiva musica di sottofondo"}
+                      aria-pressed={musicOn}
                     >
                       <Music size={11} />
                     </button>
@@ -184,6 +187,8 @@ export default function PhoneMockup({
                           : "text-slate-400 hover:text-slate-600 bg-transparent"
                       }`}
                       title={sfxOn ? "Spegni Effetti Audio" : "Accendi Effetti Audio"}
+                      aria-label={sfxOn ? "Disattiva effetti audio" : "Attiva effetti audio"}
+                      aria-pressed={sfxOn}
                     >
                       {sfxOn ? <Volume2 size={11} /> : <VolumeX size={11} />}
                     </button>

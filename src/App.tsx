@@ -140,7 +140,20 @@ export default function App() {
   const [achievementReturnTarget, setAchievementReturnTarget] = useState<"app" | "developer">("app");
   const [showDeveloperPinModal, setShowDeveloperPinModal] = useState<boolean>(false);
   const [isDeveloperMode, setIsDeveloperMode] = useState<boolean>(false);
+  const [screenAnnouncement, setScreenAnnouncement] = useState<string>("Schermata iniziale caricata");
   type UnlockPoolType = "category" | "theme" | "characterType" | "characterTrait";
+
+  const screenLabels: Record<ScreenType, string> = {
+    home: "Home",
+    profiles: "Profili",
+    "new-story": "Nuova storia",
+    generating: "Generazione",
+    reader: "Lettura",
+    archive: "Archivio",
+    settings: "Impostazioni",
+    albero: "Albero della crescita",
+    premium: "Premium",
+  };
 
   const getPrioritizedAchievementFlow = (achievements: Achievement[]): { current: Achievement; queue: Achievement[] } | null => {
     if (achievements.length === 0) return null;
@@ -1079,8 +1092,19 @@ export default function App() {
   const geminiKeyStatus = getGeminiApiKeyStatus();
   const showGeminiBanner = import.meta.env.DEV && geminiKeyStatus !== "loaded";
 
+  useEffect(() => {
+    const label = screenLabels[screen] || "Schermata";
+    setScreenAnnouncement(`Sezione attiva: ${label}`);
+  }, [screen]);
+
   return (
     <>
+      <a
+        href="#app-main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[10000] focus:rounded-lg focus:bg-blue-700 focus:px-3 focus:py-2 focus:text-sm focus:font-bold focus:text-white"
+      >
+        Salta al contenuto principale
+      </a>
       {showGeminiBanner && (
         <div style={{
           position: "fixed", top: 0, left: 0, right: 0, zIndex: 9999,
@@ -1099,6 +1123,7 @@ export default function App() {
           )}
         </div>
       )}
+    <main id="app-main-content" role="main" aria-label="Applicazione Favole Magiche">
     <PhoneMockup
       generatedToday={generatedToday}
       settings={settings}
@@ -1739,6 +1764,10 @@ export default function App() {
         />
       )}
     </PhoneMockup>
+    </main>
+    <p className="sr-only" aria-live="polite" aria-atomic="true">
+      {screenAnnouncement}
+    </p>
     </>
   );
 }

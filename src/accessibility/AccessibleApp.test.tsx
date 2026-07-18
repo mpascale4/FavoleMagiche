@@ -56,7 +56,7 @@ describe('AccessibleApp', () => {
   it('has no critical axe violations', async () => {
     const { container } = render(<AccessibleApp />);
     const results = await axe(container);
-    expect(results).toHaveNoViolations();
+    (expect(results) as any).toHaveNoViolations();
   });
 });
 
