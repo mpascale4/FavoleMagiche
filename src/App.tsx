@@ -366,19 +366,19 @@ export default function App() {
 
     // 2. Unlocked Categories
     const categoriesKey = getProfileStorageKey("favole_magiche_unlocked_categories", profileId);
-    setUnlockedCategories(readJsonStorage<string[]>(categoriesKey, INITIAL_CATEGORIES));
+    setUnlockedCategories(Array.from(new Set([...INITIAL_CATEGORIES, ...readJsonStorage<string[]>(categoriesKey, INITIAL_CATEGORIES)])));
 
     // 3. Unlocked Themes
     const themesKey = getProfileStorageKey("favole_magiche_unlocked_themes", profileId);
-    setUnlockedThemes(readJsonStorage<string[]>(themesKey, INITIAL_THEMES));
+    setUnlockedThemes(Array.from(new Set([...INITIAL_THEMES, ...readJsonStorage<string[]>(themesKey, INITIAL_THEMES)])));
 
     // 4. Unlocked Character Types
     const charTypesKey = getProfileStorageKey("favole_magiche_unlocked_character_types", profileId);
-    setUnlockedCharacterTypes(readJsonStorage<string[]>(charTypesKey, INITIAL_CHARACTER_TYPES));
+    setUnlockedCharacterTypes(Array.from(new Set([...INITIAL_CHARACTER_TYPES, ...readJsonStorage<string[]>(charTypesKey, INITIAL_CHARACTER_TYPES)])));
 
     // 5. Unlocked Character Traits
     const charTraitsKey = getProfileStorageKey("favole_magiche_unlocked_character_traits", profileId);
-    setUnlockedCharacterTraits(readJsonStorage<string[]>(charTraitsKey, INITIAL_CHARACTER_TRAITS));
+    setUnlockedCharacterTraits(Array.from(new Set([...INITIAL_CHARACTER_TRAITS, ...readJsonStorage<string[]>(charTraitsKey, INITIAL_CHARACTER_TRAITS)])));
 
     // 6. Last Unlock Date
     const lastUnlockKey = getProfileStorageKey("favole_magiche_last_unlock_date", profileId);
@@ -984,10 +984,10 @@ export default function App() {
       let message = "Si è verificato un errore durante la creazione della storia.";
       let reason = errorMsg;
 
-      if (errorMsg.includes("Nessun modello Gemini disponibile")) {
-        title = "Nessun Modello Disponibile";
-        message = "Non è possibile generare la storia con l'IA al momento.";
-        reason = "Nessun modello Gemini ha quota disponibile. Aspetta che la quota si rinnovi (solitamente ogni 24h) oppure abilita la fatturazione nel progetto Google AI.";
+      if (errorMsg.includes("Nessun modello Gemini disponibile") || errorMsg.toLowerCase().includes("failed to call")) {
+        title = "Folletti Stanchi 😴";
+        message = "I folletti della magia hanno bisogno di un riposino.";
+        reason = "Torniamo più tardi quando avranno ricaricato le bacchette magiche!";
       }
 
       setGenerationError({ title, message, reason });

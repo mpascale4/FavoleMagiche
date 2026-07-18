@@ -411,7 +411,7 @@ export async function generateStoryClient(
       error: (error as Error)?.message
     });
 
-    options.onProgress?.(78, `${fallbackReason}. Creo una favola offline...`);
+    options.onProgress?.(78, `${fallbackReason}. Preparo una favola segreta...`);
     return generateFallbackStory(config, fallbackReason);
   }
 }
