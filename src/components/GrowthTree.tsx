@@ -97,18 +97,18 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
     if (gameState !== 'playing') return;
 
     // Faster spawn based on required clicks (level proxy)
-    const spawnRate = Math.max(300, 1500 - (gameLevel - 1) * 300);
+    const spawnRate = Math.max(500, 1500 - (gameLevel - 1) * 150);
 
     const spawnInterval = setInterval(() => {
       setActiveTargets(prev => {
-        if (prev.length >= (3 + gameLevel * 2)) return prev; // Increase max targets with level
+        if (prev.length >= (3 + Math.floor(gameLevel * 1.5))) return prev; // Increase max targets with level
 
         const isBug = Math.random() > 0.6;
         
         let x, y, speedX, speedY, char;
         
         // Base speed based on required clicks
-        const baseSpeed = 1 + (gameLevel - 1) * 0.2;
+        const baseSpeed = 1 + (gameLevel - 1) * 0.1;
 
         if (isBug) {
           // Bug from left or right
@@ -261,6 +261,10 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
                   <div className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/20">
                     <span className="text-white/60 text-[10px] font-bold uppercase tracking-wider block leading-none">Da Raccogliere</span>
                     <span className="text-2xl font-black text-emerald-400 leading-none">{targetsLeft}</span>
+                  </div>
+                  <div className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/20">
+                    <span className="text-white/60 text-[10px] font-bold uppercase tracking-wider block leading-none">Livello</span>
+                    <span className="text-2xl font-black text-amber-400 leading-none">{gameLevel}</span>
                   </div>
                   <button onClick={() => setGameState('idle')} className="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white/90 hover:text-white px-4 py-2 rounded-full text-xs font-bold transition-colors">
                     Chiudi
