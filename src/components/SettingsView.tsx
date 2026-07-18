@@ -214,7 +214,7 @@ export default function SettingsView({
 
   return (
     <>
-      <div className="flex-1 flex flex-col p-5 justify-between scrollbar-none overflow-y-auto max-h-[640px]">
+      <div className="flex-1 flex flex-col gap-4 p-5 scrollbar-none overflow-y-auto max-h-[640px]">
       <div className="space-y-4">
         {/* Back Header */}
         <div className="flex items-center gap-2 mb-2 shrink-0">
@@ -711,7 +711,7 @@ export default function SettingsView({
       </div>
 
       {/* Danger Zone */}
-      <div className="space-y-2 mt-4 shrink-0 pb-1">
+      <div className="space-y-2 shrink-0 pb-1">
         <button
           onClick={() => setShowConfirmClear(true)}
           id="btn-clear-archive-settings"
@@ -771,7 +771,7 @@ export default function SettingsView({
       )}
 
       {/* Secret Developer Mode Button */}
-      <div className="mt-8 px-4">
+      <div className="px-4">
         <button
           onClick={() => {
             playClickSound();
