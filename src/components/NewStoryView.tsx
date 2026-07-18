@@ -208,6 +208,9 @@ export default function NewStoryView({
   const [showSecretCharTypes, setShowSecretCharTypes] = useState(false);
   const [showSecretCharTraits, setShowSecretCharTraits] = useState(false);
 
+  const [charType, setCharType] = useState(unlockedCharacterTypes[0] || "Bambino");
+  const [charTrait, setCharTrait] = useState(unlockedCharacterTraits[0] || "Curioso");
+
   // Pagination states
   const [pageCategory, setPageCategory] = useState(1);
   const [pageTheme, setPageTheme] = useState(1);
@@ -410,8 +413,6 @@ export default function NewStoryView({
 
   // Character inputs
   const [charName, setCharName] = useState("");
-  const [charType, setCharType] = useState(unlockedCharacterTypes[0] || "Bambino");
-  const [charTrait, setCharTrait] = useState(unlockedCharacterTraits[0] || "Curioso");
 
   // Suggestion states
   const [recentNames, setRecentNames] = useState<string[]>([]);
