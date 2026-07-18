@@ -1054,9 +1054,9 @@ export default function StoryReaderView({
   };
 
   return (
-    <div className={`absolute inset-0 flex flex-col p-5 overflow-hidden transition-all duration-700 ${currentThemeClasses.outerBg}`}>
+    <section className={`absolute inset-0 flex flex-col p-5 overflow-hidden transition-all duration-700 ${currentThemeClasses.outerBg}`} aria-labelledby="reader-title">
       {/* Upper Navigation Bar */}
-      <div className="flex items-center justify-between mb-3 shrink-0 z-10">
+      <header className="flex items-center justify-between mb-3 shrink-0 z-10">
         <button
           onClick={() => {
             playClickSound();
@@ -1064,10 +1064,13 @@ export default function StoryReaderView({
             onBack();
           }}
           id="btn-back-reader"
+          aria-label="Torna alla schermata precedente"
           className={`w-9 h-9 rounded-xl flex items-center justify-center border-2 shadow-xs transition-colors cursor-pointer ${currentThemeClasses.buttonBack}`}
         >
           <ArrowLeft size={18} />
         </button>
+
+        <h2 id="reader-title" className="sr-only">Lettore storia</h2>
 
         <div className="flex items-center gap-1.5">
           {/* Font Size Button */}
@@ -1079,6 +1082,7 @@ export default function StoryReaderView({
                 if (currentIndex > 0) setFontSize(sizes[currentIndex - 1]);
               }}
               disabled={fontSize === "sm"}
+              aria-label="Riduci dimensione testo"
               className="w-6 h-6 rounded-lg text-[10px] font-black flex items-center justify-center cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               title="Riduci testo"
             >
@@ -1094,6 +1098,7 @@ export default function StoryReaderView({
                 if (currentIndex < sizes.length - 1) setFontSize(sizes[currentIndex + 1]);
               }}
               disabled={fontSize === "2xl"}
+              aria-label="Aumenta dimensione testo"
               className="w-6 h-6 rounded-lg text-xs font-black flex items-center justify-center cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               title="Aumenta testo"
             >
@@ -1126,6 +1131,7 @@ export default function StoryReaderView({
                 : `${currentThemeClasses.buttonBack} opacity-50`
             }`}
             title="Timer della Nanna"
+            aria-label={`Timer nanna: ${(settings?.timerNannaMinutes || 0) > 0 ? `${settings?.timerNannaMinutes} minuti` : "disattivato"}`}
           >
             <span className="text-[10px] leading-none">🌙</span>
             <span className="text-[7px] font-black leading-none mt-0.5">
@@ -1137,6 +1143,8 @@ export default function StoryReaderView({
           <button
             onClick={() => onToggleFavorite(story.id)}
             id="btn-favorite-story"
+            aria-pressed={story.preferita}
+            aria-label={story.preferita ? "Rimuovi dai preferiti" : "Aggiungi ai preferiti"}
             className={`w-9 h-9 rounded-xl flex items-center justify-center border-2 transition-all active:scale-90 cursor-pointer ${
               story.preferita
                 ? "bg-[#FFE082] text-amber-600 border-[#FFD54F] shadow-xs"
@@ -1150,15 +1158,16 @@ export default function StoryReaderView({
           <button
             onClick={handleShare}
             id="btn-share-story"
+            aria-label="Apri opzioni di condivisione favola"
             className={`w-9 h-9 rounded-xl flex items-center justify-center border-2 shadow-xs transition-all active:scale-90 cursor-pointer ${currentThemeClasses.buttonBack}`}
           >
             <Share2 size={16} />
           </button>
         </div>
-      </div>
+      </header>
 
       {/* Unified Narration Controls Panel - Ultra Compact Top Row */}
-      <div className={`w-full rounded-2xl p-1.5 border-2 shadow-xs mb-2 transition-all duration-500 bg-white border-slate-200`}>
+      <section className={`w-full rounded-2xl p-1.5 border-2 shadow-xs mb-2 transition-all duration-500 bg-white border-slate-200`} aria-label="Controlli narrazione e registrazione">
         <div className="flex flex-row items-center justify-between gap-1 overflow-visible">
           {/* Ascolta Button Group */}
           <div className="flex items-center gap-0.5 bg-slate-50 rounded-full p-0.5 border border-slate-200 shrink-0">
@@ -1179,6 +1188,7 @@ export default function StoryReaderView({
                   : "bg-amber-100 border-amber-400 z-10"
               }`}
               title="Ascolta Storia"
+              aria-label={isPlaying ? "Metti in pausa narrazione" : "Avvia narrazione"}
             >
               <span className="text-[16px] leading-none">🎤</span>
               <span className="absolute -bottom-1 -right-1 bg-white dark:bg-slate-800 rounded-full p-[1px] shadow-sm border border-slate-200 dark:border-slate-600">
@@ -1188,6 +1198,7 @@ export default function StoryReaderView({
             {(isPlaying || isPaused) && (
               <button
                 onClick={handleSpeechStop}
+                aria-label="Ferma narrazione"
                 className="w-7 h-7 flex items-center justify-center rounded-full border border-red-200 bg-red-50 text-red-600 shadow-xs cursor-pointer hover:bg-red-100 active:scale-95 transition-all ml-1"
                 title="Ferma"
               >
@@ -1227,6 +1238,8 @@ export default function StoryReaderView({
                     : "bg-transparent text-slate-500 hover:bg-slate-200"
                 }`}
                 title={`Velocità ${speed}x`}
+                aria-label={`Imposta velocita narrazione ${speed}x`}
+                aria-pressed={playbackSpeed === speed}
               >
                 {speed}x
               </button>
@@ -1241,6 +1254,7 @@ export default function StoryReaderView({
             {isRecording ? (
               <button
                 onClick={stopRecording}
+                aria-label="Ferma registrazione audio"
                 className="flex items-center gap-1 px-2.5 py-1 text-[10px] font-black rounded-full bg-red-600 text-white animate-pulse transition-all cursor-pointer shadow-xs uppercase"
               >
                 <Square size={8} fill="currentColor" />
@@ -1251,6 +1265,7 @@ export default function StoryReaderView({
                 {playingRecording?.readerType === "user" ? (
                   <button
                     onClick={stopCustomAudio}
+                    aria-label="Ferma riproduzione registrazione"
                     className="flex items-center gap-1 px-2.5 py-1 text-[10px] font-black rounded-full bg-amber-400 text-slate-900 transition-all cursor-pointer shadow-xs uppercase"
                   >
                     <Square size={8} fill="currentColor" />
@@ -1259,6 +1274,7 @@ export default function StoryReaderView({
                 ) : (
                   <button
                     onClick={() => playRecording("user")}
+                    aria-label="Riproduci registrazione utente"
                     className="flex items-center gap-1 px-2 py-1 text-[10px] font-black rounded-full bg-emerald-500 text-white hover:bg-emerald-600 transition-all cursor-pointer shadow-xs uppercase"
                   >
                     <Play size={8} fill="currentColor" />
@@ -1267,6 +1283,7 @@ export default function StoryReaderView({
                 )}
                 <button
                   onClick={() => handleDeleteRecording("user")}
+                  aria-label="Elimina registrazione utente"
                   className="text-red-500 hover:text-red-700 transition-colors cursor-pointer p-1 bg-red-50 dark:bg-red-950/20 rounded-full"
                   title="Elimina"
                 >
@@ -1276,6 +1293,7 @@ export default function StoryReaderView({
             ) : (
               <button
                 onClick={startRecording}
+                aria-label="Avvia registrazione audio"
                 className="flex items-center gap-1 px-2.5 py-1 text-[10px] font-black rounded-full bg-[#EC407A] text-white hover:bg-[#D81B60] transition-all cursor-pointer shadow-xs uppercase"
               >
                 <Mic size={8} />
@@ -1295,11 +1313,13 @@ export default function StoryReaderView({
             </div>
           )}
         </div>
-      </div>
+      </section>
 
       {/* Main Reading Canvas - Flexible container maximizing space */}
       <div 
         className="w-full relative flex-1 my-2" 
+        role="region"
+        aria-label="Pagina corrente della storia"
         style={{ perspective: "1200px", touchAction: "pan-y" }}
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
@@ -1362,6 +1382,7 @@ export default function StoryReaderView({
                 <button
                   type="button"
                   disabled
+                  aria-label="Pagina precedente non disponibile sulla copertina"
                   className={`px-2.5 py-1 rounded-full text-[9px] font-black flex items-center gap-0.5 transition-all opacity-35 cursor-not-allowed border ${currentThemeClasses.buttonBack}`}
                 >
                   <ChevronLeft size={11} /> Prec.
@@ -1377,6 +1398,7 @@ export default function StoryReaderView({
                     e.stopPropagation();
                     triggerPageTransitionWithIntermezzo(1);
                   }}
+                  aria-label="Apri prima pagina della storia"
                   className="px-3 py-1 rounded-full text-[9px] font-black flex items-center gap-0.5 transition-all cursor-pointer border shadow-sm animate-pulse bg-gradient-to-r from-pink-400 to-[#EC407A] text-white border-pink-500 hover:scale-105 active:scale-95"
                 >
                   Apri 📖 <ChevronRight size={11} />
@@ -1416,6 +1438,7 @@ export default function StoryReaderView({
                     e.stopPropagation();
                     handlePageChange(currentPage - 1);
                   }}
+                  aria-label="Vai alla pagina precedente"
                   className={`px-2.5 py-1 rounded-full text-[9px] font-black flex items-center gap-0.5 transition-all cursor-pointer border disabled:opacity-40 disabled:cursor-not-allowed ${currentThemeClasses.buttonBack}`}
                 >
                   <ChevronLeft size={11} /> Prec.
@@ -1431,6 +1454,7 @@ export default function StoryReaderView({
                     e.stopPropagation();
                     triggerPageTransitionWithIntermezzo(currentPage + 1);
                   }}
+                  aria-label={currentPage === totalPages ? "Vai alla pagina morale" : "Vai alla pagina successiva"}
                   className={`px-2.5 py-1 rounded-full text-[9px] font-black flex items-center gap-0.5 transition-all cursor-pointer border disabled:opacity-40 disabled:cursor-not-allowed ${currentThemeClasses.buttonNext}`}
                 >
                   {currentPage === totalPages ? "Morale ✨" : "Succ."} <ChevronRight size={11} />
@@ -1480,6 +1504,7 @@ export default function StoryReaderView({
                       handleSpeechStop();
                       onContinueStory(story);
                     }}
+                    aria-label="Continua la storia con un nuovo capitolo"
                     className="mt-3 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-[#F57C00] hover:from-orange-500 hover:to-orange-600 active:scale-95 text-white rounded-full flex items-center justify-center gap-1.5 text-xs font-black shadow-md border-b-4 border-orange-800 transition-all cursor-pointer animate-pulse shrink-0"
                   >
                     <Sparkles size={14} className="text-white animate-bounce" />
@@ -1496,6 +1521,7 @@ export default function StoryReaderView({
                     e.stopPropagation();
                     handlePageChange(currentPage - 1);
                   }}
+                  aria-label="Torna alla pagina precedente"
                   className="px-2.5 py-1 rounded-full text-[9px] font-black flex items-center gap-0.5 transition-all cursor-pointer border border-[#FFB74D] bg-white hover:bg-orange-50 text-[#F57C00] disabled:opacity-40"
                 >
                   <ChevronLeft size={11} /> Prec.
@@ -1512,6 +1538,7 @@ export default function StoryReaderView({
                     handleSpeechStop();
                     onBack();
                   }}
+                  aria-label="Chiudi lettura e torna indietro"
                   className="px-2.5 py-1 rounded-full text-[9px] font-black flex items-center gap-0.5 transition-all border border-[#FFB74D] bg-white hover:bg-orange-50 text-[#F57C00]"
                 >
                   Fine <ChevronRight size={11} />
@@ -1526,17 +1553,18 @@ export default function StoryReaderView({
 
       {/* Custom Share Modal fallback */}
       {showShareModal && (
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="bg-white rounded-[2rem] p-5 border-4 border-natural-pink-border shadow-xl max-w-xs w-full text-center space-y-4">
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in" role="presentation">
+          <div className="bg-white rounded-[2rem] p-5 border-4 border-natural-pink-border shadow-xl max-w-xs w-full text-center space-y-4" role="dialog" aria-modal="true" aria-labelledby="share-story-title" aria-describedby="share-story-description">
             <span className="text-4xl animate-bounce inline-block">🎁</span>
-            <h4 className="font-extrabold text-sm text-natural-burgundy font-serif">Condividi la tua Favola!</h4>
-            <p className="text-[10px] text-natural-text/70 leading-relaxed font-bold">
+            <h4 id="share-story-title" className="font-extrabold text-sm text-natural-burgundy font-serif">Condividi la tua Favola!</h4>
+            <p id="share-story-description" className="text-[10px] text-natural-text/70 leading-relaxed font-bold">
               Copia il testo completo di questa favola magica per inviarlo ad amici e parenti!
             </p>
 
             <div className="flex flex-col gap-2">
               <button
                 onClick={handleCopyStory}
+                aria-label="Copia il testo completo della favola"
                 className="w-full py-2.5 px-3 bg-gradient-to-r from-natural-pink to-[#EC407A] text-white border-b-4 border-[#C2185B] rounded-full text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
               >
                 {copied ? <Check size={14} /> : <Copy size={14} />}
@@ -1545,6 +1573,7 @@ export default function StoryReaderView({
 
               <button
                 onClick={() => setShowShareModal(false)}
+                aria-label="Chiudi finestra di condivisione"
                 className="w-full py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full text-xs font-bold transition-colors cursor-pointer"
               >
                 Chiudi
@@ -1553,6 +1582,13 @@ export default function StoryReaderView({
           </div>
         </div>
       )}
-    </div>
+      <p className="sr-only" aria-live="polite" aria-atomic="true">
+        {isCover
+          ? "Copertina della storia"
+          : isMoralPage
+            ? "Pagina morale"
+            : `Pagina ${currentPage} di ${totalPages}`}
+      </p>
+    </section>
   );
 }
