@@ -279,7 +279,7 @@ export default function HomeView({
             aria-disabled={stories.length === 0}
             aria-label={stories.length === 0 ? "Biblioteca non disponibile: nessuna favola" : "Apri biblioteca magica"}
             id="btn-menu-archive"
-            className={`group p-2.5 rounded-2xl border-4 transition-all duration-200 flex flex-col items-center justify-center text-center ${
+            className={`group hc-card p-2.5 rounded-2xl border-4 transition-all duration-200 flex flex-col items-center justify-center text-center ${
               stories.length === 0
                 ? "bg-slate-100 border-slate-200 opacity-60 cursor-not-allowed"
                 : "bg-white/80 hover:bg-white text-natural-text border-natural-blue-light shadow-sm active:scale-[0.98] cursor-pointer"
@@ -291,10 +291,10 @@ export default function HomeView({
               📚
             </div>
             <div className="mt-1.5 min-w-0 w-full">
-              <h3 className={`font-extrabold text-[10px] truncate ${stories.length === 0 ? "text-theme-secondary" : "text-[#0277BD]"}`}>
+              <h3 className={`font-extrabold text-[10px] truncate ${stories.length === 0 ? "text-theme-secondary" : "hc-card-title"}`}>
                 Biblioteca Magica
               </h3>
-              <p className="text-[7.5px] text-theme-secondary font-semibold truncate leading-none mt-0.5">
+              <p className={`text-[8px] font-semibold truncate leading-none mt-0.5 ${stories.length === 0 ? "text-theme-secondary" : "hc-card-subtitle"}`}>
                 {stories.length === 0 ? "Nessuna favola" : "Rileggi le tue favole"}
               </p>
             </div>
@@ -305,16 +305,16 @@ export default function HomeView({
             onClick={() => handleNavigate("albero")}
             id="btn-menu-growth-tree"
             aria-label="Apri albero della crescita"
-            className="group bg-white/80 hover:bg-white text-natural-text p-2.5 rounded-2xl border-4 border-[#A5D6A7] shadow-sm transition-all duration-200 flex flex-col items-center justify-center text-center active:scale-[0.98] cursor-pointer"
+            className="group hc-card bg-white/80 hover:bg-white text-natural-text p-2.5 rounded-2xl border-4 border-[#A5D6A7] shadow-sm transition-all duration-200 flex flex-col items-center justify-center text-center active:scale-[0.98] cursor-pointer"
           >
             <div className="w-10 h-10 bg-[#E8F5E9] rounded-xl flex items-center justify-center text-xl border-2 border-[#81C784] shrink-0 group-hover:scale-105 transition-transform duration-300 text-[#2E7D32]">
               🌳
             </div>
             <div className="mt-1.5 min-w-0 w-full">
-              <h3 className="font-extrabold text-[10px] text-[#2E7D32] truncate">
+              <h3 className="font-extrabold text-[10px] hc-card-title truncate">
                 Albero della Crescita
               </h3>
-              <p className="text-[7.5px] text-natural-text/60 font-semibold truncate leading-none mt-0.5">
+              <p className="text-[8px] hc-card-subtitle font-semibold truncate leading-none mt-0.5">
                 Le tue statistiche
               </p>
             </div>
