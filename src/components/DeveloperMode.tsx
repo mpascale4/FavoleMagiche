@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { playClickSound } from "../utils/audio";
-import { Stage, generateStage } from "../utils/stages";
+import { generateStage } from "../utils/stages";
 
 interface DeveloperModeProps {
   onTestStageAchievement: (stageIndex: number) => void;
@@ -65,7 +65,7 @@ export default function DeveloperMode({
             </button>
           </div>
           <div className="text-xs text-cyan-200 space-y-1">
-            <p>💡 Milestone format: {Math.ceil(parseInt(stageInput || "1") / 5)}.{((parseInt(stageInput || "1") - 1) % 5) + 1}</p>
+            <p>💡 Stage {parseInt(stageInput || "1")} completed</p>
             <button
               onClick={() => handleTestStage(5)}
               className="block w-full py-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-mono text-xs rounded border border-cyan-600"

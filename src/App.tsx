@@ -174,6 +174,37 @@ export default function App() {
       : [{ emoji: "✨", text: "Hai già sbloccato tutti i premi disponibili!" }];
   };
 
+  const getLockedRewardCandidates = (): AchievementReward[] => {
+    const rewards: AchievementReward[] = [];
+
+    CATEGORIES.filter(c => !unlockedCategories.includes(c)).forEach(category => {
+      rewards.push({ emoji: "🌲", text: `Nuova categoria: ${category}` });
+    });
+
+    EDUCATIONAL_THEMES.filter(t => !unlockedThemes.includes(t)).forEach(theme => {
+      rewards.push({ emoji: "🤝", text: `Nuovo tema: ${theme}` });
+    });
+
+    CHARACTER_TYPES.filter(t => !unlockedCharacterTypes.includes(t)).forEach(characterType => {
+      rewards.push({ emoji: "🧙‍♂️", text: `Nuovo tipo: ${characterType}` });
+    });
+
+    CHARACTER_TRAITS.filter(tr => !unlockedCharacterTraits.includes(tr)).forEach(characterTrait => {
+      rewards.push({ emoji: "⭐", text: `Nuova caratteristica: ${characterTrait}` });
+    });
+
+    return rewards;
+  };
+
+  const getDeveloperPreviewRewards = (isWorldCompletion: boolean): AchievementReward[] => {
+    const candidates = getLockedRewardCandidates();
+    if (candidates.length === 0) {
+      return [{ emoji: "🧪", text: "Test mode: nessun elemento bloccato da mostrare" }];
+    }
+
+    return isWorldCompletion ? candidates.slice(0, 3) : [candidates[0]];
+  };
+
   // Loading state for story creation parameters to show on generating screen
   const [currentGenerationConfig, setCurrentGenerationConfig] = useState<{
     categoria: string;
@@ -1573,6 +1604,12 @@ export default function App() {
               const alreadyOpened = achievementRewardsOpened[achievementModal.id];
               if (alreadyOpened && alreadyOpened.length > 0) {
                 return alreadyOpened;
+              }
+
+              if (achievementReturnTarget === "developer") {
+                const previewRewards = getDeveloperPreviewRewards(achievementModal.isWorldCompletion);
+                setAchievementRewardsOpened(prev => ({ ...prev, [achievementModal.id]: previewRewards }));
+                return previewRewards;
               }
 
               return handleClaimAchievement(achievementModal.id);
