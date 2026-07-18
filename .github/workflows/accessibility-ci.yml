@@ -1,5 +1,12 @@
 name: Accessibility CI
 
+permissions:
+  contents: read
+
+concurrency:
+  group: accessibility-ci-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   pull_request:
     branches: [develop, main]
@@ -9,13 +16,14 @@ on:
 jobs:
   test-and-audit:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
