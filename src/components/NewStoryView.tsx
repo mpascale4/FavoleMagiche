@@ -520,13 +520,6 @@ export default function NewStoryView({
     }
   }, [unlockedCharacterTypes, charType]);
 
-  // Reset character trait when unlocked traits list changes
-  useEffect(() => {
-    if (unlockedCharacterTraits.length > 0 && !unlockedCharacterTraits.includes(charTrait)) {
-      setCharTrait(unlockedCharacterTraits[0]);
-    }
-  }, [unlockedCharacterTraits, charTrait]);
-
   // Adjust selection if current category/theme is no longer in unlocked lists
   useEffect(() => {
     if (unlockedCategories.length > 0 && !unlockedCategories.includes(categoria)) {
