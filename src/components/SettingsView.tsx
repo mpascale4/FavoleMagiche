@@ -518,6 +518,21 @@ export default function SettingsView({
             />
           </label>
 
+          <label className="flex items-center justify-between cursor-pointer py-1.5 text-xs border-t border-slate-100 mt-1">
+            <div className="space-y-0.5 pr-2">
+              <span className="font-extrabold text-natural-burgundy block">Audio adattivo giorno/notte 🌗</span>
+              <span className="text-[9px] text-natural-text/70 block font-bold leading-tight">
+                Cambia automaticamente atmosfera audio in base al tema (notte o giorno).
+              </span>
+            </div>
+            <input
+              type="checkbox"
+              checked={settings.audioAdattivo !== false}
+              onChange={(e) => onUpdateSettings({ audioAdattivo: e.target.checked })}
+              className="w-4 h-4 rounded-md accent-[#EC407A] shrink-0"
+            />
+          </label>
+
           {/* Visual Style Theme Dropdown */}
           <div className="flex items-center justify-between text-xs py-1.5 border-t border-slate-100 mt-1">
             <div className="space-y-0.5 pr-2">

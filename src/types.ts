@@ -56,6 +56,7 @@ export interface AppSettings {
   tonoVoce?: number;
   musicaSottofondo?: boolean;
   effettiAudio?: boolean;
+  audioAdattivo?: boolean;
   pauseMusicaliChiave?: boolean;
   stileVisuale?: "auto" | "giorno" | "alba" | "tramonto" | "notte" | "bosco" | "oceano" | "horror";
   pinAccesso?: string;

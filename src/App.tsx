@@ -94,6 +94,7 @@ export default function App() {
     tonoVoce: 1.0,
     musicaSottofondo: true,
     effettiAudio: true,
+    audioAdattivo: true,
     pauseMusicaliChiave: true,
     stileVisuale: "auto",
     modalitaBambino: false,
@@ -272,6 +273,9 @@ export default function App() {
       }
       if (parsed.timerNannaMinutes === undefined) {
         parsed.timerNannaMinutes = 0;
+      }
+      if (parsed.audioAdattivo === undefined) {
+        parsed.audioAdattivo = true;
       }
       setSettings(parsed);
     }
@@ -547,7 +551,7 @@ export default function App() {
   useEffect(() => {
     const shouldPlay = settings.musicaSottofondo && screen !== "reader" && screen !== "generating";
     audioEngine.refreshThemeAudioMode();
-    
+
     if (shouldPlay) {
       audioEngine.startBackgroundMusic();
     } else if (screen !== "reader") {

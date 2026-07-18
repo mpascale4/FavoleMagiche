@@ -17,6 +17,7 @@ class AudioEngine {
         const saved = localStorage.getItem("favole_magiche_settings");
         if (saved) {
           const parsed = JSON.parse(saved);
+          if (parsed.audioAdattivo === false) return false;
           const visualStyle = parsed.stileVisuale || "auto";
           if (visualStyle === "notte") return true;
           if (visualStyle !== "auto") return false;
