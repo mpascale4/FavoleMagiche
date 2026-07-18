@@ -546,6 +546,7 @@ export default function App() {
   // Global background music manager with interaction gesture guard
   useEffect(() => {
     const shouldPlay = settings.musicaSottofondo && screen !== "reader" && screen !== "generating";
+    audioEngine.refreshThemeAudioMode();
     
     if (shouldPlay) {
       audioEngine.startBackgroundMusic();
@@ -569,6 +570,15 @@ export default function App() {
       document.removeEventListener("touchstart", startOnGesture);
     };
   }, [settings.musicaSottofondo, screen]);
+
+  // Keep audio mood aligned with day/night theme changes while the app is open.
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      audioEngine.refreshThemeAudioMode();
+    }, 60000);
+
+    return () => clearInterval(intervalId);
+  }, []);
 
   // Sleep Timer (Timer della Nanna) Countdown Effect
   useEffect(() => {

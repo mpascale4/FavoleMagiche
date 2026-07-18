@@ -470,6 +470,7 @@ export default function StoryReaderView({
 
   // Sync background music state
   useEffect(() => {
+    audioEngine.refreshThemeAudioMode();
     if (musicOn) {
       audioEngine.startBackgroundMusic();
     } else {

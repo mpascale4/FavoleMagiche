@@ -1,12 +1,43 @@
 // Fairytale Procedural Synthesizer and Sound Effects Engine using Web Audio API
 // No external assets required, pure browser synthesis!
 
+import { shouldApplyNightTheme } from "../utils/theme";
+
 class AudioEngine {
   private ctx: AudioContext | null = null;
   private musicIntervalId: any = null;
   private musicVolumeNode: GainNode | null = null;
   private musicPlaying = false;
   private currentStep = 0;
+  private isNightAudio = false;
+
+  private shouldUseNightAudio(): boolean {
+    try {
+      if (typeof window !== "undefined") {
+        const saved = localStorage.getItem("favole_magiche_settings");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          const visualStyle = parsed.stileVisuale || "auto";
+          if (visualStyle === "notte") return true;
+          if (visualStyle !== "auto") return false;
+        }
+      }
+    } catch (e) {
+      // Fall back to time-based detection.
+    }
+    return shouldApplyNightTheme();
+  }
+
+  public refreshThemeAudioMode() {
+    const nextNight = this.shouldUseNightAudio();
+    if (nextNight !== this.isNightAudio) {
+      this.isNightAudio = nextNight;
+      if (this.musicPlaying) {
+        this.stopBackgroundMusic();
+        this.startBackgroundMusic();
+      }
+    }
+  }
 
   // Lazily initialize the Audio Context
   private getContext(): AudioContext | null {
@@ -44,9 +75,22 @@ class AudioEngine {
     }
 
     const now = ctx.currentTime;
+    const night = this.shouldUseNightAudio();
+
+    const effectiveType: typeof type = night
+      ? ({
+          magic: "chime",
+          dragon: "mystery",
+          chime: "chime",
+          nature: "nature",
+          jump: "chime",
+          mystery: "mystery",
+          success: "chime"
+        } as const)[type]
+      : type;
 
     try {
-      switch (type) {
+      switch (effectiveType) {
         case "magic": {
           // A sweeping, sparkling magic wand arpeggio (sine wave sweeping up)
           const notes = [440, 554.37, 659.25, 880, 1108.73, 1318.51, 1760];
@@ -286,15 +330,16 @@ class AudioEngine {
 
     this.musicPlaying = true;
     this.currentStep = 0;
+    this.isNightAudio = this.shouldUseNightAudio();
 
     // Define Master background music gain node (raised to 0.35 for audibility)
     this.musicVolumeNode = ctx.createGain();
-    this.musicVolumeNode.gain.setValueAtTime(0.35, ctx.currentTime); 
+    this.musicVolumeNode.gain.setValueAtTime(this.isNightAudio ? 0.20 : 0.35, ctx.currentTime);
     this.musicVolumeNode.connect(ctx.destination);
 
     // Beautiful harmonic fairytale progression in C pentatonic / F major / A minor
     // Each step is 450ms
-    const chords: number[][] = [
+    const dayChords: number[][] = [
       // Bar 1: C Major Pentatonic chord notes
       [261.63, 329.63, 392.00, 523.25], // C4, E4, G4, C5
       // Bar 2: F Major Chord notes
@@ -304,6 +349,16 @@ class AudioEngine {
       // Bar 4: G Major Chord notes
       [196.00, 293.66, 392.00, 587.33]  // G3, D4, G4, D5
     ];
+
+    const nightChords: number[][] = [
+      [220.00, 261.63, 329.63, 392.00], // A3 C4 E4 G4
+      [196.00, 246.94, 293.66, 369.99], // G3 B3 D4 F#4
+      [174.61, 220.00, 261.63, 349.23], // F3 A3 C4 F4
+      [196.00, 233.08, 293.66, 392.00]  // G3 A#3 D4 G4
+    ];
+
+    const chords = this.isNightAudio ? nightChords : dayChords;
+    const stepDurationMs = this.isNightAudio ? 650 : 450;
 
     const playStep = () => {
       if (!this.musicPlaying || !ctx) return;
@@ -318,22 +373,22 @@ class AudioEngine {
       let freq = currentChord[noteOffset];
 
       // Add simple high melody decoration on some steps
-      const playMelody = this.currentStep % 2 === 0;
+      const playMelody = this.isNightAudio ? this.currentStep % 3 === 0 : this.currentStep % 2 === 0;
 
       if (freq) {
         if (playMelody) {
           // Play primary melody note with gentle sine wave
-          this.synthMusicNote(ctx, freq, 0.45, now, "sine", 1.0);
+          this.synthMusicNote(ctx, this.isNightAudio ? freq * 0.9 : freq, this.isNightAudio ? 0.65 : 0.45, now, "sine", this.isNightAudio ? 0.7 : 1.0);
 
           // High twinkling note on top for fairytale music box vibe
-          if (this.currentStep % 4 === 0) {
+          if (!this.isNightAudio && this.currentStep % 4 === 0) {
             const highFreq = freq * 2;
             this.synthMusicNote(ctx, highFreq, 0.3, now + 0.15, "triangle", 0.35);
           }
         } else {
           // Play a softer, secondary arpeggio note for a continuous flowing sound
           const softFreq = currentChord[(noteOffset + 2) % 4];
-          this.synthMusicNote(ctx, softFreq, 0.35, now, "triangle", 0.5);
+          this.synthMusicNote(ctx, softFreq, this.isNightAudio ? 0.55 : 0.35, now, this.isNightAudio ? "sine" : "triangle", this.isNightAudio ? 0.4 : 0.5);
         }
       }
 
@@ -342,7 +397,7 @@ class AudioEngine {
 
     // Trigger instantly then run interval
     playStep();
-    this.musicIntervalId = setInterval(playStep, 450);
+    this.musicIntervalId = setInterval(playStep, stepDurationMs);
   }
 
   // Synth single note for the music box

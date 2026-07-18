@@ -3,7 +3,25 @@
  * Synthesizes pure, delightful sound effects natively in the browser.
  */
 
+import { shouldApplyNightTheme } from "./theme";
+
 let audioCtx: AudioContext | null = null;
+
+function shouldUseNightAudioMode(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const saved = localStorage.getItem("favole_magiche_settings");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      const visualStyle = parsed.stileVisuale || "auto";
+      if (visualStyle === "notte") return true;
+      if (visualStyle !== "auto") return false;
+    }
+  } catch (e) {
+    // Ignore and fallback to time-based detection.
+  }
+  return shouldApplyNightTheme();
+}
 
 function getAudioContext(): AudioContext | null {
   if (typeof window === "undefined") return null;
@@ -82,8 +100,11 @@ export function playFairyChorusSound() {
   if (!ctx) return;
 
   const now = ctx.currentTime;
-  const frequencies = [349.23, 523.25, 659.25, 1046.50]; // F4, C5, E5, C6 (major-ish celestial chord)
-  
+  const night = shouldUseNightAudioMode();
+  const frequencies = night
+    ? [261.63, 329.63, 392.0, 523.25] // softer C major spread
+    : [349.23, 523.25, 659.25, 1046.5];
+
   frequencies.forEach((freq, idx) => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
@@ -169,14 +190,15 @@ export function playClickSound() {
   const ctx = getAudioContext();
   if (!ctx) return;
   const now = ctx.currentTime;
+  const night = shouldUseNightAudioMode();
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
   
-  osc.type = "sine";
-  osc.frequency.setValueAtTime(450, now);
-  osc.frequency.exponentialRampToValueAtTime(180, now + 0.05);
-  
-  gain.gain.setValueAtTime(0.05, now);
+  osc.type = night ? "triangle" : "sine";
+  osc.frequency.setValueAtTime(night ? 320 : 450, now);
+  osc.frequency.exponentialRampToValueAtTime(night ? 140 : 180, now + 0.05);
+
+  gain.gain.setValueAtTime(night ? 0.035 : 0.05, now);
   gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
   
   osc.connect(gain);
@@ -256,15 +278,16 @@ export function playOpenBoxClickSound() {
   const ctx = getAudioContext();
   if (!ctx) return;
   const now = ctx.currentTime;
-  
+  const night = shouldUseNightAudioMode();
+
   // Step 1: creaky wood opening low tone
   const oscLow = ctx.createOscillator();
   const gainLow = ctx.createGain();
-  oscLow.type = "triangle";
-  oscLow.frequency.setValueAtTime(160, now);
-  oscLow.frequency.linearRampToValueAtTime(290, now + 0.35);
-  
-  gainLow.gain.setValueAtTime(0.09, now);
+  oscLow.type = night ? "sine" : "triangle";
+  oscLow.frequency.setValueAtTime(night ? 120 : 160, now);
+  oscLow.frequency.linearRampToValueAtTime(night ? 220 : 290, now + 0.35);
+
+  gainLow.gain.setValueAtTime(night ? 0.06 : 0.09, now);
   gainLow.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
   
   oscLow.connect(gainLow);
