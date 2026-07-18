@@ -137,6 +137,19 @@ export const INITIAL_CHARACTER_TYPES = [
   "Fata"
 ];
 
+export const BEBE_TRAITS = [
+  "Piagnucolone",
+  "Giocherellone",
+  "Coccolone",
+  "Goloso",
+  "Curioso",
+  "Pasticcione",
+  "Dormiglione",
+  "Allegro",
+  "Testardo",
+  "Timido"
+];
+
 export const CHARACTER_TRAITS = [
   "Curioso",
   "Coraggioso",

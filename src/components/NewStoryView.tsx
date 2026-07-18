@@ -15,6 +15,7 @@ import {
   INITIAL_THEMES,
   INITIAL_CHARACTER_TYPES,
   INITIAL_CHARACTER_TRAITS,
+  BEBE_TRAITS,
   FEMININE_CHARACTER_TRAITS,
   getTraitForCharacterType
 } from "../types";
@@ -309,9 +310,18 @@ export default function NewStoryView({
   }, [unlockedCharacterTypes, searchCharType]);
 
   // Sorting & Filtering for CHARACTER_TRAITS
+  const { effectiveAllTraits, effectiveUnlockedTraits } = useMemo(() => {
+    if (charType === "Bebè") {
+      const bebeSet = new Set(BEBE_TRAITS);
+      const unlockedSet = new Set([...BEBE_TRAITS.slice(0, 5), ...unlockedCharacterTraits.filter(t => bebeSet.has(t))]);
+      return { effectiveAllTraits: BEBE_TRAITS, effectiveUnlockedTraits: Array.from(unlockedSet) };
+    }
+    return { effectiveAllTraits: CHARACTER_TRAITS, effectiveUnlockedTraits: unlockedCharacterTraits };
+  }, [charType, unlockedCharacterTraits]);
+
   const sortedUnlockedCharacterTraits = useMemo(() => {
-    return [...unlockedCharacterTraits].sort((a, b) => getUsage(b) - getUsage(a));
-  }, [unlockedCharacterTraits, usageStats]);
+    return [...effectiveUnlockedTraits].sort((a, b) => getUsage(b) - getUsage(a));
+  }, [effectiveUnlockedTraits, usageStats]);
 
   const filteredUnlockedCharacterTraits = useMemo(() => {
     return sortedUnlockedCharacterTraits.filter(tr => 
@@ -325,9 +335,9 @@ export default function NewStoryView({
   }, [filteredUnlockedCharacterTraits, pageCharTrait]);
 
   const filteredLockedCharacterTraits = useMemo(() => {
-    return CHARACTER_TRAITS.filter(tr => !unlockedCharacterTraits.includes(tr))
+    return effectiveAllTraits.filter(tr => !effectiveUnlockedTraits.includes(tr))
       .filter(tr => tr.toLowerCase().includes(searchCharTrait.toLowerCase()));
-  }, [unlockedCharacterTraits, searchCharTrait]);
+  }, [effectiveAllTraits, effectiveUnlockedTraits, searchCharTrait]);
 
   // Reset page numbers on search change
   useEffect(() => { setPageCategory(1); }, [searchCategory]);

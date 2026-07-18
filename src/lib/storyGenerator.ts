@@ -95,33 +95,7 @@ const COVER_THEMES: Record<string, string> = {
  * Ritorna una lista ordinata di modelli con quota disponibile.
  */
 async function getAvailableModels(apiKey: string): Promise<string[]> {
-  try {
-    console.log("[Gemini] Verifico modelli disponibili...");
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`
-    );
-
-    if (!response.ok) {
-      console.warn(`[Gemini] Verifica modelli fallita (${response.status}), uso fallback list`);
-      return MODEL_CANDIDATES;
-    }
-
-    const data = (await response.json()) as {
-      models?: Array<{ name: string; supportedGenerationMethods?: string[] }>;
-    };
-
-    const available = (data.models || [])
-      .filter((m) => m.supportedGenerationMethods?.includes("generateContent"))
-      .map((m) => m.name.replace("models/", ""))
-      .filter((name) => MODEL_CANDIDATES.includes(name));
-
-    console.log(`[Gemini] Modelli disponibili: ${available.join(", ") || "nessuno trovato"}`);
-
-    return available.length > 0 ? available : MODEL_CANDIDATES;
-  } catch (error) {
-    console.warn("[Gemini] Errore durante verifica modelli:", (error as Error)?.message);
-    return MODEL_CANDIDATES;
-  }
+  return MODEL_CANDIDATES;
 }
 
 function expectedPages(durata: StoryGenerationConfig["durata"]): number {
