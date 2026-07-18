@@ -147,7 +147,11 @@ export const CHARACTER_TRAITS = [
   "Saggio",
   "Allegro",
   "Testardo",
-  "Timido"
+  "Timido",
+  "Piagnucolone",
+  "Giocherellone",
+  "Coccolone",
+  "Goloso"
 ];
 
 /**
@@ -164,7 +168,11 @@ export const FEMININE_CHARACTER_TRAITS: Record<string, string> = {
   "Saggio": "Saggia",
   "Allegro": "Allegra",
   "Testardo": "Testarda",
-  "Timido": "Timida"
+  "Timido": "Timida",
+  "Piagnucolone": "Piagnucolona",
+  "Giocherellone": "Giocherellona",
+  "Coccolone": "Coccolona",
+  "Goloso": "Golosa"
 };
 
 const FEMININE_CHARACTER_TYPES = new Set(["Bambina", "Fata", "Sirena"]);

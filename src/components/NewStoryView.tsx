@@ -43,7 +43,11 @@ const TRAIT_EMOJIS: Record<string, string> = {
   "Saggio": "🦉",
   "Allegro": "☀️",
   "Testardo": "🐂",
-  "Timido": "🫣"
+  "Timido": "🫣",
+  "Piagnucolone": "😭",
+  "Giocherellone": "🧸",
+  "Coccolone": "🤗",
+  "Goloso": "😋"
 };
 
 const CATEGORY_EMOJIS: Record<string, string> = {
@@ -95,7 +99,11 @@ const FANTASY_NAMES_BY_TRAIT: Record<string, string[]> = {
   "Saggio": ["Saputello", "Saggio", "Astuto", "Cervellone", "Libro", "Gufo"],
   "Allegro": ["Sorrisino", "Felice", "Salterino", "Festa", "Raggio", "Sole"],
   "Testardo": ["Mulo", "Capoccione", "Duro", "Roccia", "Ferro", "Chiodo"],
-  "Timido": ["Rossetto", "Timido", "Nascondino", "Sussurro", "Ombra", "Calmo"]
+  "Timido": ["Rossetto", "Timido", "Nascondino", "Sussurro", "Ombra", "Calmo"],
+  "Piagnucolone": ["Lacrima", "Singhiozzo", "Gocciolone", "Lamento"],
+  "Giocherellone": ["Saltapicchio", "Girotondo", "Spasso", "Burlone"],
+  "Coccolone": ["Abbraccio", "Morbido", "Dolcezza", "Tenero"],
+  "Goloso": ["Pancino", "Biscotto", "Pappa", "Miele"]
 };
 
 const FANTASY_PREFIXES_BY_TYPE: Record<string, string[]> = {
