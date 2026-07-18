@@ -312,6 +312,20 @@ export default function NewStoryView({
       .filter(t => t.toLowerCase().includes(searchCharType.toLowerCase()));
   }, [unlockedCharacterTypes, searchCharType]);
 
+  // When charType changes, ensure charTrait is still valid, else reset to first valid
+  useEffect(() => {
+    if (charType === "Bebè") {
+      const bebeSet = new Set(BEBE_TRAITS);
+      if (!bebeSet.has(charTrait)) {
+        setCharTrait(BEBE_TRAITS[0] || "Piagnucolone");
+      }
+    } else {
+      if (!unlockedCharacterTraits.includes(charTrait)) {
+        setCharTrait(unlockedCharacterTraits[0] || "Curioso");
+      }
+    }
+  }, [charType, charTrait, unlockedCharacterTraits]);
+
   // Sorting & Filtering for CHARACTER_TRAITS
   const { effectiveAllTraits, effectiveUnlockedTraits } = useMemo(() => {
     if (charType === "Bebè") {
@@ -1595,7 +1609,7 @@ export default function NewStoryView({
           handleStartGeneration();
         }}
         onMouseEnter={() => setIsBlinking(false)}
-        disabled={personaggiMode === "personalizzata" && customCharacters.length === 0}
+        disabled={(personaggiMode === "personalizzata" && customCharacters.length === 0) || showCharacterForm}
         id="btn-trigger-story-generation"
         className={`w-full py-3.5 bg-gradient-to-r from-natural-yellow to-[#FFB300] disabled:from-slate-200 disabled:to-slate-200 disabled:text-slate-400 text-[#5D4037] border-b-4 border-[#F57C00] active:border-b-0 active:translate-y-1 rounded-full font-extrabold text-sm shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer shrink-0 mt-auto ${
           isBlinking 
