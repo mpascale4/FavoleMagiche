@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { X } from "lucide-react";
+import { X, AlertTriangle } from "lucide-react";
 import { playClickSound } from "../utils/audio";
 
 interface DeveloperPinModalProps {
@@ -40,7 +40,7 @@ export default function DeveloperPinModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-5 z-[450] animate-fade-in">
+    <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-5 z-450 animate-fade-in">
       <div className="bg-white rounded-3xl p-6 border-4 border-slate-200 shadow-2xl max-w-xs w-full text-center relative overflow-hidden">
         <button
           onClick={() => { playClickSound(); onCancel(); }}
@@ -78,7 +78,7 @@ export default function DeveloperPinModal({
             <button
               key={num}
               onClick={() => handleNumberClick(num.toString())}
-              className="h-14 rounded-2xl bg-slate-50 border-2 border-slate-100 text-xl font-bold text-theme-secondary hover:bg-cyan-50 hover:border-cyan-200 hover:text-cyan-600 active:bg-cyan-100 active:scale-95 transition-all flex items-center justify-center cursor-pointer"
+              className="h-14 rounded-2xl bg-slate-50 border-2 border-slate-100 text-xl font-bold text-theme-secondary hover:bg-cyan-50 hover:border-cyan-200 hover:text-cyan-600 active:scale-95 transition-all flex items-center justify-center cursor-pointer"
             >
               {num}
             </button>
@@ -86,7 +86,7 @@ export default function DeveloperPinModal({
           <div className="h-14" /> {/* Empty spot */}
           <button
             onClick={() => handleNumberClick("0")}
-            className="h-14 rounded-2xl bg-slate-50 border-2 border-slate-100 text-xl font-bold text-theme-secondary hover:bg-cyan-50 hover:border-cyan-200 hover:text-cyan-600 active:bg-cyan-100 active:scale-95 transition-all flex items-center justify-center cursor-pointer"
+            className="h-14 rounded-2xl bg-slate-50 border-2 border-slate-100 text-xl font-bold text-theme-secondary hover:bg-cyan-50 hover:border-cyan-200 hover:text-cyan-600 active:scale-95 transition-all flex items-center justify-center cursor-pointer"
           >
             0
           </button>
@@ -99,8 +99,9 @@ export default function DeveloperPinModal({
         </div>
 
         {error && (
-          <p className="text-xs text-red-500 font-bold mt-2 animate-fade-in">
-            PIN errato, riprova
+          <p className="text-xs text-red-700 font-bold mt-2 animate-fade-in flex items-center justify-center gap-1" role="alert" aria-live="assertive">
+            <AlertTriangle size={12} aria-hidden="true" />
+            <span>Errore: PIN errato, riprova</span>
           </p>
         )}
       </div>

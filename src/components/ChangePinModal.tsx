@@ -35,7 +35,7 @@ export default function ChangePinModal({ onSuccess, onCancel, isForced = false }
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-5 z-[110] animate-fade-in">
+    <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-5 z-110 animate-fade-in">
       <div className="bg-white rounded-3xl p-6 border-4 border-slate-200 shadow-2xl max-w-sm w-full text-center relative overflow-hidden">
         {!isForced && (
           <button
@@ -73,7 +73,7 @@ export default function ChangePinModal({ onSuccess, onCancel, isForced = false }
                 setNewPin(val);
                 setError("");
               }}
-              className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 text-center text-lg text-theme-secondary font-black tracking-widest focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-200 transition-all"
+              className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 text-center text-lg text-theme-secondary font-black tracking-widest focus:outline-none focus:ring-2 focus:ring-amber-200 transition-all"
             />
             <input
               type="password"
@@ -87,19 +87,20 @@ export default function ChangePinModal({ onSuccess, onCancel, isForced = false }
                 setConfirmPin(val);
                 setError("");
               }}
-              className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 text-center text-lg text-theme-secondary font-black tracking-widest focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-200 transition-all"
+              className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 text-center text-lg text-theme-secondary font-black tracking-widest focus:outline-none focus:ring-2 focus:ring-amber-200 transition-all"
             />
           </div>
           
           {error && (
-            <p className="text-xs text-red-500 font-bold animate-fade-in">
-              {error}
+            <p className="text-xs text-red-700 font-bold animate-fade-in flex items-center justify-center gap-1" role="alert" aria-live="assertive">
+              <AlertTriangle size={12} aria-hidden="true" />
+              <span>Errore: {error}</span>
             </p>
           )}
 
           <button
             type="submit"
-            className="w-full py-3 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-900 rounded-full font-black text-sm shadow-md border-b-4 border-amber-600 active:border-b-0 active:translate-y-1 transition-all cursor-pointer"
+            className="w-full py-3 bg-linear-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-900 rounded-full font-black text-sm shadow-md active:translate-y-1 transition-all cursor-pointer"
           >
             Salva PIN
           </button>

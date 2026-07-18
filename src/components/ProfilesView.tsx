@@ -199,9 +199,9 @@ export default function ProfilesView({
             </h4>
 
             {error && (
-              <div id={nomeErrorId} role="alert" className="bg-red-50 text-red-700 text-xs p-2 rounded-xl flex items-center gap-1.5 border border-red-100">
+              <div id={nomeErrorId} role="alert" aria-live="assertive" className="bg-red-50 text-red-800 text-xs p-2 rounded-xl flex items-center gap-1.5 border border-red-200 font-semibold">
                 <AlertCircle size={14} />
-                <span>{error}</span>
+                <span>Errore: {error}</span>
               </div>
             )}
 

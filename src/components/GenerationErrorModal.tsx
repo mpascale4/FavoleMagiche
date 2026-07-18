@@ -23,10 +23,14 @@ export default function GenerationErrorModal({
   const descriptionId = "generation-error-description";
 
   return (
-      <div className="fixed inset-0 bg-slate-950/70 flex items-center justify-center p-4 z-200" role="presentation">
-      <div className="bg-white rounded-[2.5rem] border-4 border-red-200 p-6 max-w-sm w-full shadow-[0_10px_40px_rgba(220,38,38,0.3)] space-y-4 animate-in fade-in scale-95" role="dialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={descriptionId}>
+        <div className="fixed inset-0 bg-slate-950/70 flex items-center justify-center p-4 z-200" role="presentation">
+          <div className="bg-white rounded-[2.5rem] border-4 border-red-200 p-6 max-w-sm w-full shadow-[0_10px_40px_rgba(220,38,38,0.3)] space-y-4 animate-in fade-in scale-95" role="alertdialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={descriptionId} aria-live="assertive">
         {/* Error Icon */}
-        <div className="flex justify-center mb-2">
+            <div className="flex flex-col items-center mb-2 gap-2">
+              <div className="text-[11px] font-black uppercase tracking-[0.25em] text-red-700 flex items-center gap-1">
+                <AlertCircle size={12} aria-hidden="true" />
+                <span>Errore</span>
+              </div>
           <div className="w-16 h-16 rounded-full bg-red-100/80 flex items-center justify-center shadow-lg">
             <AlertCircle size={32} className="text-red-600" />
           </div>
@@ -43,9 +47,10 @@ export default function GenerationErrorModal({
         </p>
 
         {/* Reason */}
-        <div className="bg-red-50/50 border-l-4 border-red-400 p-3 rounded text-[13px] font-mono text-red-700">
-          <div className="font-bold text-[11px] uppercase tracking-wider text-red-600 mb-1">
-            Motivo:
+        <div className="bg-red-50/70 border-l-4 border-red-500 p-3 rounded text-[13px] font-mono text-red-800">
+          <div className="font-bold text-[11px] uppercase tracking-wider text-red-700 mb-1 flex items-center gap-1">
+            <AlertCircle size={11} aria-hidden="true" />
+            <span>Motivo:</span>
           </div>
           <div className="wrap-break-word">{reason}</div>
         </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Lock, X, Check, HelpCircle } from "lucide-react";
+import { Lock, X, Check, HelpCircle, AlertTriangle } from "lucide-react";
 import { playClickSound, playFairyChorusSound } from "../utils/audio";
 
 interface ParentalGateModalProps {
@@ -77,7 +77,7 @@ export default function ParentalGateModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-5 z-[200] animate-fade-in">
+    <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-5 z-200 animate-fade-in">
       <div className="bg-white rounded-[2.5rem] p-6 border-4 border-natural-pink-border shadow-2xl max-w-sm w-full text-center relative overflow-hidden">
         {/* Close Button */}
         <button
@@ -140,19 +140,20 @@ export default function ParentalGateModal({
                 placeholder="Risposta"
                 value={userAnswer}
                 onChange={(e) => setUserAnswer(e.target.value)}
-                className="w-0 flex-1 bg-white border-2 border-slate-200/80 rounded-2xl px-3 py-2.5 text-center text-lg font-black text-slate-800 placeholder:text-slate-300 focus:outline-none focus:border-natural-pink transition-all"
+                className="w-0 flex-1 bg-white border-2 border-slate-200/80 rounded-2xl px-3 py-2.5 text-center text-lg font-black text-theme-primary placeholder:text-theme-secondary focus:outline-none focus:ring-2 focus:ring-natural-pink/20 transition-all"
               />
               <button
                 type="submit"
                 className="w-12 h-12 bg-natural-pink hover:bg-natural-pink-dark text-white rounded-2xl font-black border-b-4 border-natural-pink-border flex items-center justify-center transition-all cursor-pointer active:scale-95 shrink-0"
               >
-                <Check size={22} className="stroke-[3]" />
+                <Check size={22} className="stroke-3" />
               </button>
             </div>
 
             {error && (
-              <p className="text-[10px] text-red-500 font-extrabold animate-fade-in">
-                Risposta errata, proviamo con un altro calcolo!
+              <p className="text-[10px] text-red-700 font-extrabold animate-fade-in flex items-center justify-center gap-1" role="alert" aria-live="assertive">
+                <AlertTriangle size={10} aria-hidden="true" />
+                <span>Errore: risposta errata, proviamo con un altro calcolo!</span>
               </p>
             )}
           </form>
@@ -176,7 +177,7 @@ export default function ParentalGateModal({
             </div>
 
             {/* Compact Keypad */}
-            <div className="grid grid-cols-3 gap-2 px-1 max-w-[240px] mx-auto">
+            <div className="grid grid-cols-3 gap-2 px-1 max-w-60 mx-auto">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
                 <button
                   key={num}
@@ -202,8 +203,9 @@ export default function ParentalGateModal({
             </div>
             
             {pinError && (
-              <p className="text-[10px] text-red-500 font-extrabold animate-fade-in">
-                PIN errato, riprova
+              <p className="text-[10px] text-red-700 font-extrabold animate-fade-in flex items-center justify-center gap-1" role="alert" aria-live="assertive">
+                <AlertTriangle size={10} aria-hidden="true" />
+                <span>Errore: PIN errato, riprova</span>
               </p>
             )}
           </div>

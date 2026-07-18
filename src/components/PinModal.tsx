@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Lock, X } from "lucide-react";
+import React, { useState } from "react";
+import { Lock, X, AlertTriangle } from "lucide-react";
 import { playClickSound } from "../utils/audio";
 
 interface PinModalProps {
@@ -39,7 +39,7 @@ export default function PinModal({ onSuccess, onCancel, expectedPin, title = "Ar
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-5 z-[100] animate-fade-in">
+    <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-5 z-100 animate-fade-in">
       <div className="bg-white rounded-3xl p-6 border-4 border-slate-200 shadow-2xl max-w-xs w-full text-center relative overflow-hidden">
         <button
           onClick={() => { playClickSound(); onCancel(); }}
@@ -77,7 +77,7 @@ export default function PinModal({ onSuccess, onCancel, expectedPin, title = "Ar
             <button
               key={num}
               onClick={() => handleNumberClick(num.toString())}
-              className="h-14 rounded-2xl bg-slate-50 border-2 border-slate-100 text-xl font-bold text-theme-secondary hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600 active:bg-blue-100 active:scale-95 transition-all flex items-center justify-center cursor-pointer"
+              className="h-14 rounded-2xl bg-slate-50 border-2 border-slate-100 text-xl font-bold text-theme-secondary hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600 active:scale-95 transition-all flex items-center justify-center cursor-pointer"
             >
               {num}
             </button>
@@ -85,7 +85,7 @@ export default function PinModal({ onSuccess, onCancel, expectedPin, title = "Ar
           <div className="h-14" /> {/* Empty spot */}
           <button
             onClick={() => handleNumberClick("0")}
-            className="h-14 rounded-2xl bg-slate-50 border-2 border-slate-100 text-xl font-bold text-theme-secondary hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600 active:bg-blue-100 active:scale-95 transition-all flex items-center justify-center cursor-pointer"
+            className="h-14 rounded-2xl bg-slate-50 border-2 border-slate-100 text-xl font-bold text-theme-secondary hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600 active:scale-95 transition-all flex items-center justify-center cursor-pointer"
           >
             0
           </button>
@@ -98,8 +98,9 @@ export default function PinModal({ onSuccess, onCancel, expectedPin, title = "Ar
         </div>
         
         {error && (
-          <p className="text-xs text-red-500 font-bold mt-2 animate-fade-in absolute bottom-3 left-0 right-0">
-            PIN errato, riprova
+          <p className="text-xs text-red-700 font-bold mt-2 animate-fade-in absolute bottom-3 left-0 right-0 flex items-center justify-center gap-1" role="alert" aria-live="assertive">
+            <AlertTriangle size={12} aria-hidden="true" />
+            <span>Errore: PIN errato, riprova</span>
           </p>
         )}
       </div>

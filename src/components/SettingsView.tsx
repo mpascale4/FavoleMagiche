@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { ArrowLeft, HardDrive, Bell, Trash2, Volume2, Play, Square, Music, Sliders, Settings, Lock, Terminal } from "lucide-react";
+import { ArrowLeft, HardDrive, AlertTriangle, Trash2, Volume2, Play, Square, Music, Sliders, Settings, Lock, Terminal } from "lucide-react";
 import { AppSettings } from "../types";
 import { playClickSound } from "../utils/audio";
 import ChangePinModal from "./ChangePinModal";
@@ -551,9 +551,9 @@ export default function SettingsView({
           </div>
 
           {isOverLimit && settings.avvisaSuperamento && (
-            <div role="alert" className="bg-red-50 text-red-700 text-[9px] font-bold p-2 rounded-xl flex items-start gap-1 border border-red-100 leading-normal">
-              <Bell size={11} className="shrink-0 mt-0.5 text-red-600 animate-bounce" />
-              <span>Attenzione! Hai superato la soglia di spazio ({settings.sogliaSpazio}).</span>
+            <div role="alert" aria-live="assertive" className="bg-amber-50 text-[9px] font-bold p-2 rounded-xl flex items-start gap-1 border border-amber-200 leading-normal" style={{ color: "var(--app-warning)" }}>
+              <AlertTriangle size={11} className="shrink-0 mt-0.5" aria-hidden="true" />
+              <span>Attenzione: hai superato la soglia di spazio ({settings.sogliaSpazio}).</span>
             </div>
           )}
         </section>
