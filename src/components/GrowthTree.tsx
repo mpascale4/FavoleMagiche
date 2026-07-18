@@ -404,7 +404,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
                 <g
                   key={item.id}
                   className="cursor-pointer transition-transform duration-75 ease-linear"
-                  style={{ transform: `translate(${item.x}px, ${item.y}px)` }}
+                  style={{ transform: `translate(${item.x}px, ${item.y}px) ${item.type === 'bug' && item.speedX > 0 ? 'scaleX(-1)' : ''}` }}
                   onClick={(e) => {
                     e.stopPropagation(); // prevent triggering tree bounce
                     if (gameState !== 'playing') return;

@@ -561,7 +561,13 @@ export default function StoryReaderView({
       audioEngine.playSfx("success");
     } else {
       const text = pagine[pageIdx - 1]?.toLowerCase() || "";
-      if (text.includes("drago") || text.includes("ruggito") || text.includes("rugge") || text.includes("orco") || text.includes("mostro")) {
+      if (text.includes("tuono") || text.includes("fulmine") || text.includes("tempesta")) {
+        audioEngine.playSfx("thunder");
+      } else if (text.includes("pioggia") || text.includes("piove") || text.includes("gocciol")) {
+        audioEngine.playSfx("rain");
+      } else if (text.includes("uccellini") || text.includes("passerott") || text.includes("cinguett") || text.includes("usignolo")) {
+        audioEngine.playSfx("birds");
+      } else if (text.includes("drago") || text.includes("ruggito") || text.includes("rugge") || text.includes("orco") || text.includes("mostro")) {
         audioEngine.playSfx("dragon");
       } else if (text.includes("magia") || text.includes("magica") || text.includes("incantesimo") || text.includes("fata") || text.includes("fatina") || text.includes("bacchetta") || text.includes("scintilla")) {
         audioEngine.playSfx("magic");
@@ -581,7 +587,13 @@ export default function StoryReaderView({
 
   const triggerSfxFromWord = (word: string) => {
     const w = word.toLowerCase();
-    if (w.includes("ruggito") || w.includes("drago")) {
+    if (w.includes("tuono") || w.includes("fulmine") || w.includes("tempesta")) {
+      audioEngine.playSfx("thunder");
+    } else if (w.includes("pioggia") || w.includes("piove") || w.includes("gocciol")) {
+      audioEngine.playSfx("rain");
+    } else if (w.includes("uccellini") || w.includes("passerott") || w.includes("cinguett") || w.includes("usignolo")) {
+      audioEngine.playSfx("birds");
+    } else if (w.includes("ruggito") || w.includes("drago")) {
       audioEngine.playSfx("dragon");
     } else if (w.includes("magia") || w.includes("magica") || w.includes("incantesimo") || w.includes("fata") || w.includes("fatina") || w.includes("scintilla")) {
       audioEngine.playSfx("magic");

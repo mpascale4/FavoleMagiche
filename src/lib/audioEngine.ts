@@ -72,7 +72,7 @@ class AudioEngine {
   }
 
   // Play synthesized Sound Effects
-  public playSfx(type: "magic" | "dragon" | "chime" | "nature" | "jump" | "mystery" | "success") {
+  public playSfx(type: "magic" | "dragon" | "chime" | "nature" | "jump" | "mystery" | "success" | "rain" | "birds" | "thunder") {
     try {
       if (typeof window !== "undefined") {
         const saved = localStorage.getItem("favole_magiche_settings");
@@ -101,8 +101,11 @@ class AudioEngine {
           nature: "nature",
           jump: "chime",
           mystery: "mystery",
-          success: "chime"
-        } as const)[type]
+          success: "chime",
+          rain: "rain",
+          birds: "chime",
+          thunder: "mystery"
+        } as const)[type] || type
       : type;
 
     try {
@@ -251,6 +254,75 @@ class AudioEngine {
           break;
         }
 
+
+        case "rain": {
+          const bufferSize = ctx.sampleRate * 2.0;
+          const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+          }
+          const noiseNode = ctx.createBufferSource();
+          noiseNode.buffer = buffer;
+          const filter = ctx.createBiquadFilter();
+          filter.type = "lowpass";
+          filter.frequency.setValueAtTime(400, now);
+          const gain = ctx.createGain();
+          gain.gain.setValueAtTime(0, now);
+          gain.gain.linearRampToValueAtTime(0.08, now + 0.5);
+          gain.gain.linearRampToValueAtTime(0.08, now + 1.5);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 2.0);
+          noiseNode.connect(filter);
+          filter.connect(gain);
+          gain.connect(ctx.destination);
+          noiseNode.start(now);
+          noiseNode.stop(now + 2.0);
+          break;
+        }
+        case "birds": {
+          const chirps = [now, now + 0.3, now + 0.8, now + 1.0];
+          chirps.forEach(time => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(2500, time);
+            osc.frequency.exponentialRampToValueAtTime(3500, time + 0.05);
+            osc.frequency.exponentialRampToValueAtTime(2000, time + 0.15);
+            gain.gain.setValueAtTime(0, time);
+            gain.gain.linearRampToValueAtTime(0.05, time + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, time + 0.15);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(time);
+            osc.stop(time + 0.2);
+          });
+          break;
+        }
+        case "thunder": {
+          const bufferSize = ctx.sampleRate * 3.0;
+          const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+          }
+          const noiseNode = ctx.createBufferSource();
+          noiseNode.buffer = buffer;
+          const filter = ctx.createBiquadFilter();
+          filter.type = "lowpass";
+          filter.frequency.setValueAtTime(200, now);
+          filter.frequency.linearRampToValueAtTime(100, now + 3.0);
+          const gain = ctx.createGain();
+          gain.gain.setValueAtTime(0, now);
+          gain.gain.linearRampToValueAtTime(0.3, now + 0.1);
+          gain.gain.exponentialRampToValueAtTime(0.05, now + 0.5);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 3.0);
+          noiseNode.connect(filter);
+          filter.connect(gain);
+          gain.connect(ctx.destination);
+          noiseNode.start(now);
+          noiseNode.stop(now + 3.0);
+          break;
+        }
         case "mystery": {
           // Low mystery suspense chord drone
           const freqs = [146.83, 196.00, 246.94]; // D3, G3, B3
