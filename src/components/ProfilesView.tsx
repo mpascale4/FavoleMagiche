@@ -81,7 +81,7 @@ export default function ProfilesView({
         <h3 id="profiles-title" className="text-lg font-bold text-natural-burgundy font-serif italic">I Bambini</h3>
       </header>
 
-      <p className="text-xs text-natural-text/80 leading-relaxed mb-4 font-semibold">
+      <p className="text-xs text-natural-text leading-relaxed mb-4 font-semibold">
         Crea un profilo per ciascuno dei tuoi bambini. L'IA personalizzerà la difficoltà delle storie in base alla loro età!
       </p>
 
@@ -91,7 +91,7 @@ export default function ProfilesView({
           <div className="bg-white/40 rounded-[2rem] p-6 text-center border-4 border-dashed border-natural-pink-border my-4">
             <span className="text-4xl">🎒</span>
             <p className="text-xs font-bold text-natural-burgundy mt-3">Ancora nessun profilo!</p>
-            <p className="text-[10px] text-natural-text/60 mt-1 font-semibold">Crea un profilo qui sotto per iniziare l'avventura.</p>
+            <p className="text-[10px] text-theme-secondary mt-1 font-semibold">Crea un profilo qui sotto per iniziare l'avventura.</p>
           </div>
         ) : (
           profiles.map((profile) => {
@@ -133,7 +133,7 @@ export default function ProfilesView({
                   </div>
                   <div>
                     <h4 className="font-extrabold text-sm text-natural-burgundy">{profile.nome}</h4>
-                    <p className="text-[10px] text-natural-text/60 font-bold mt-0.5">
+                    <p className="text-[10px] text-theme-secondary font-bold mt-0.5">
                       Nato nel {profile.annoNascita} &bull; {getAge(profile.annoNascita)} anni &bull; 🎨 {(() => {
                         const name = profile.temaVisivo;
                         if (!name) return "🌸 Giardino delle Fate";
@@ -164,7 +164,7 @@ export default function ProfilesView({
                     }}
                     aria-label={`Elimina il profilo ${profile.nome}`}
                     id={`btn-delete-profile-${profile.id}`}
-                    className="p-1.5 text-natural-text/40 hover:text-[#EC407A] hover:bg-natural-pink-light/30 rounded-lg transition-colors"
+                    className="p-1.5 text-theme-secondary hover:text-[#EC407A] hover:bg-natural-pink-light/30 rounded-lg transition-colors"
                     title="Elimina profilo"
                   >
                     <Trash2 size={14} />
@@ -307,7 +307,7 @@ export default function ProfilesView({
             <h4 className="text-xs font-black text-natural-burgundy/80 flex items-center gap-1.5 font-serif italic mb-3">
               <span>🗑️</span> Cestino dei Ricordi
             </h4>
-            <p className="text-[9px] text-natural-text/60 leading-tight mb-3 font-semibold">
+            <p className="text-[10px] text-theme-secondary leading-tight mb-3 font-semibold">
               I profili eliminati rimangono salvati qui per un massimo di 30 giorni prima di essere cancellati del tutto. Puoi ripristinarli o eliminarli definitivamente.
             </p>
             <div className="space-y-2">
@@ -320,7 +320,7 @@ export default function ProfilesView({
                   >
                     <div>
                       <h5 className="font-bold text-xs text-[#5D4037]">{profile.nome}</h5>
-                      <p className="text-[8px] text-natural-text/50 font-bold mt-0.5">
+                      <p className="text-[8px] text-theme-secondary font-bold mt-0.5">
                         Eliminato il {new Date(deletedAt).toLocaleDateString("it-IT")} &bull; Mancano {daysRemaining} giorni
                       </p>
                     </div>

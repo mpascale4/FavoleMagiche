@@ -40,7 +40,7 @@ export default function ChangePinModal({ onSuccess, onCancel, isForced = false }
         {!isForced && (
           <button
             onClick={() => { playClickSound(); onCancel(); }}
-            className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-full w-8 h-8 flex items-center justify-center cursor-pointer transition-colors"
+            className="absolute top-4 right-4 text-theme-secondary hover:text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-full w-8 h-8 flex items-center justify-center cursor-pointer transition-colors"
           >
             <X size={16} />
           </button>
@@ -53,7 +53,7 @@ export default function ChangePinModal({ onSuccess, onCancel, isForced = false }
         <h3 className="font-extrabold text-xl text-slate-800 font-serif italic mb-1">
           {isForced ? "Imposta il tuo PIN" : "Modifica PIN"}
         </h3>
-        <p className="text-[11px] text-slate-500 font-medium mb-4 px-2 leading-relaxed">
+        <p className="text-[11px] text-theme-secondary font-medium mb-4 px-2 leading-relaxed">
           {isForced 
             ? "Hai ancora il PIN di default (0000). Modificalo per proteggere l'area genitori. Attenzione: è importante ricordarlo per accedere alle impostazioni in futuro!" 
             : "Inserisci un nuovo PIN di 4 cifre. Ricordalo per non perdere l'accesso!"}
@@ -73,7 +73,7 @@ export default function ChangePinModal({ onSuccess, onCancel, isForced = false }
                 setNewPin(val);
                 setError("");
               }}
-              className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 text-center text-lg text-slate-700 font-black tracking-widest focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-200 transition-all"
+              className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 text-center text-lg text-theme-secondary font-black tracking-widest focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-200 transition-all"
             />
             <input
               type="password"
@@ -87,7 +87,7 @@ export default function ChangePinModal({ onSuccess, onCancel, isForced = false }
                 setConfirmPin(val);
                 setError("");
               }}
-              className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 text-center text-lg text-slate-700 font-black tracking-widest focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-200 transition-all"
+              className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 text-center text-lg text-theme-secondary font-black tracking-widest focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-200 transition-all"
             />
           </div>
           

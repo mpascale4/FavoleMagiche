@@ -39,6 +39,18 @@
   --app-error: #dc2626;
 }
 
+.text-theme-primary {
+  color: var(--app-text-primary);
+}
+
+.text-theme-secondary {
+  color: var(--app-text-secondary);
+}
+
+.text-theme-muted {
+  color: color-mix(in srgb, var(--app-text-secondary) 78%, var(--app-text-primary));
+}
+
 .night-theme,
 :root[data-theme='dark'] {
   --app-bg: #111827;
@@ -49,6 +61,18 @@
   --app-success: #34d399;
   --app-warning: #fbbf24;
   --app-error: #f87171;
+
+  /* Natural palette adapted for dark surfaces */
+  --color-natural-bg: #111827;
+  --color-natural-text: #E5E7EB;
+  --color-natural-burgundy: #F9A8D4;
+  --color-natural-pink: #F9A8D4;
+  --color-natural-pink-light: #31243A;
+  --color-natural-pink-border: #A855F7;
+  --color-natural-yellow: #FBBF24;
+  --color-natural-yellow-light: #7C5A00;
+  --color-natural-blue-light: #1D4ED8;
+  --color-natural-green-light: #166534;
 }
 
 /* Custom scrolling classes */
@@ -73,19 +97,26 @@
 }
 
 @keyframes magicBlink {
-  0%, 100% { opacity: 1; filter: drop-shadow(0 0 10px color-mix(in srgb, var(--app-warning) 80%, transparent)); }
-  50% { opacity: 0.2; filter: drop-shadow(0 0 2px color-mix(in srgb, var(--app-warning) 20%, transparent)); }
+  0%, 100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--app-warning) 45%, transparent));
+  }
+  50% {
+    opacity: 0.96;
+    transform: translateY(-0.5px) scale(1.01);
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--app-warning) 55%, transparent));
+  }
 }
 
 @keyframes buttonBlink {
   0%, 100% {
     border-color: var(--color-natural-yellow-light);
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 0 6px color-mix(in srgb, var(--app-warning) 20%, transparent);
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 0 4px color-mix(in srgb, var(--app-warning) 16%, transparent);
   }
   50% {
-    border-color: var(--app-warning);
-    box-shadow: 0 0 18px color-mix(in srgb, var(--app-warning) 75%, transparent);
-    background-color: color-mix(in srgb, var(--app-warning) 14%, var(--app-bg));
+    border-color: color-mix(in srgb, var(--app-warning) 72%, var(--color-natural-yellow-light));
+    box-shadow: 0 0 10px color-mix(in srgb, var(--app-warning) 28%, transparent);
   }
 }
 
@@ -98,11 +129,11 @@
 }
 
 .animate-magic-blink {
-  animation: magicBlink 0.9s ease-in-out infinite;
+  animation: magicBlink 3s ease-in-out infinite;
 }
 
 .animate-button-blink {
-  animation: buttonBlink 1.4s ease-in-out infinite;
+  animation: buttonBlink 3.2s ease-in-out infinite;
 }
 /* Night theme overrides for internal app components */
 .night-theme {

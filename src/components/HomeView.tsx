@@ -199,29 +199,27 @@ export default function HomeView({
           id="btn-menu-new-story"
           className={`group w-full p-3.5 rounded-2xl border-4 transition-all duration-200 flex items-center gap-3.5 text-left cursor-pointer ${
             isGenerating 
-              ? "bg-slate-100 border-slate-300 text-slate-400 cursor-not-allowed opacity-75" 
-              : "bg-[#FFFDE7] hover:bg-[#FFF9C4] text-natural-text border-[#FFE082] shadow-sm active:scale-[0.98] animate-button-blink"
+                ? "bg-slate-100 border-slate-300 text-theme-secondary cursor-not-allowed opacity-75" 
+              : "bg-[#FFFDE7] hover:bg-[#FFF9C4] text-natural-text border-natural-yellow-light shadow-sm active:scale-[0.98]"
           }`}
         >
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl shadow-xs border shrink-0 transition-transform duration-300 ${
             isGenerating 
-              ? "bg-slate-200 border-slate-300 text-slate-400" 
-              : "bg-white border-[#FFE082] group-hover:scale-105"
+              ? "bg-slate-200 border-slate-300 text-theme-secondary" 
+              : "bg-white border-natural-yellow-light group-hover:scale-105"
           }`}>
             {settings?.modalitaBambino ? "🔒" : (isGenerating ? "⏳" : "🪄")}
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className={`font-extrabold text-xs flex items-center gap-1 ${
-              isGenerating ? "text-slate-500" : "text-[#F9A825] animate-magic-blink"
+            <h3 className={`font-extrabold text-sm flex items-center gap-1 leading-none ${
+              isGenerating ? "text-theme-secondary" : "text-theme-primary"
             }`}>
-              {settings?.modalitaBambino && <Lock size={12} className="text-[#F9A825] shrink-0" />}
-              {isGenerating ? "Generazione in corso..." : "Nuova Storia"} 
-              {!isGenerating && <Sparkles size={12} className="text-natural-yellow fill-natural-yellow" />}
+              {settings?.modalitaBambino && <Lock size={12} className="text-theme-primary shrink-0" />}
+              {isGenerating ? "Generazione in corso..." : "Nuova Storia"}
+              {!isGenerating && <Sparkles size={12} className="text-theme-primary fill-current shrink-0" />}
             </h3>
-            <p className={`text-[9px] font-semibold leading-tight ${
-              isGenerating ? "text-slate-400" : "text-natural-text/70"
-            }`}>
-              {settings?.modalitaBambino 
+            <p className="text-[10px] font-bold leading-tight text-theme-secondary">
+              {settings?.modalitaBambino
                 ? "Disattiva la Modalità Bambino per creare una nuova favola" 
                 : (isGenerating 
                     ? "L'IA magica sta creando la tua favola..." 
@@ -244,26 +242,26 @@ export default function HomeView({
           id="btn-menu-bedtime-story"
           className={`group w-full p-3.5 rounded-2xl border-4 transition-all duration-200 flex items-center gap-3.5 text-left ${
             isGenerating 
-              ? "bg-slate-100 border-slate-300 text-slate-400 cursor-not-allowed opacity-75" 
+                ? "bg-slate-100 border-slate-300 text-theme-secondary cursor-not-allowed opacity-75" 
               : "bg-[#E8EAF6] hover:bg-[#C5CAE9]/30 text-slate-950 border-[#9FA8DA] shadow-sm active:scale-[0.98] cursor-pointer"
           }`}
         >
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl shadow-xs border shrink-0 transition-transform duration-300 ${
             isGenerating 
-              ? "bg-slate-200 border-slate-300 text-slate-400" 
+              ? "bg-slate-200 border-slate-300 text-theme-secondary" 
               : "bg-[#1A237E] border-[#3F51B5] group-hover:scale-105"
           }`}>
             {settings?.modalitaBambino ? "🔒" : "🌙"}
           </div>
           <div className="flex-1 min-w-0">
             <h3 className={`font-extrabold text-xs flex items-center gap-1 ${
-              isGenerating ? "text-slate-500" : "text-[#3F51B5]"
+              isGenerating ? "text-theme-secondary" : "text-[#3F51B5]"
             }`}>
               {settings?.modalitaBambino && <Lock size={12} className="text-[#3F51B5] shrink-0" />}
               Favola della Buonanotte
             </h3>
             <p className={`text-[9px] font-semibold leading-tight ${
-              isGenerating ? "text-slate-400" : "text-slate-600/90"
+              isGenerating ? "text-theme-secondary" : "text-theme-secondary"
             }`}>
               Storie rilassanti, suoni dolci e modalità notte per sogni d'oro ✨
             </p>
@@ -286,15 +284,15 @@ export default function HomeView({
             }`}
           >
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl border-2 shrink-0 transition-transform duration-300 ${
-              stories.length === 0 ? "bg-slate-200 border-slate-300 text-slate-400" : "bg-[#E1F5FE] border-[#81D4FA] text-[#0277BD] group-hover:scale-105"
+              stories.length === 0 ? "bg-slate-200 border-slate-300 text-theme-secondary" : "bg-[#E1F5FE] border-[#81D4FA] text-[#0277BD] group-hover:scale-105"
             }`}>
               📚
             </div>
             <div className="mt-1.5 min-w-0 w-full">
-              <h3 className={`font-extrabold text-[10px] truncate ${stories.length === 0 ? "text-slate-400" : "text-[#0277BD]"}`}>
+              <h3 className={`font-extrabold text-[10px] truncate ${stories.length === 0 ? "text-theme-secondary" : "text-[#0277BD]"}`}>
                 Biblioteca Magica
               </h3>
-              <p className="text-[7.5px] text-natural-text/60 font-semibold truncate leading-none mt-0.5">
+              <p className="text-[7.5px] text-theme-secondary font-semibold truncate leading-none mt-0.5">
                 {stories.length === 0 ? "Nessuna favola" : "Rileggi le tue favole"}
               </p>
             </div>

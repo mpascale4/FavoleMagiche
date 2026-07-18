@@ -282,7 +282,7 @@ export default function SettingsView({
                playClickSound();
                onOpenDeveloperMode?.();
              }}
-             className="w-9 h-9 bg-slate-800/40 hover:bg-slate-700/60 border border-slate-600 text-slate-400 hover:text-slate-300 rounded-xl flex items-center justify-center transition-all cursor-pointer"
+              className="w-9 h-9 bg-slate-800/40 hover:bg-slate-700/60 border border-slate-600 text-slate-200 hover:text-white rounded-xl flex items-center justify-center transition-all cursor-pointer"
              title="🧪 Developer Mode"
              aria-label="Apri Developer Mode"
            >
@@ -327,11 +327,11 @@ export default function SettingsView({
           <p className="text-[10px] font-bold text-natural-text" role="status" aria-live="polite">{geminiRuntimeStatus.message}</p>
 
           {geminiRuntimeStatus.model && (
-            <p className="text-[9px] text-slate-500 font-semibold">Modello usato: {geminiRuntimeStatus.model}</p>
+            <p className="text-[9px] text-theme-secondary font-semibold">Modello usato: {geminiRuntimeStatus.model}</p>
           )}
 
           {geminiRuntimeStatus.updatedAt && (
-            <p className="text-[9px] text-slate-400 font-semibold">
+            <p className="text-[9px] text-theme-secondary font-semibold">
               Ultimo aggiornamento: {new Date(geminiRuntimeStatus.updatedAt).toLocaleString("it-IT")}
             </p>
           )}
@@ -339,7 +339,7 @@ export default function SettingsView({
           {/* Log viewer */}
           {generationLogs.length > 0 && (
             <div className="space-y-2 mt-3 border-t border-slate-200/50 pt-3">
-              <div className="flex items-center gap-1.5 text-slate-700 font-bold text-[10px]">
+              <div className="flex items-center gap-1.5 text-theme-primary font-bold text-[10px]">
                 <Terminal size={12} className="text-natural-pink" />
                 <span>Log Generazioni (ultimi {generationLogs.length})</span>
               </div>
@@ -349,7 +349,7 @@ export default function SettingsView({
                   .slice()
                   .reverse()
                   .map((log, idx) => (
-                    <div key={idx} className="text-[8.5px] font-mono text-slate-600 leading-tight">
+                    <div key={idx} className="text-[8.5px] font-mono text-theme-secondary leading-tight">
                       <div className="flex items-start gap-1.5">
                         <span className={`font-bold shrink-0 ${
                           log.source === "gemini" ? "text-emerald-600" :
@@ -359,10 +359,10 @@ export default function SettingsView({
                           [{log.source.toUpperCase()}]
                         </span>
                         <div className="flex-1">
-                          <div className="text-[7px] text-slate-400 mb-0.5">
+                          <div className="text-[7px] text-theme-secondary mb-0.5">
                             {new Date(log.timestamp).toLocaleTimeString("it-IT")}
                           </div>
-                          <div className="text-slate-700">
+                          <div className="text-theme-primary">
                             {log.model && <div>Modello: {log.model}</div>}
                             {log.reason && <div>Motivo: {log.reason}</div>}
                             {log.error && <div>Errore: {log.error}</div>}
@@ -430,7 +430,7 @@ export default function SettingsView({
             <div className="space-y-1">
               <div className="flex justify-between items-center text-[10px] font-extrabold">
                 <span className="text-slate-600">Altezza Tono (Pitch):</span>
-                <span className="text-natural-burgundy">{(settings.tonoVoce ?? 1.0).toFixed(2)}x</span>
+                <span className="text-theme-primary">{(settings.tonoVoce ?? 1.0).toFixed(2)}x</span>
               </div>
               <input
                 id="voice-pitch"
@@ -443,7 +443,7 @@ export default function SettingsView({
                 aria-label="Regola altezza tono della voce"
                 className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-natural-pink"
               />
-              <p className="text-[8px] text-slate-400 font-bold text-right italic">
+              <p className="text-[8px] text-theme-secondary font-bold text-right italic">
                 {getPitchLabel(settings.tonoVoce ?? 1.0)}
               </p>
             </div>
@@ -452,7 +452,7 @@ export default function SettingsView({
             <div className="space-y-1">
               <div className="flex justify-between items-center text-[10px] font-extrabold">
                 <span className="text-slate-600">Velocità di Lettura:</span>
-                <span className="text-natural-burgundy">{(settings.velocitaVoce ?? 0.85).toFixed(2)}x</span>
+                <span className="text-theme-primary">{(settings.velocitaVoce ?? 0.85).toFixed(2)}x</span>
               </div>
               <input
                 id="voice-rate"
@@ -465,7 +465,7 @@ export default function SettingsView({
                 aria-label="Regola velocita di lettura"
                 className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-natural-pink"
               />
-              <p className="text-[8px] text-slate-400 font-bold text-right italic">
+              <p className="text-[8px] text-theme-secondary font-bold text-right italic">
                 {getRateLabel(settings.velocitaVoce ?? 0.85)}
               </p>
             </div>
@@ -544,7 +544,7 @@ export default function SettingsView({
               ></div>
             </div>
 
-            <div className="flex justify-between text-[8px] text-natural-text/50 font-bold">
+            <div className="flex justify-between text-[8px] text-theme-secondary font-bold">
               <span>{storiesCount} Storie generate</span>
               <span>Footprint stimato: {simulatedSizePerStory}MB/storia</span>
             </div>
@@ -870,7 +870,7 @@ export default function SettingsView({
             <div className="flex gap-2.5 pt-1">
               <button
                 onClick={() => setShowConfirmClear(false)}
-                className="flex-1 py-2 bg-slate-100 hover:bg-slate-200 border-2 border-slate-300 text-slate-600 rounded-full text-[11px] font-extrabold transition-all cursor-pointer"
+                className="flex-1 py-2 bg-slate-100 hover:bg-slate-200 border-2 border-slate-300 text-theme-secondary rounded-full text-[11px] font-extrabold transition-all cursor-pointer"
               >
                 Annulla
               </button>
@@ -902,3 +902,7 @@ export default function SettingsView({
      </>
    );
  }
+
+
+
+

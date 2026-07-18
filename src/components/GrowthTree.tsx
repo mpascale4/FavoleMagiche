@@ -94,14 +94,14 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
               className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl border-2 text-xs font-black transition-all cursor-pointer shrink-0 shadow-xs ${
                 isSelected
                   ? "bg-white text-natural-burgundy scale-103 shadow-md"
-                  : "bg-slate-50/70 border-slate-200/60 text-slate-500 hover:bg-slate-100/80"
+                  : "bg-slate-50/70 border-slate-200/60 text-theme-secondary hover:bg-slate-100/80"
               }`}
               style={{ borderColor: isSelected ? t.color : undefined }}
             >
               <span className="text-base">{t.icon}</span>
               <div className="text-left leading-none">
                 <span className="block text-[10px]">{t.theme}</span>
-                <span className="text-[7.5px] font-mono text-slate-400 font-extrabold">XP: {count}</span>
+                <span className="text-[7.5px] font-mono text-theme-secondary font-extrabold">XP: {count}</span>
               </div>
             </button>
           );
@@ -114,12 +114,12 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
         <div className={`flex-1 relative bg-gradient-to-b ${activeTreeInfo.bgGradient} p-4 flex flex-col items-center justify-center min-h-[220px]`}>
           
           {/* Floating magical clouds */}
-          <div className="absolute top-4 left-6 bg-white/40 backdrop-blur-xs px-3 py-1 rounded-full text-[9px] font-bold text-slate-500 flex items-center gap-1 shadow-xs animate-pulse">
+          <div className="absolute top-4 left-6 bg-white/40 backdrop-blur-xs px-3 py-1 rounded-full text-[9px] font-bold text-theme-secondary flex items-center gap-1 shadow-xs animate-pulse">
             ☁️ Cielo Fatato
           </div>
 
           <div className="absolute top-4 right-6 bg-white/75 border border-amber-200 shadow-xs rounded-2xl px-2.5 py-1 text-center font-black">
-            <span className="text-[7px] text-slate-400 uppercase block leading-none">Punti Virtù</span>
+            <span className="text-[7px] text-theme-secondary uppercase block leading-none">Punti Virtù</span>
             <span className="text-xs font-mono text-natural-burgundy">{readCount} ✨</span>
           </div>
 
@@ -250,14 +250,14 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
             <h3 className="text-xs font-black text-natural-burgundy tracking-wide uppercase flex items-center gap-1 justify-center md:justify-start">
               <span className="text-sm">{activeTreeInfo.icon}</span> Albero della {selectedTheme}
             </h3>
-            <p className="text-[10px] text-slate-500 font-bold leading-tight">
+            <p className="text-[10px] text-theme-secondary font-bold leading-tight">
               {activeTreeInfo.desc}
             </p>
           </div>
 
           {/* Progress bar */}
           <div className="bg-slate-50 p-2.5 rounded-2xl border border-slate-100/80 space-y-1">
-            <div className="flex justify-between text-[7.5px] font-black text-slate-500 uppercase">
+            <div className="flex justify-between text-[7.5px] font-black text-theme-secondary uppercase">
               <span>Livello di Fioritura</span>
               <span>{stageDetails.percent}%</span>
             </div>
@@ -267,13 +267,13 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
                 style={{ width: `${stageDetails.percent}%` }}
               />
             </div>
-            <p className="text-[8px] font-medium text-slate-400 text-center pt-0.5">
+            <p className="text-[8px] font-medium text-theme-secondary text-center pt-0.5">
               Stato: <span className="font-extrabold text-[#EC407A]">{stageDetails.name}</span>
             </p>
           </div>
 
           <div className="bg-amber-50/70 p-2.5 rounded-2xl border border-amber-100/50">
-            <p className="text-[9px] text-slate-600 font-black leading-normal text-center md:text-left">
+            <p className="text-[9px] text-theme-secondary font-black leading-normal text-center md:text-left">
               "{stageDetails.message}"
             </p>
           </div>

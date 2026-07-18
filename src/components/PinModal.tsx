@@ -43,7 +43,7 @@ export default function PinModal({ onSuccess, onCancel, expectedPin, title = "Ar
       <div className="bg-white rounded-3xl p-6 border-4 border-slate-200 shadow-2xl max-w-xs w-full text-center relative overflow-hidden">
         <button
           onClick={() => { playClickSound(); onCancel(); }}
-          className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-full w-8 h-8 flex items-center justify-center cursor-pointer transition-colors"
+          className="absolute top-4 right-4 text-theme-secondary hover:text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-full w-8 h-8 flex items-center justify-center cursor-pointer transition-colors"
         >
           <X size={16} />
         </button>
@@ -53,7 +53,7 @@ export default function PinModal({ onSuccess, onCancel, expectedPin, title = "Ar
         </div>
         
         <h3 className="font-extrabold text-xl text-slate-800 font-serif italic mb-1">{title}</h3>
-        <p className="text-xs text-slate-500 font-medium mb-6 px-4">{description}</p>
+        <p className="text-xs text-theme-secondary font-medium mb-6 px-4">{description}</p>
 
         {/* PIN Display */}
         <div className={`flex justify-center gap-3 mb-8 ${error ? "animate-wiggle" : ""}`}>
@@ -77,7 +77,7 @@ export default function PinModal({ onSuccess, onCancel, expectedPin, title = "Ar
             <button
               key={num}
               onClick={() => handleNumberClick(num.toString())}
-              className="h-14 rounded-2xl bg-slate-50 border-2 border-slate-100 text-xl font-bold text-slate-700 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600 active:bg-blue-100 active:scale-95 transition-all flex items-center justify-center cursor-pointer"
+              className="h-14 rounded-2xl bg-slate-50 border-2 border-slate-100 text-xl font-bold text-theme-secondary hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600 active:bg-blue-100 active:scale-95 transition-all flex items-center justify-center cursor-pointer"
             >
               {num}
             </button>
@@ -85,13 +85,13 @@ export default function PinModal({ onSuccess, onCancel, expectedPin, title = "Ar
           <div className="h-14" /> {/* Empty spot */}
           <button
             onClick={() => handleNumberClick("0")}
-            className="h-14 rounded-2xl bg-slate-50 border-2 border-slate-100 text-xl font-bold text-slate-700 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600 active:bg-blue-100 active:scale-95 transition-all flex items-center justify-center cursor-pointer"
+            className="h-14 rounded-2xl bg-slate-50 border-2 border-slate-100 text-xl font-bold text-theme-secondary hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600 active:bg-blue-100 active:scale-95 transition-all flex items-center justify-center cursor-pointer"
           >
             0
           </button>
           <button
             onClick={handleDelete}
-            className="h-14 rounded-2xl bg-slate-100 border-2 border-slate-200 text-slate-600 hover:bg-red-50 hover:border-red-200 hover:text-red-500 active:scale-95 transition-all flex items-center justify-center cursor-pointer"
+            className="h-14 rounded-2xl bg-slate-100 border-2 border-slate-200 text-theme-secondary hover:bg-red-50 hover:border-red-200 hover:text-red-500 active:scale-95 transition-all flex items-center justify-center cursor-pointer"
           >
             <X size={20} />
           </button>

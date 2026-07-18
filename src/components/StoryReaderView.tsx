@@ -600,7 +600,7 @@ export default function StoryReaderView({
       dragon: "bg-emerald-50 hover:bg-emerald-100 border-emerald-200 text-emerald-600 dark:bg-emerald-950/40 dark:border-emerald-800 dark:text-emerald-300",
       chime: "bg-amber-50 hover:bg-amber-100 border-amber-200 text-amber-600 dark:bg-amber-950/40 dark:border-amber-800 dark:text-amber-300",
       nature: "bg-green-50 hover:bg-green-100 border-green-200 text-green-600 dark:bg-green-950/40 dark:border-green-800 dark:text-green-300",
-      jump: "bg-indigo-50 hover:bg-indigo-100 border-indigo-200 text-indigo-600 dark:bg-indigo-950/40 dark:border-indigo-800 dark:text-indigo-300",
+      jump: "bg-indigo-50 hover:bg-indigo-100 border-indigo-200 text-indigo-600 dark:bg-indigo-950/40 dark:border-indigo-800 dark:text-indigo-100",
       mystery: "bg-fuchsia-50 hover:bg-fuchsia-100 border-fuchsia-200 text-fuchsia-600 dark:bg-fuchsia-950/40 dark:border-fuchsia-800 dark:text-fuchsia-300",
       success: "bg-yellow-50 hover:bg-yellow-100 border-yellow-200 text-yellow-600 dark:bg-yellow-950/40 dark:border-yellow-800 dark:text-yellow-300"
     };
@@ -1235,7 +1235,7 @@ export default function StoryReaderView({
                 className={`flex items-center justify-center w-7 h-7 rounded-full font-bold text-[10px] transition-colors shrink-0 ${
                   playbackSpeed === speed 
                     ? "bg-amber-400 text-amber-900 shadow-sm" 
-                    : "bg-transparent text-slate-500 hover:bg-slate-200"
+                    : "bg-transparent text-theme-secondary hover:bg-slate-200"
                 }`}
                 title={`Velocità ${speed}x`}
                 aria-label={`Imposta velocita narrazione ${speed}x`}
@@ -1378,7 +1378,7 @@ export default function StoryReaderView({
               </div>
 
               {/* Cover integrated pagination controls */}
-              <div className={`w-full pt-2.5 border-t-2 flex items-center justify-between text-[10px] font-extrabold tracking-wider border-slate-200/50 shrink-0 ${activeTheme !== "giorno" ? "text-slate-400" : "text-slate-600"}`}>
+              <div className={`w-full pt-2.5 border-t-2 flex items-center justify-between text-[10px] font-extrabold tracking-wider border-slate-200/50 shrink-0 ${activeTheme !== "giorno" ? "text-theme-secondary" : "text-theme-primary"}`}>
                 <button
                   type="button"
                   disabled

@@ -140,7 +140,7 @@ export default function GenerationView({
         <div className="max-h-20 overflow-y-auto space-y-1.5 scrollbar-none" aria-live="polite" aria-atomic="false">
           {logs.map((log, index) => (
             <div key={index} className="leading-snug break-words">
-              <span className="text-slate-400 mr-1 select-none">[{log.time}]</span>
+              <span className="text-theme-secondary mr-1 select-none">[{log.time}]</span>
               <span className={
                 log.type === "success" ? "text-emerald-400 font-bold" :
                 log.type === "warn" ? "text-amber-300 italic" : "text-slate-200"
@@ -150,7 +150,7 @@ export default function GenerationView({
             </div>
           ))}
           {logs.length === 0 && (
-            <div className="text-slate-500 italic">Inizializzazione dei canali fatati...</div>
+            <div className="text-theme-secondary italic">Inizializzazione dei canali fatati...</div>
           )}
         </div>
       </div>
@@ -198,13 +198,13 @@ export default function GenerationView({
         <button
           onClick={onCancel}
           aria-label="Annulla la generazione in corso"
-          className="w-full py-2 px-4 bg-slate-100 hover:bg-slate-200 active:scale-98 text-slate-600 font-bold text-xs rounded-xl transition-all"
+          className="w-full py-2 px-4 bg-slate-100 hover:bg-slate-200 active:scale-98 text-theme-secondary font-bold text-xs rounded-xl transition-all"
         >
           Stoppa / Annulla
         </button>
       </div>
 
-      <span className="text-[9px] text-natural-text/40 mt-6 block font-semibold leading-normal max-w-[220px]">
+      <span className="text-[9px] text-theme-secondary mt-6 block font-semibold leading-normal max-w-[220px]">
         Ora puoi navigare l'app e leggere altre favole mentre l'IA magica scrive la tua nuova storia in background!
       </span>
 

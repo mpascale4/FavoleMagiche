@@ -877,7 +877,7 @@ export default function NewStoryView({
 
           {/* Pagination Controls for Categories */}
           {filteredUnlockedCategories.length > PAGE_SIZE_CATEGORIES && (
-            <div className="flex items-center justify-between mt-1 px-1 text-[10px] font-bold text-natural-text/60">
+            <div className="flex items-center justify-between mt-1 px-1 text-[10px] font-bold text-theme-secondary">
               <button
                 type="button"
                 disabled={pageCategory === 1}
@@ -907,10 +907,10 @@ export default function NewStoryView({
                   setShowSecretCategories(!showSecretCategories);
                   playPlinkSound();
                 }}
-                className="w-full flex items-center justify-between text-[9px] uppercase font-black text-slate-500 tracking-wider px-0.5 cursor-pointer hover:text-slate-700 focus:outline-none"
+                className="w-full flex items-center justify-between text-[9px] uppercase font-black text-theme-secondary tracking-wider px-0.5 cursor-pointer hover:text-natural-burgundy focus:outline-none"
               >
                 <span>🔒 Categorie segrete ({filteredLockedCategories.length})</span>
-                <span className="text-[8px] bg-slate-200/80 hover:bg-slate-300 text-slate-600 font-extrabold px-1.5 py-0.5 rounded transition-colors">
+                <span className="text-[8px] bg-slate-200/80 hover:bg-slate-300 text-theme-secondary font-extrabold px-1.5 py-0.5 rounded transition-colors">
                   {showSecretCategories ? "Nascondi 🔼" : "Mostra 🔽"}
                 </span>
               </button>
@@ -924,13 +924,13 @@ export default function NewStoryView({
                         section: "categoria",
                         text: `La categoria '${cat}' è ancora segreta! Si sbloccherà casualmente completando gli obiettivi o aprendo il Box Regalo Giornaliero!`
                       })}
-                      className="py-1.5 px-2 bg-slate-200/40 hover:bg-slate-200/70 text-slate-400 text-[10.5px] rounded-xl font-bold flex items-center justify-between border border-slate-200/30 transition-all cursor-pointer"
+                      className="py-1.5 px-2 bg-slate-200/40 hover:bg-slate-200/70 text-theme-secondary text-[10.5px] rounded-xl font-bold flex items-center gap-1 border border-slate-200/30 transition-all cursor-pointer"
                     >
                       <span className="flex items-center gap-1.5">
                         <span>{CATEGORY_EMOJIS[cat] || "❓"}</span>
                         <span>{cat}</span>
                       </span>
-                      <Lock size={10} className="text-slate-400" />
+                        <Lock size={10} className="text-theme-secondary" />
                     </button>
                   ))}
                 </div>
@@ -946,7 +946,7 @@ export default function NewStoryView({
               <button 
                 type="button" 
                 onClick={() => setLockedBannerMsg(null)} 
-                className="absolute right-1.5 top-1.5 text-slate-400 hover:text-slate-600 text-xs font-black cursor-pointer"
+                className="absolute right-1.5 top-1.5 text-theme-secondary hover:text-natural-burgundy text-xs font-black cursor-pointer"
               >
                 ×
               </button>
@@ -960,7 +960,7 @@ export default function NewStoryView({
             <label className="block text-[10px] font-black text-natural-burgundy uppercase tracking-wider">
               2. Tema Educativo (La Morale)
             </label>
-            <span className="text-[9px] font-bold text-natural-text/50">Ordina per utilizzo</span>
+            <span className="text-[9px] font-bold text-theme-secondary">Ordina per utilizzo</span>
           </div>
 
           {/* Search bar for themes */}
@@ -1052,10 +1052,10 @@ export default function NewStoryView({
                   setShowSecretThemes(!showSecretThemes);
                   playPlinkSound();
                 }}
-                className="w-full flex items-center justify-between text-[9px] uppercase font-black text-slate-500 tracking-wider px-0.5 cursor-pointer hover:text-slate-700 focus:outline-none"
+                className="w-full flex items-center justify-between text-[9px] uppercase font-black text-theme-secondary tracking-wider px-0.5 cursor-pointer hover:text-natural-burgundy focus:outline-none"
               >
                 <span>🔒 Temi educativi segreti ({filteredLockedThemes.length})</span>
-                <span className="text-[8px] bg-slate-200/80 hover:bg-slate-300 text-slate-600 font-extrabold px-1.5 py-0.5 rounded transition-colors">
+                <span className="text-[8px] bg-slate-200/80 hover:bg-slate-300 text-theme-secondary font-extrabold px-1.5 py-0.5 rounded transition-colors">
                   {showSecretThemes ? "Nascondi 🔼" : "Mostra 🔽"}
                 </span>
               </button>
@@ -1083,13 +1083,13 @@ export default function NewStoryView({
 
           {/* Lock message banner */}
           {lockedBannerMsg && lockedBannerMsg.section === "temaEducativo" && (
-            <div className="bg-amber-50 border border-amber-200 text-[#795548] p-2 rounded-xl text-[10px] font-medium leading-relaxed flex items-start gap-1.5 relative mt-1.5">
-              <span className="text-xs">🔑</span>
+            <div className="bg-amber-50 border border-amber-200 text-[#795548] p-2 rounded-xl text-[10px] font-medium leading-relaxed flex items-start gap-1.5 relative mt-1">
+              <span>🔑</span>
               <p className="pr-4">{lockedBannerMsg.text}</p>
               <button 
                 type="button" 
                 onClick={() => setLockedBannerMsg(null)} 
-                className="absolute right-1.5 top-1.5 text-slate-400 hover:text-slate-600 text-xs font-black cursor-pointer"
+                className="absolute right-1 top-1 text-slate-400 hover:text-slate-600 text-xs font-black cursor-pointer"
               >
                 ×
               </button>
@@ -1174,7 +1174,7 @@ export default function NewStoryView({
                           <span className="text-sm">{typeEmoji}</span>
                           <div className="leading-tight">
                             <span className="block font-black text-slate-800">{char.nome}</span>
-                            <span className="text-[8.5px] text-natural-text/60 font-bold block">
+                            <span className="text-[8.5px] text-theme-secondary font-bold block">
                               {char.tipo} {char.caratteristica ? `• ${traitEmoji} ${char.caratteristica}` : ""}
                             </span>
                           </div>
@@ -1305,10 +1305,10 @@ export default function NewStoryView({
                               setShowSecretCharTypes(!showSecretCharTypes);
                               playPlinkSound();
                             }}
-                            className="w-full flex items-center justify-between text-[8px] uppercase font-black text-slate-500 tracking-wider cursor-pointer hover:text-slate-700 focus:outline-none"
+                                        className="w-full flex items-center justify-between text-[8px] uppercase font-black text-theme-secondary tracking-wider cursor-pointer hover:text-natural-burgundy focus:outline-none"
                           >
                             <span>🔒 Tipi segreti ({filteredLockedCharacterTypes.length})</span>
-                            <span className="text-[7px] bg-slate-200/80 hover:bg-slate-300 text-slate-600 font-extrabold px-1 py-0.5 rounded transition-colors">
+                                        <span className="text-[7px] bg-slate-200/80 hover:bg-slate-300 text-theme-secondary font-extrabold px-1 py-0.5 rounded transition-colors">
                               {showSecretCharTypes ? "Nascondi 🔼" : "Mostra 🔽"}
                             </span>
                           </button>
@@ -1322,11 +1322,11 @@ export default function NewStoryView({
                                     section: "charType",
                                     text: `Il tipo personaggio '${t}' è ancora segreto! Si sbloccherà casualmente completando gli obiettivi o aprendo il Box Regalo Giornaliero!`
                                   })}
-                                  className="py-1 px-2 bg-slate-200/40 hover:bg-slate-200/70 text-slate-400 text-[9px] rounded-lg font-bold flex items-center gap-1 border border-slate-200/30 transition-all cursor-pointer"
+                                  className="py-1 px-2 bg-slate-200/40 hover:bg-slate-200/70 text-theme-secondary text-[9px] rounded-lg font-bold flex items-center gap-1 border border-slate-200/30 transition-all cursor-pointer"
                                 >
                                   <span>{TYPE_EMOJIS[t] || "❓"}</span>
                                   <span>{t}</span>
-                                  <Lock size={8} className="text-slate-400" />
+                                  <Lock size={8} className="text-theme-secondary" />
                                 </button>
                               ))}
                             </div>
@@ -1493,10 +1493,10 @@ export default function NewStoryView({
                               setShowSecretCharTraits(!showSecretCharTraits);
                               playPlinkSound();
                             }}
-                            className="w-full flex items-center justify-between text-[8px] uppercase font-black text-slate-500 tracking-wider cursor-pointer hover:text-slate-700 focus:outline-none"
+                            className="w-full flex items-center justify-between text-[8px] uppercase font-black text-theme-secondary tracking-wider cursor-pointer hover:text-natural-burgundy focus:outline-none"
                           >
                             <span>🔒 Caratteristiche segrete ({filteredLockedCharacterTraits.length})</span>
-                            <span className="text-[7px] bg-slate-200/80 hover:bg-slate-300 text-slate-600 font-extrabold px-1 py-0.5 rounded transition-colors">
+                            <span className="text-[7px] bg-slate-200/80 hover:bg-slate-300 text-theme-secondary font-extrabold px-1 py-0.5 rounded transition-colors">
                               {showSecretCharTraits ? "Nascondi 🔼" : "Mostra 🔽"}
                             </span>
                           </button>
@@ -1510,11 +1510,11 @@ export default function NewStoryView({
                                   section: "charTrait",
                                   text: `La caratteristica '${getTraitForCharacterType(tr, charType)}' è ancora segreta! Si sbloccherà casualmente completando gli obiettivi o aprendo il Box Regalo Giornaliero!`
                                 })}
-                                className="py-1 px-2 bg-slate-200/40 hover:bg-slate-200/70 text-slate-400 text-[9px] rounded-lg font-bold flex items-center gap-1 border border-slate-200/30 transition-all cursor-pointer"
+                                className="py-1 px-2 bg-slate-200/40 hover:bg-slate-200/70 text-theme-secondary text-[9px] rounded-lg font-bold flex items-center gap-1 border border-slate-200/30 transition-all cursor-pointer"
                               >
                                 <span>{TRAIT_EMOJIS[tr] || "❓"}</span>
                                 <span>{getTraitForCharacterType(tr, charType)}</span>
-                                <Lock size={8} className="text-slate-400" />
+                                <Lock size={8} className="text-theme-secondary" />
                               </button>
                             ))}
                           </div>
@@ -1530,7 +1530,7 @@ export default function NewStoryView({
                           <button 
                             type="button" 
                             onClick={() => setLockedBannerMsg(null)} 
-                            className="absolute right-1 top-1 text-slate-400 hover:text-slate-600 text-xs font-black cursor-pointer"
+                            className="absolute right-1 top-1 text-theme-secondary hover:text-natural-burgundy text-xs font-black cursor-pointer"
                           >
                             ×
                           </button>
@@ -1538,7 +1538,7 @@ export default function NewStoryView({
                       )}
                     </div>
 
-                    {/* Action buttons (Salva and Annulla) */}
+                    {/* Action buttons (Salva e Annulla) */}
                     <div className="flex gap-2 pt-1">
                       <button
                         type="button"

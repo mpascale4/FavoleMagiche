@@ -89,21 +89,21 @@ export default function InfoModal({ onClose }: InfoModalProps) {
 
             <div className="grid grid-cols-3 gap-2 mt-2">
               <div className="bg-slate-800 rounded-lg p-2 border border-slate-600">
-                <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1">
+                <div className="text-[9px] font-bold text-slate-200 uppercase tracking-wider mb-1 flex items-center gap-1">
                   <Info size={11} /> Versione
                 </div>
                 <div className="text-lg font-black text-pink-200 font-serif">v{versionInfo.version}</div>
               </div>
 
               <div className="bg-slate-800 rounded-lg p-2 border border-slate-600">
-                <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1">
+                <div className="text-[9px] font-bold text-slate-200 uppercase tracking-wider mb-1 flex items-center gap-1">
                   <Calendar size={11} /> Data
                 </div>
                 <div className="text-[11px] font-bold text-slate-200">{versionInfo.releaseDate}</div>
               </div>
 
               <div className="bg-slate-800 rounded-lg p-2 border border-slate-600">
-                <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1">
+                <div className="text-[9px] font-bold text-slate-200 uppercase tracking-wider mb-1 flex items-center gap-1">
                   <Clock size={11} /> Orario
                 </div>
                 <div className="text-[11px] font-bold text-slate-200">{versionInfo.releaseTime || "--:--"}</div>
@@ -120,7 +120,7 @@ export default function InfoModal({ onClose }: InfoModalProps) {
 
               <div className="space-y-2 max-h-56 overflow-y-auto scrollbar-none">
                 {history.length === 0 && (
-                  <div className="rounded-lg border border-slate-600 p-2 bg-slate-800 text-slate-400">
+                    <div className="rounded-lg border border-slate-600 p-2 bg-slate-800 text-slate-200">
                     Nessuno storico versioni disponibile.
                   </div>
                 )}
@@ -129,14 +129,14 @@ export default function InfoModal({ onClose }: InfoModalProps) {
                   <div key={entry.version} className="rounded-lg border border-slate-600 p-2 bg-slate-800">
                     <div className="flex items-center justify-between gap-2 mb-1">
                       <span className="text-pink-300 font-black text-[11px]">v{entry.version}</span>
-                      <span className="text-slate-400 text-[9px]">{entry.releaseDate} {entry.releaseTime || ""}</span>
+                      <span className="text-slate-200 text-[9px]">{entry.releaseDate} {entry.releaseTime || ""}</span>
                     </div>
                     <div className="space-y-1">
                       {(entry.changes || []).map((change, idx) => (
-                        <div key={`${entry.version}-${idx}`} className="text-[10px] text-slate-200">
+                        <div key={`${entry.version}-${idx}`} className="text-[10px] text-slate-100">
                           <span className="text-pink-300 mr-1">•</span>
                           <span className="font-bold">{change.title}</span>
-                          <span className="text-slate-400"> - {change.description}</span>
+                          <span className="text-slate-200"> - {change.description}</span>
                         </div>
                       ))}
                     </div>

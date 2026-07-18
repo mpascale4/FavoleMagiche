@@ -1332,7 +1332,7 @@ export default function App() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-[10px] font-extrabold text-pink-700 leading-tight">Favola in background...</p>
-              <p className="text-[9px] font-medium text-slate-600 truncate leading-tight mt-0.5">{activeJobStep || "Creando magia..."}</p>
+              <p className="text-[9px] font-medium text-theme-secondary truncate leading-tight mt-0.5">{activeJobStep || "Creando magia..."}</p>
               {/* Mini progress bar */}
               <div className="w-full bg-slate-100 h-1.5 rounded-full mt-1 overflow-hidden">
                 <div style={{ width: `${activeJobProgress}%` }} className="bg-gradient-to-r from-pink-400 to-rose-400 h-full rounded-full transition-all duration-300"></div>
@@ -1349,7 +1349,7 @@ export default function App() {
             </button>
             <button
               onClick={handleCancelGeneration}
-              className="py-1 px-2 bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-500 text-[9px] font-black rounded-lg transition-all cursor-pointer"
+              className="py-1 px-2 bg-slate-100 hover:bg-slate-200 active:scale-95 text-theme-secondary text-[9px] font-black rounded-lg transition-all cursor-pointer"
               title="Annulla generazione"
             >
               Stoppa
@@ -1363,7 +1363,7 @@ export default function App() {
           <div className="bg-gradient-to-b from-[#1A237E] to-[#12185C] rounded-[2.5rem] border-4 border-indigo-300 p-6 max-w-sm w-full text-center space-y-4 shadow-[0_0_25px_rgba(63,81,181,0.4)] text-indigo-100 transform scale-100 transition-all relative">
             <button
               onClick={() => { playClickSound(); setBedtimeConfirmConfig(null); }}
-              className="absolute top-4 right-4 text-indigo-300 hover:text-white font-bold text-sm bg-indigo-900/60 hover:bg-indigo-800 rounded-full w-7 h-7 flex items-center justify-center cursor-pointer border border-indigo-500/30"
+              className="absolute top-4 right-4 text-indigo-100 hover:text-white font-bold text-sm bg-indigo-900/60 hover:bg-indigo-800 rounded-full w-7 h-7 flex items-center justify-center cursor-pointer border border-indigo-500/30"
             >
               ✕
             </button>
@@ -1371,43 +1371,43 @@ export default function App() {
             <div className="text-5xl animate-pulse py-1 select-none">🌙✨🔮</div>
 
             <div className="space-y-1.5">
-              <span className="text-[9px] bg-indigo-900/60 border border-indigo-500 text-indigo-200 font-black px-3 py-0.5 rounded-full uppercase tracking-widest">
+                <span className="text-[9px] bg-indigo-900/60 border border-indigo-500 text-white font-black px-3 py-0.5 rounded-full uppercase tracking-widest">
                 Richiesta Conferma
               </span>
               <h4 className="font-extrabold text-base text-amber-200 font-serif italic pt-1 leading-tight">
                 Favola della Buonanotte
               </h4>
-              <p className="text-[10px] text-indigo-200 leading-relaxed font-bold px-1.5">
+              <p className="text-[10px] text-indigo-100 leading-relaxed font-bold px-1.5">
                 Sei pronto a creare una dolce fiaba della nanna? Ecco le magiche scelte pronte per essere trasformate in racconto:
               </p>
             </div>
 
-            <div className="bg-indigo-900/40 p-4 rounded-2xl border border-indigo-800 text-left space-y-2.5 text-[10px] font-bold text-indigo-200">
+            <div className="bg-indigo-900/40 p-4 rounded-2xl border border-indigo-800 text-left space-y-2.5 text-[10px] font-bold text-indigo-100">
               <div className="flex items-center gap-2">
                 <span className="text-lg">👦</span>
                 <div>
-                  <span className="text-indigo-400 font-extrabold block text-[8px] uppercase tracking-wider leading-none">Bambino</span>
+                  <span className="text-indigo-200 font-extrabold block text-[8px] uppercase tracking-wider leading-none">Bambino</span>
                   <span className="text-white">{bedtimeConfirmConfig.nomeBambino} ({bedtimeConfirmConfig.etaBambino} anni)</span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-lg">🗺️</span>
                 <div>
-                  <span className="text-indigo-400 font-extrabold block text-[8px] uppercase tracking-wider leading-none">Ambientazione</span>
+                  <span className="text-indigo-200 font-extrabold block text-[8px] uppercase tracking-wider leading-none">Ambientazione</span>
                   <span className="text-white">{bedtimeConfirmConfig.categoria}</span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-lg">💖</span>
                 <div>
-                  <span className="text-indigo-400 font-extrabold block text-[8px] uppercase tracking-wider leading-none">Valore Educativo</span>
+                  <span className="text-indigo-200 font-extrabold block text-[8px] uppercase tracking-wider leading-none">Valore Educativo</span>
                   <span className="text-white">{bedtimeConfirmConfig.temaEducativo}</span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-lg">🐕</span>
                 <div>
-                  <span className="text-indigo-400 font-extrabold block text-[8px] uppercase tracking-wider leading-none">Protagonista Magico</span>
+                  <span className="text-indigo-200 font-extrabold block text-[8px] uppercase tracking-wider leading-none">Protagonista Magico</span>
                   <span className="text-white">
                     {bedtimeConfirmConfig.personaggi && bedtimeConfirmConfig.personaggi[0]
                       ? `${bedtimeConfirmConfig.personaggi[0].nome} il ${bedtimeConfirmConfig.personaggi[0].tipo} (${bedtimeConfirmConfig.personaggi[0].caratteristica})`
@@ -1418,7 +1418,7 @@ export default function App() {
               <div className="flex items-center gap-2">
                 <span className="text-lg">⏳</span>
                 <div>
-                  <span className="text-indigo-400 font-extrabold block text-[8px] uppercase tracking-wider leading-none">Durata Racconto</span>
+                  <span className="text-indigo-200 font-extrabold block text-[8px] uppercase tracking-wider leading-none">Durata Racconto</span>
                   <span className="text-white">{bedtimeConfirmConfig.durata} (perfetta per addormentarsi)</span>
                 </div>
               </div>
@@ -1439,7 +1439,7 @@ export default function App() {
               
               <button
                 onClick={() => { playClickSound(); setBedtimeConfirmConfig(null); }}
-                className="w-full py-2 bg-indigo-900/40 hover:bg-indigo-800/60 text-indigo-300 hover:text-white rounded-full text-[10px] font-extrabold transition-all cursor-pointer border border-indigo-700/50"
+                className="w-full py-2 bg-indigo-900/40 hover:bg-indigo-800/60 text-indigo-100 hover:text-white rounded-full text-[10px] font-extrabold transition-all cursor-pointer border border-indigo-700/50"
               >
                 Annulla
               </button>
@@ -1453,7 +1453,7 @@ export default function App() {
           <div className="bg-gradient-to-b from-[#1A237E] to-[#12185C] rounded-[2.5rem] border-4 border-indigo-300 p-6 max-w-sm w-full text-center space-y-4 shadow-[0_0_25px_rgba(63,81,181,0.4)] text-indigo-100 transform scale-100 transition-all relative">
             <button
               onClick={() => { playClickSound(); setContinueStoryConfirmConfig(null); }}
-              className="absolute top-4 right-4 text-indigo-300 hover:text-white font-bold text-sm bg-indigo-900/60 hover:bg-indigo-800 rounded-full w-7 h-7 flex items-center justify-center cursor-pointer border border-indigo-500/30"
+              className="absolute top-4 right-4 text-indigo-100 hover:text-white font-bold text-sm bg-indigo-900/60 hover:bg-indigo-800 rounded-full w-7 h-7 flex items-center justify-center cursor-pointer border border-indigo-500/30"
             >
               ✕
             </button>
@@ -1461,50 +1461,50 @@ export default function App() {
             <div className="text-5xl animate-pulse py-1 select-none">🔮✨📖</div>
 
             <div className="space-y-1.5">
-              <span className="text-[9px] bg-indigo-900/60 border border-indigo-500 text-indigo-200 font-black px-3 py-0.5 rounded-full uppercase tracking-widest">
+                <span className="text-[9px] bg-indigo-900/60 border border-indigo-500 text-white font-black px-3 py-0.5 rounded-full uppercase tracking-widest">
                 Richiesta Conferma
               </span>
               <h4 className="font-extrabold text-base text-amber-200 font-serif italic pt-1 leading-tight">
                 Continua la Storia
               </h4>
-              <p className="text-[10px] text-indigo-200 leading-relaxed font-bold px-1.5">
+              <p className="text-[10px] text-indigo-100 leading-relaxed font-bold px-1.5">
                 Sei pronto a scrivere il capitolo successivo di questa favola magica? Ecco il riepilogo delle tue scelte:
               </p>
             </div>
 
-            <div className="bg-indigo-900/40 p-4 rounded-2xl border border-indigo-800 text-left space-y-2.5 text-[10px] font-bold text-indigo-200">
+            <div className="bg-indigo-900/40 p-4 rounded-2xl border border-indigo-800 text-left space-y-2.5 text-[10px] font-bold text-indigo-100">
               <div className="flex items-center gap-2">
                 <span className="text-lg">👦</span>
                 <div>
-                  <span className="text-indigo-400 font-extrabold block text-[8px] uppercase tracking-wider leading-none">Bambino</span>
+                  <span className="text-indigo-200 font-extrabold block text-[8px] uppercase tracking-wider leading-none">Bambino</span>
                   <span className="text-white">{continueStoryConfirmConfig.nomeBambino} ({continueStoryConfirmConfig.etaBambino} anni)</span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-lg">📖</span>
                 <div>
-                  <span className="text-indigo-400 font-extrabold block text-[8px] uppercase tracking-wider leading-none">Favola Iniziale</span>
+                  <span className="text-indigo-200 font-extrabold block text-[8px] uppercase tracking-wider leading-none">Favola Iniziale</span>
                   <span className="text-white truncate max-w-[240px] block">{continueStoryConfirmConfig.parentStoryTitle}</span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-lg">🗺️</span>
                 <div>
-                  <span className="text-indigo-400 font-extrabold block text-[8px] uppercase tracking-wider leading-none">Ambientazione</span>
+                  <span className="text-indigo-200 font-extrabold block text-[8px] uppercase tracking-wider leading-none">Ambientazione</span>
                   <span className="text-white">{continueStoryConfirmConfig.categoria}</span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-lg">💖</span>
                 <div>
-                  <span className="text-indigo-400 font-extrabold block text-[8px] uppercase tracking-wider leading-none">Valore Educativo</span>
+                  <span className="text-indigo-200 font-extrabold block text-[8px] uppercase tracking-wider leading-none">Valore Educativo</span>
                   <span className="text-white">{getEducationalThemeDisplayName(continueStoryConfirmConfig.temaEducativo)}</span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-lg">⏳</span>
                 <div>
-                  <span className="text-indigo-400 font-extrabold block text-[8px] uppercase tracking-wider leading-none">Durata Capitolo</span>
+                  <span className="text-indigo-200 font-extrabold block text-[8px] uppercase tracking-wider leading-none">Durata Capitolo</span>
                   <span className="text-white">{continueStoryConfirmConfig.durata}</span>
                 </div>
               </div>
@@ -1525,7 +1525,7 @@ export default function App() {
               
               <button
                 onClick={() => { playClickSound(); setContinueStoryConfirmConfig(null); }}
-                className="w-full py-2 bg-indigo-900/40 hover:bg-indigo-800/60 text-indigo-300 hover:text-white rounded-full text-[10px] font-extrabold transition-all cursor-pointer border border-indigo-700/50"
+                className="w-full py-2 bg-indigo-900/40 hover:bg-indigo-800/60 text-indigo-100 hover:text-white rounded-full text-[10px] font-extrabold transition-all cursor-pointer border border-indigo-700/50"
               >
                 Annulla
               </button>
@@ -1720,7 +1720,7 @@ export default function App() {
               <h1 className="text-2xl font-black text-amber-200 font-serif italic tracking-tight leading-tight">
                 Ora di Dormire...
               </h1>
-              <p className="text-[10px] text-indigo-300 font-black tracking-widest uppercase">
+              <p className="text-[10px] text-indigo-100 font-black tracking-widest uppercase">
                 &bull; Timer Nanna Scaduto &bull;
               </p>
             </div>

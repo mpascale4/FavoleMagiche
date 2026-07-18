@@ -93,7 +93,7 @@ export default function ParentalGateModal({
         </div>
         
         <h3 className="font-extrabold text-xl text-natural-burgundy font-serif italic mb-1">Area Genitori</h3>
-        <p className="text-[10px] text-slate-500 font-bold mb-5 px-3">
+        <p className="text-[10px] text-theme-secondary font-bold mb-5 px-3">
           Per {actionName}, chiedi a un adulto di risolvere questa domanda o inserire il PIN.
         </p>
 
@@ -103,7 +103,7 @@ export default function ParentalGateModal({
             <button
               onClick={() => { playClickSound(); setShowPinOption(false); }}
               className={`flex-1 py-1 text-[9px] font-black uppercase tracking-wider rounded-lg transition-all cursor-pointer ${
-                !showPinOption ? "bg-white text-natural-pink shadow-xs" : "text-slate-500"
+                !showPinOption ? "bg-white text-natural-pink shadow-xs" : "text-theme-secondary"
               }`}
             >
               Domanda Matematica
@@ -111,7 +111,7 @@ export default function ParentalGateModal({
             <button
               onClick={() => { playClickSound(); setShowPinOption(true); }}
               className={`flex-1 py-1 text-[9px] font-black uppercase tracking-wider rounded-lg transition-all cursor-pointer ${
-                showPinOption ? "bg-white text-natural-pink shadow-xs" : "text-slate-500"
+                showPinOption ? "bg-white text-natural-pink shadow-xs" : "text-theme-secondary"
               }`}
             >
               Usa PIN Genitore
@@ -123,7 +123,7 @@ export default function ParentalGateModal({
           /* MATH GATE VIEW */
           <form onSubmit={handleMathSubmit} className="space-y-4">
             <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200/50">
-              <div className="text-[10px] uppercase font-black tracking-widest text-slate-400 mb-1 flex items-center justify-center gap-1">
+              <div className="text-[10px] uppercase font-black tracking-widest text-theme-secondary mb-1 flex items-center justify-center gap-1">
                 <HelpCircle size={10} /> Verifica di Sicurezza
               </div>
               <div className="text-3xl font-extrabold text-slate-800 tracking-tight font-serif select-none my-2">
@@ -181,7 +181,7 @@ export default function ParentalGateModal({
                 <button
                   key={num}
                   onClick={() => handlePinDigitClick(num.toString())}
-                  className="h-10 rounded-xl bg-slate-50 border border-slate-100 text-sm font-black text-slate-700 hover:bg-pink-50 hover:text-natural-pink active:scale-95 transition-all flex items-center justify-center cursor-pointer"
+                  className="h-10 rounded-xl bg-slate-50 border border-slate-100 text-sm font-black text-theme-secondary hover:bg-pink-50 hover:text-natural-pink active:scale-95 transition-all flex items-center justify-center cursor-pointer"
                 >
                   {num}
                 </button>
@@ -189,13 +189,13 @@ export default function ParentalGateModal({
               <div className="h-10" />
               <button
                 onClick={() => handlePinDigitClick("0")}
-                className="h-10 rounded-xl bg-slate-50 border border-slate-100 text-sm font-black text-slate-700 hover:bg-pink-50 hover:text-natural-pink active:scale-95 transition-all flex items-center justify-center cursor-pointer"
+                className="h-10 rounded-xl bg-slate-50 border border-slate-100 text-sm font-black text-theme-secondary hover:bg-pink-50 hover:text-natural-pink active:scale-95 transition-all flex items-center justify-center cursor-pointer"
               >
                 0
               </button>
               <button
                 onClick={handlePinDelete}
-                className="h-10 rounded-xl bg-slate-100 border border-slate-200 text-slate-600 hover:bg-red-50 hover:text-red-500 active:scale-95 transition-all flex items-center justify-center cursor-pointer"
+                className="h-10 rounded-xl bg-slate-100 border border-slate-200 text-theme-secondary hover:bg-red-50 hover:text-red-500 active:scale-95 transition-all flex items-center justify-center cursor-pointer"
               >
                 <X size={16} />
               </button>

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ArrowLeft, Search, Star, Trash2, Calendar, Clock, Sparkles, BookOpen, RotateCcw, AlertTriangle, ChevronDown, ChevronUp, Layers } from "lucide-react";
+import { ArrowLeft, Search, Star, Trash2, Calendar, Clock, Sparkles, RotateCcw, AlertTriangle, ChevronDown, ChevronUp, Layers } from "lucide-react";
 import { Story, CATEGORIES, DeletedStory } from "../types";
 import { playClickSound } from "../utils/audio";
 
@@ -227,7 +227,7 @@ export default function ArchiveView({
         </div>
 
         <div className="flex items-center justify-between">
-          <p className="text-[10px] font-bold text-natural-text/60 uppercase">Filtra per Categoria</p>
+          <p className="text-[11px] font-extrabold text-natural-burgundy uppercase tracking-wide">Filtra per Categoria</p>
           <button
             onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
             id="btn-archive-toggle-favorites"
@@ -284,7 +284,7 @@ export default function ArchiveView({
           <div className="bg-white/40 rounded-[2rem] p-8 text-center border-4 border-dashed border-natural-pink-border my-4 space-y-2">
             <span className="text-4xl">🏰</span>
             <p className="text-xs font-extrabold text-natural-burgundy">Nessuna favola trovata!</p>
-            <p className="text-[10px] text-natural-text/60 font-bold leading-relaxed px-4">
+            <p className="text-[11px] text-natural-text font-semibold leading-relaxed px-4">
               Prova a cambiare filtri o a creare la tua prima favola personalizzata nella Home!
             </p>
           </div>
@@ -324,15 +324,15 @@ export default function ArchiveView({
                       {getCoverEmoji(firstStory.coverTheme)}
                     </div>
                     <div className="min-w-0 flex-1 space-y-0.5">
-                      <h4 className="font-extrabold text-[13px] leading-tight font-serif text-slate-800 break-words whitespace-normal">
+                      <h4 className="font-extrabold text-[13px] leading-tight font-serif text-natural-burgundy break-words whitespace-normal">
                         {firstStory.titolo.replace(/ - Capitolo \d+$/, "")}
                       </h4>
-                      <p className="text-[9px] font-bold text-slate-500/80 uppercase">
+                      <p className="text-[9px] font-bold text-theme-secondary uppercase">
                         Clicca per espandere la serie
                       </p>
                     </div>
                   </div>
-                  <div className="shrink-0 text-slate-400 p-1">
+                  <div className="shrink-0 text-theme-secondary p-1">
                     <ChevronDown size={18} />
                   </div>
                 </div>
@@ -344,7 +344,7 @@ export default function ArchiveView({
                 {hasChapters && (
                   <button 
                     onClick={() => toggleSeries(sId)}
-                    className="w-full flex items-center justify-between px-1 pb-1 text-[10px] font-black text-slate-500 uppercase cursor-pointer hover:text-slate-700"
+                    className="w-full flex items-center justify-between px-1 pb-1 text-[10px] font-black text-theme-secondary uppercase cursor-pointer hover:text-natural-burgundy"
                   >
                     <span className="flex items-center gap-1.5"><Layers size={12}/> {firstStory.titolo.replace(/ - Capitolo \d+$/, "")} ({totalChapters} Capitoli)</span>
                     <ChevronUp size={14} />
@@ -432,12 +432,12 @@ export default function ArchiveView({
                           </p>
 
                           {/* Creation and Last Read Dates */}
-                          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[9px] font-black text-slate-700 pt-1 border-t border-black/5 mt-1">
+                          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[9px] font-black text-theme-secondary pt-1 border-t border-black/5 mt-1">
                             <span className="flex items-center gap-0.5 shrink-0">
-                              <Calendar size={9} className="opacity-60" /> Creata: <span className="font-extrabold text-slate-700/90">{formatDate(story.dataCreazione || story.data)}</span>
+                              <Calendar size={9} className="opacity-60" /> Creata: <span className="font-extrabold text-theme-primary">{formatDate(story.dataCreazione || story.data)}</span>
                             </span>
                             <span className="flex items-center gap-0.5 shrink-0">
-                              <Sparkles size={9} className="text-pink-500/70" /> Letta: <span className="font-extrabold text-slate-700/90">{story.ultimaLettura ? formatDate(story.ultimaLettura) : "Mai letta"}</span>
+                              <Sparkles size={9} className="text-pink-500/70" /> Letta: <span className="font-extrabold text-theme-primary">{story.ultimaLettura ? formatDate(story.ultimaLettura) : "Mai letta"}</span>
                             </span>
                             {renderReadingStatusBadge(readingCount)}
                           </div>
@@ -452,7 +452,7 @@ export default function ArchiveView({
                             onSelectStory(story);
                           }}
                           aria-label={`Apri favola ${story.titolo}`}
-                          className="px-2 py-1 text-[9px] font-black rounded-lg border border-white/70 bg-white/80 text-slate-700 hover:bg-white transition-all"
+                          className="px-2 py-1 text-[9px] font-black rounded-lg border border-white/70 bg-white/80 text-theme-secondary hover:bg-white transition-all"
                         >
                           Apri
                         </button>
@@ -489,7 +489,7 @@ export default function ArchiveView({
             <h4 className="text-xs font-black text-natural-burgundy/80 flex items-center gap-1.5 font-serif italic mb-3">
               <span>🗑️</span> Cestino dei Ricordi
             </h4>
-            <p className="text-[9px] text-natural-text/60 leading-tight mb-3 font-semibold">
+            <p className="text-[10px] text-natural-text font-semibold leading-tight mb-3">
               Le favole eliminate rimangono salvate qui per 30 giorni. Puoi ripristinarle o eliminarle definitivamente.
             </p>
             <div className="space-y-2">
@@ -504,7 +504,7 @@ export default function ArchiveView({
                       <h5 className="font-extrabold text-[10px] text-slate-700 truncate font-serif">
                         {story.titolo}
                       </h5>
-                      <p className="text-[8.5px] font-bold text-slate-500 flex items-center gap-1 mt-0.5">
+                      <p className="text-[8.5px] font-bold text-theme-secondary flex items-center gap-1 mt-0.5">
                         <AlertTriangle size={9} className="text-amber-500" />
                         {daysRemaining} {daysRemaining === 1 ? 'giorno rimanente' : 'giorni rimanenti'}
                       </p>
@@ -545,7 +545,7 @@ export default function ArchiveView({
         )}
       </div>
 
-      <div className="text-center text-[10px] font-bold text-natural-text/60 shrink-0 pt-2 border-t-2 border-natural-pink-light">
+      <div className="text-center text-[10px] font-bold text-natural-text shrink-0 pt-2 border-t-2 border-natural-pink-light">
         Totale storie conservate: <span className="text-natural-burgundy font-black">{stories.length}</span>
       </div>
 
@@ -567,7 +567,7 @@ export default function ArchiveView({
             <div className="flex gap-2.5 pt-1">
               <button
                 onClick={() => setStoryToDelete(null)}
-                className="flex-1 py-2 bg-slate-100 hover:bg-slate-200 border-2 border-slate-300 text-slate-600 rounded-full text-[11px] font-extrabold transition-all cursor-pointer"
+                className="flex-1 py-2 bg-slate-100 hover:bg-slate-200 border-2 border-slate-300 text-theme-secondary rounded-full text-[11px] font-extrabold transition-all cursor-pointer"
               >
                 Annulla
               </button>
@@ -603,7 +603,7 @@ export default function ArchiveView({
             <div className="flex gap-2.5 pt-1">
               <button
                 onClick={() => setStoryToPermanentlyDelete(null)}
-                className="flex-1 py-2 bg-slate-100 hover:bg-slate-200 border-2 border-slate-300 text-slate-600 rounded-full text-[11px] font-extrabold transition-all cursor-pointer"
+                className="flex-1 py-2 bg-slate-100 hover:bg-slate-200 border-2 border-slate-300 text-theme-secondary rounded-full text-[11px] font-extrabold transition-all cursor-pointer"
               >
                 Annulla
               </button>

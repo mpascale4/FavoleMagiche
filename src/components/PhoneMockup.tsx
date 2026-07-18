@@ -169,7 +169,7 @@ export default function PhoneMockup({
                       className={`w-7 h-7 rounded-full flex items-center justify-center transition-all active:scale-90 cursor-pointer ${
                         musicOn
                           ? (isNightTheme ? "bg-slate-700 text-amber-300 border border-slate-500" : "bg-amber-100 text-amber-600 border border-amber-200 shadow-xs")
-                          : "text-slate-400 hover:text-slate-600 bg-transparent"
+                          : "text-theme-secondary hover:text-slate-700 bg-transparent"
                       }`}
                       title={musicOn ? "Spegni Musica" : "Accendi Musica"}
                       aria-label={musicOn ? "Disattiva musica di sottofondo" : "Attiva musica di sottofondo"}
@@ -184,7 +184,7 @@ export default function PhoneMockup({
                       className={`w-7 h-7 rounded-full flex items-center justify-center transition-all active:scale-90 cursor-pointer ${
                         sfxOn
                           ? (isNightTheme ? "bg-slate-700 text-pink-300 border border-slate-500" : "bg-pink-100 text-pink-600 border border-pink-200 shadow-xs")
-                          : "text-slate-400 hover:text-slate-600 bg-transparent"
+                          : "text-theme-secondary hover:text-slate-700 bg-transparent"
                       }`}
                       title={sfxOn ? "Spegni Effetti Audio" : "Accendi Effetti Audio"}
                       aria-label={sfxOn ? "Disattiva effetti audio" : "Attiva effetti audio"}
@@ -194,7 +194,7 @@ export default function PhoneMockup({
                     </button>
                   </div>
                 )}
-                <div className={`flex items-center gap-1 ${isNightTheme ? "text-slate-300" : "text-slate-500"}`}>
+                <div className={`flex items-center gap-1 ${isNightTheme ? "text-slate-200" : "text-theme-secondary"}`}>
                   <Wifi size={12} />
                   <Battery size={12} />
                 </div>

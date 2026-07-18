@@ -125,7 +125,7 @@ export default function FairyTaleMap({
                   >
                     {/* Lock badge if locked */}
                     {!isUnlocked && (
-                      <div className="absolute -top-2.5 -right-2.5 bg-slate-300 text-slate-600 p-1 rounded-full border-2 border-white shadow-xs">
+                        <div className="absolute -top-2.5 -right-2.5 bg-slate-300 text-theme-secondary p-1 rounded-full border-2 border-white shadow-xs">
                         <Lock size={9} />
                       </div>
                     )}
@@ -159,11 +159,11 @@ export default function FairyTaleMap({
                       <span className="text-xl shrink-0">{ach.icon}</span>
                       <div className="min-w-0">
                         <h5 className={`text-[10px] font-black leading-tight truncate ${
-                          isClaimed ? "text-emerald-800" : isCompleted ? "text-amber-800" : isUnlocked ? "text-sky-800" : "text-slate-500"
+                          isClaimed ? "text-emerald-800" : isCompleted ? "text-amber-800" : isUnlocked ? "text-sky-800" : "text-theme-secondary"
                         }`}>
                           {worldName}
                         </h5>
-                        <span className="text-[8px] font-black font-mono text-slate-800 bg-white px-1.5 py-0.5 rounded mt-0.5 inline-block border border-slate-300/70">
+                        <span className="text-[8px] font-black font-mono text-theme-primary bg-white px-1.5 py-0.5 rounded mt-0.5 inline-block border border-slate-300/70">
                           {progressInStage}/5 Favole
                         </span>
                       </div>
@@ -211,7 +211,7 @@ export default function FairyTaleMap({
 
             {/* Completion Progress bar */}
             <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-left space-y-1">
-              <div className="flex justify-between text-[8px] font-black text-slate-500">
+              <div className="flex justify-between text-[8px] font-black text-theme-secondary">
                 <span>Progresso Tappa</span>
                 <span>
                   {progressInStage}/5
@@ -247,7 +247,7 @@ export default function FairyTaleMap({
                   🔓 In corso... Crea altre favole!
                 </div>
               ) : (
-                <div className="py-2 bg-slate-100 text-slate-400 border border-slate-200 rounded-full text-[9px] font-bold">
+                <div className="py-2 bg-slate-100 text-theme-secondary border border-slate-200 rounded-full text-[9px] font-bold">
                   🔒 Tappa ancora bloccata
                 </div>
               )}
