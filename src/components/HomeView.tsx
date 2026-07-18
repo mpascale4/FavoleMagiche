@@ -16,7 +16,7 @@ interface HomeViewProps {
   unlockedCharacterTypes?: string[];
   unlockedCharacterTraits?: string[];
   lastUnlockDate: string;
-  onUnlock: () => { category: string; theme: string; characterType: string; characterTrait: string } | null;
+  onUnlock: () => void;
   isGenerating?: boolean;
   stories: Story[];
   claimedAchievements: string[];
@@ -79,8 +79,8 @@ export default function HomeView({
   };
 
   return (
-    <div id="home-screen" className="w-full flex flex-col p-5 gap-4">
-      
+    <section id="home-screen" aria-label="Home Favole Magiche" className="w-full flex flex-col p-5 gap-4">
+
       {/* 1. TOP HEADER WITH COMPACT BUTTONS ON THE RIGHT */}
       <div className="flex items-center justify-between mt-2 mb-1 shrink-0">
         <div className="flex items-center gap-2 text-left">
@@ -102,6 +102,7 @@ export default function HomeView({
           <button
             onClick={() => handleNavigate("profiles")}
             id="btn-top-menu-profiles"
+            aria-label="Apri gestione profili bambini"
             className="flex items-center gap-1 bg-white hover:bg-natural-pink-light/30 border-2 border-natural-pink-border px-2 py-1 rounded-full shadow-xs text-[#880E4F] active:scale-95 transition-all cursor-pointer"
           >
             <span className="text-xs">{settings?.modalitaBambino ? "🔒" : "👶"}</span>
@@ -111,6 +112,7 @@ export default function HomeView({
           <button
             onClick={() => handleNavigate("settings")}
             id="btn-top-menu-settings"
+            aria-label="Apri impostazioni"
             className="flex items-center gap-1 bg-white hover:bg-[#E8F5E9]/30 border-2 border-natural-green-light px-2 py-1 rounded-full shadow-xs text-[#2E7D32] active:scale-95 transition-all cursor-pointer"
           >
             <span className="text-xs">{settings?.modalitaBambino ? "🔒" : "⚙️"}</span>
@@ -121,7 +123,7 @@ export default function HomeView({
 
       {/* MODALITÀ BAMBINO (KIDS MODE) FLOATING BANNER */}
       {settings?.modalitaBambino && (
-        <div className="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border-2 border-blue-200 rounded-2xl p-2.5 flex items-center justify-between text-left shrink-0 shadow-xs animate-pulse">
+        <div role="status" aria-live="polite" className="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border-2 border-blue-200 rounded-2xl p-2.5 flex items-center justify-between text-left shrink-0 shadow-xs animate-pulse">
           <div className="flex items-center gap-2">
             <span className="text-xl">🔒</span>
             <div>
@@ -134,6 +136,7 @@ export default function HomeView({
               playClickSound();
               if (onDisableKidsMode) onDisableKidsMode();
             }}
+            aria-label="Richiedi sblocco modalita bambino"
             className="text-[9px] font-black text-white bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded-full shadow-xs active:scale-95 transition-all cursor-pointer border-b-2 border-blue-800"
           >
             Sblocca 🔓
@@ -159,6 +162,7 @@ export default function HomeView({
             <button
               onClick={() => handleNavigate("profiles")}
               id="btn-switch-profile-home"
+              aria-label="Cambia profilo lettore attivo"
               className="text-[9px] font-black text-white bg-[#EC407A] hover:bg-[#E91E63] px-2.5 py-1 rounded-full shadow-xs active:scale-95 transition-all flex items-center gap-1 cursor-pointer"
             >
               {settings?.modalitaBambino && <Lock size={10} />}
@@ -174,6 +178,7 @@ export default function HomeView({
             <button
               onClick={() => handleNavigate("profiles")}
               id="btn-create-profile-home"
+              aria-label="Seleziona un profilo bambino"
               className="text-[9px] font-black text-white bg-[#EC407A] hover:bg-[#E91E63] px-3 py-1.5 rounded-full shadow-xs transition-all border-b-2 border-[#C2185B] flex items-center gap-1 cursor-pointer"
             >
               {settings?.modalitaBambino && <Lock size={10} />}
@@ -189,6 +194,8 @@ export default function HomeView({
         <button
           onClick={() => !isGenerating && handleNavigate("new-story")}
           disabled={isGenerating}
+          aria-disabled={isGenerating}
+          aria-label={isGenerating ? "Generazione in corso, pulsante disabilitato" : "Crea una nuova storia"}
           id="btn-menu-new-story"
           className={`group w-full p-3.5 rounded-2xl border-4 transition-all duration-200 flex items-center gap-3.5 text-left cursor-pointer ${
             isGenerating 
@@ -232,6 +239,8 @@ export default function HomeView({
             }
           }}
           disabled={isGenerating}
+          aria-disabled={isGenerating}
+          aria-label={isGenerating ? "Generazione in corso, favola della buonanotte non disponibile" : "Crea una favola della buonanotte"}
           id="btn-menu-bedtime-story"
           className={`group w-full p-3.5 rounded-2xl border-4 transition-all duration-200 flex items-center gap-3.5 text-left ${
             isGenerating 
@@ -267,6 +276,8 @@ export default function HomeView({
           <button
             onClick={() => stories.length > 0 && handleNavigate("archive")}
             disabled={stories.length === 0}
+            aria-disabled={stories.length === 0}
+            aria-label={stories.length === 0 ? "Biblioteca non disponibile: nessuna favola" : "Apri biblioteca magica"}
             id="btn-menu-archive"
             className={`group p-2.5 rounded-2xl border-4 transition-all duration-200 flex flex-col items-center justify-center text-center ${
               stories.length === 0
@@ -293,6 +304,7 @@ export default function HomeView({
           <button
             onClick={() => handleNavigate("albero")}
             id="btn-menu-growth-tree"
+            aria-label="Apri albero della crescita"
             className="group bg-white/80 hover:bg-white text-natural-text p-2.5 rounded-2xl border-4 border-[#A5D6A7] shadow-sm transition-all duration-200 flex flex-col items-center justify-center text-center active:scale-[0.98] cursor-pointer"
           >
             <div className="w-10 h-10 bg-[#E8F5E9] rounded-xl flex items-center justify-center text-xl border-2 border-[#81C784] shrink-0 group-hover:scale-105 transition-transform duration-300 text-[#2E7D32]">
@@ -319,6 +331,6 @@ export default function HomeView({
       />
 
 
-    </div>
+    </section>
   );
 }
