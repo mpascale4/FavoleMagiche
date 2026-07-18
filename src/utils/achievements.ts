@@ -13,14 +13,6 @@ export interface Achievement {
 
 export const ACHIEVEMENTS: Achievement[] = [
   {
-    id: "first_story",
-    milestone: 1,
-    title: "Il Primo Capitolo",
-    message: "Hai creato la tua prima storia! Benvenuto nel magico mondo della narrazione.",
-    reward: "Sblocchi il tema 'Avventura'",
-    rewardEmoji: "🎉"
-  },
-  {
     id: "story_five",
     milestone: 5,
     title: "Narratore Provetto",
