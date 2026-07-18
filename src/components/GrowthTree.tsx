@@ -24,28 +24,28 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
   const [gameState, setGameState] = useState<'idle' | 'playing' | 'gameover' | 'won'>('idle');
   const [activeTargets, setActiveTargets] = useState<{id: number, type: 'fruit'|'bug', x: number, y: number, speedX: number, speedY: number, char: string}[]>([]);
   const [targetsLeft, setTargetsLeft] = useState(20);
-  const [targetClicksRequired, setTargetClicksRequired] = useState(20);
+  const [gameLevel, setGameLevel] = useState(1);
   const [gameMessage, setGameMessage] = useState("");
 
   useEffect(() => {
     setPreviewStage(null);
     setGameState('idle');
     setTargetsLeft(20);
-    setTargetClicksRequired(20);
+    setGameLevel(1);
     setGameMessage("");
     setActiveTargets([]);
   }, [selectedTheme]);
 
   const startGame = () => {
     setGameState('playing');
-    setTargetsLeft(targetClicksRequired);
+    setTargetsLeft(20);
     setActiveTargets([]);
     setGameMessage("");
     playClickSound();
   };
 
   const resetGame = () => {
-    setTargetClicksRequired(20);
+    setGameLevel(1);
     setGameState('playing');
     setTargetsLeft(20);
     setActiveTargets([]);
@@ -97,18 +97,18 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
     if (gameState !== 'playing') return;
 
     // Faster spawn based on required clicks (level proxy)
-    const spawnRate = Math.max(400, 1500 - (targetClicksRequired - 20) * 50);
+    const spawnRate = Math.max(300, 1500 - (gameLevel - 1) * 300);
 
     const spawnInterval = setInterval(() => {
       setActiveTargets(prev => {
-        if (prev.length >= 5) return prev; // Max 5 targets at a time
+        if (prev.length >= (3 + gameLevel * 2)) return prev; // Increase max targets with level
 
         const isBug = Math.random() > 0.6;
         
         let x, y, speedX, speedY, char;
         
         // Base speed based on required clicks
-        const baseSpeed = 1 + (targetClicksRequired - 20) * 0.05;
+        const baseSpeed = 1 + (gameLevel - 1) * 0.2;
 
         if (isBug) {
           // Bug from left or right
@@ -138,7 +138,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
     }, spawnRate);
 
     return () => clearInterval(spawnInterval);
-  }, [gameState, targetClicksRequired, activeTreeInfo.decoration]);
+  }, [gameState, gameLevel, activeTreeInfo.decoration]);
 
   // Movement and Collision logic
   useEffect(() => {
@@ -423,7 +423,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
                         setTimeout(() => {
                           setGameState('won');
                           setGameMessage("Vittoria! Hai protetto l'albero!");
-                          setTargetClicksRequired(prev => prev + 5);
+                          setGameLevel(prev => prev + 1);
                           playGameWinSound();
                         }, 0);
                         return 0;
