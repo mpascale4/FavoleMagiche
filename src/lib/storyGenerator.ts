@@ -177,7 +177,7 @@ Requisiti:
 6) IMPORTANTE PER I DIALOGHI: Adatta fedelmente il modo di parlare dei personaggi alla loro natura. 
    - Se un personaggio è un "Bebè", il suo linguaggio DEVE essere da bebè (es. usa solo versi, lallazioni, paroline storpiate o molto semplici come "pappa", "ghe-ghe", "brmm"). 
    - Se un personaggio è un "Robot", DEVE avere un linguaggio meccanico con rumori tecnologici (es. Bip-bop, calcolo in corso, bzzzz). 
-   - Se ci sono animali o altri esseri non umani (Cucciolo, Drago, ecc.), devono fare i loro versi naturali (es. miao, bau, roarr) all'interno delle frasi o avere stili vocali legati alla loro specie.
+   - Se il personaggio è un animale (es. "Cucciolo"), NON DEVE PARLARE in lingua umana, ma esprimersi solo e unicamente con i suoi versi naturali e azioni (es. *bau bau*, *scodinzola*, *pant pant*). Qualsiasi altro animale deve seguire questa regola e fare solo il proprio verso.
 7) FORMATTAZIONE SPECIALE PER L'INTERATTIVITÀ (MOLTO IMPORTANTE):
    - Devi SEMPRE evidenziare i nomi dei personaggi e del bambino racchiudendoli rigorosamente tra doppi asterischi ogni volta che compaiono, ad esempio: **${config.nomeBambino}**.
    - Evidenzia anche altre 2-4 parole chiave, magiche o importanti per ciascuna pagina, ad esempio: **magia**, **drago**, **bosco**, **salto**.
