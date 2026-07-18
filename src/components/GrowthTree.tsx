@@ -97,18 +97,18 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
     if (gameState !== 'playing') return;
 
     // Faster spawn based on required clicks (level proxy)
-    const spawnRate = Math.max(500, 1500 - (gameLevel - 1) * 150);
+    const spawnRate = Math.max(800, 1500 - (gameLevel - 1) * 100);
 
     const spawnInterval = setInterval(() => {
       setActiveTargets(prev => {
-        if (prev.length >= (3 + Math.floor(gameLevel * 1.5))) return prev; // Increase max targets with level
+        if (prev.length >= (3 + Math.floor(gameLevel * 0.5))) return prev; // Increase max targets with level
 
         const isBug = Math.random() > 0.6;
         
         let x, y, speedX, speedY, char;
         
         // Base speed based on required clicks
-        const baseSpeed = 1 + (gameLevel - 1) * 0.1;
+        const baseSpeed = 1 + (gameLevel - 1) * 0.05;
 
         if (isBug) {
           // Bug from left or right
@@ -140,6 +140,16 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
     return () => clearInterval(spawnInterval);
   }, [gameState, gameLevel, activeTreeInfo.decoration]);
 
+  // Win Condition Effect
+  useEffect(() => {
+    if (gameState === 'playing' && targetsLeft === 0) {
+      setGameState('won');
+      setGameMessage("Vittoria! Hai protetto l'albero!");
+      setGameLevel(prev => prev + 1);
+      playGameWinSound();
+    }
+  }, [targetsLeft, gameState]);
+
   // Movement and Collision logic
   useEffect(() => {
     if (gameState !== 'playing') return;
@@ -161,10 +171,16 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
         }
 
         if (isGameOver) {
+          // Safe way to trigger game over without double-firing sound
           setTimeout(() => {
-            setGameState('gameover');
-            setGameMessage("Game Over! L'albero ha perso la sua magia!");
-            playGameFailSound();
+            setGameState(curr => {
+              if (curr === 'playing') {
+                setGameMessage("Game Over! L'albero ha perso la sua magia!");
+                playGameFailSound();
+                return 'gameover';
+              }
+              return curr;
+            });
           }, 0);
           return [];
         }
@@ -421,19 +437,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
 
                     setActiveTargets(curr => curr.filter(t => t.id !== item.id));
                     
-                    setTargetsLeft(curr => {
-                      const newLeft = curr - 1;
-                      if (newLeft <= 0) {
-                        setTimeout(() => {
-                          setGameState('won');
-                          setGameMessage("Vittoria! Hai protetto l'albero!");
-                          setGameLevel(prev => prev + 1);
-                          playGameWinSound();
-                        }, 0);
-                        return 0;
-                      }
-                      return newLeft;
-                    });
+                    setTargetsLeft(curr => Math.max(0, curr - 1));
                   }}
                 >
                   <circle cx="0" cy="-5" r="14" fill="white" opacity="0.6" className="animate-ping" />
