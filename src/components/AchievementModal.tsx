@@ -112,7 +112,7 @@ export default function AchievementModal({
                 </span>
               </div>
 
-              <div className={`grid gap-3 ${openedRewards.length > 1 ? "grid-cols-3" : "grid-cols-1"}`}>
+              <div className={`grid gap-3 ${isWorldCompletion ? "grid-cols-1" : (openedRewards.length > 1 ? "grid-cols-3" : "grid-cols-1")}`}>
                 {openedRewards.map((reward, idx) => (
                   <div
                     key={`${reward.text}-${idx}`}

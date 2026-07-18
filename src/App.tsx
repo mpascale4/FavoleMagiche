@@ -140,6 +140,16 @@ export default function App() {
   const [showDeveloperPinModal, setShowDeveloperPinModal] = useState<boolean>(false);
   const [isDeveloperMode, setIsDeveloperMode] = useState<boolean>(false);
 
+  const getPrioritizedAchievementFlow = (achievements: Achievement[]): { current: Achievement; queue: Achievement[] } | null => {
+    if (achievements.length === 0) return null;
+    const worldCompletion = achievements.find(a => a.isWorldCompletion);
+    if (worldCompletion) {
+      // World completion has priority: do not show the stage reward in that case.
+      return { current: worldCompletion, queue: [] };
+    }
+    return { current: achievements[0], queue: achievements.slice(1) };
+  };
+
   const mapUnlockedToRewards = (unlocked: { category: string; theme: string; characterType: string; characterTrait: string } | null): AchievementReward[] => {
     if (!unlocked) {
       return [{ emoji: "✨", text: "Hai già sbloccato tutti i premi disponibili!" }];
@@ -408,8 +418,31 @@ export default function App() {
   };
 
   // Claim achievement reward trigger
-  const handleClaimAchievement = (id: string) => {
-    const unlocked = handleUnlockSingle();
+  const handleClaimAchievement = (id: string): AchievementReward[] => {
+    const isWorldCompletion = id.startsWith("world_");
+    const unlockAttempts = isWorldCompletion ? 3 : 1;
+    const collectedRewards: AchievementReward[] = [];
+
+    for (let i = 0; i < unlockAttempts; i++) {
+      const unlocked = handleUnlockSingle();
+      const mapped = mapUnlockedToRewards(unlocked);
+
+      if (unlocked) {
+        collectedRewards.push(...mapped);
+      } else if (collectedRewards.length === 0) {
+        // Keep one fallback when everything is already unlocked.
+        collectedRewards.push(...mapped);
+      }
+    }
+
+    const uniqueRewards = Array.from(
+      new Map(collectedRewards.map(r => [r.text, r])).values()
+    );
+
+    const finalRewards = isWorldCompletion
+      ? uniqueRewards.slice(0, 3)
+      : uniqueRewards;
+
     if (!claimedAchievements.includes(id)) {
       const updated = [...claimedAchievements, id];
       setClaimedAchievements(updated);
@@ -419,12 +452,10 @@ export default function App() {
     }
 
     playFairyChorusSound();
-
-    const rewards = mapUnlockedToRewards(unlocked);
-    setAchievementRewardsOpened(prev => ({ ...prev, [id]: rewards }));
+    setAchievementRewardsOpened(prev => ({ ...prev, [id]: finalRewards }));
 
     const stageIndex = parseInt(id.replace("stage_", ""));
-    if (!isNaN(stageIndex) && stageIndex % 5 === 0) {
+    if (isWorldCompletion || (!isNaN(stageIndex) && stageIndex % 5 === 0)) {
       // Firework effect for world completion
       import("canvas-confetti").then((confetti) => {
         const duration = 4000;
@@ -444,7 +475,7 @@ export default function App() {
       });
     }
 
-    return unlocked;
+    return finalRewards;
   };
 
   const handleMarkItemAsUsed = (item: string) => {
@@ -833,9 +864,10 @@ export default function App() {
       const milestonesReached = checkMilestonesReached(previousStoriesCount, newStoriesCount);
       if (milestonesReached.length > 0) {
         setAchievementReturnTarget("app");
-        setAchievementModal(milestonesReached[0]);
-        if (milestonesReached.length > 1) {
-          setAchievementQueue(prev => [...prev, ...milestonesReached.slice(1)]);
+        const prioritized = getPrioritizedAchievementFlow(milestonesReached);
+        if (prioritized) {
+          setAchievementModal(prioritized.current);
+          setAchievementQueue(prioritized.queue);
         }
       }
 
@@ -928,11 +960,10 @@ export default function App() {
     setAchievementReturnTarget("developer");
     const achievements = checkMilestonesReached(stageIndex * 5 - 1, stageIndex * 5);
     console.log(`🧪 Stage ${stageIndex} achievement:`, achievements);
-    if (achievements.length > 0) {
-      setAchievementModal(achievements[0]);
-      if (achievements.length > 1) {
-        setAchievementQueue(prev => [...prev, ...achievements.slice(1)]);
-      }
+    const prioritized = getPrioritizedAchievementFlow(achievements);
+    if (prioritized) {
+      setAchievementModal(prioritized.current);
+      setAchievementQueue(prioritized.queue);
     }
   };
 
@@ -942,11 +973,10 @@ export default function App() {
     const worldCompletionCount = worldIndex * 25;
     const achievements = checkMilestonesReached(worldCompletionCount - 1, worldCompletionCount);
     console.log(`🧪 World ${worldIndex} achievement:`, achievements);
-    if (achievements.length > 0) {
-      setAchievementModal(achievements[achievements.length - 1]); // Show world completion
-      if (achievements.length > 1) {
-        setAchievementQueue(prev => [...prev, ...achievements.slice(0, -1)]);
-      }
+    const prioritized = getPrioritizedAchievementFlow(achievements);
+    if (prioritized) {
+      setAchievementModal(prioritized.current);
+      setAchievementQueue(prioritized.queue);
     }
   };
 
@@ -956,23 +986,25 @@ export default function App() {
 
     setAchievementReturnTarget("app");
 
-    setAchievementRewardsOpened(prev => {
-      const next = { ...prev };
-      delete next[id];
-      return next;
-    });
-
-    const queue: Achievement[] = [];
+    let targetAchievement = achievement;
     const stageIndex = parseInt(id.replace("stage_", ""), 10);
     if (!Number.isNaN(stageIndex) && stageIndex % 5 === 0) {
       const worldAchievement = getAchievementById(`world_${Math.ceil(stageIndex / 5)}_complete`);
       if (worldAchievement) {
-        queue.push(worldAchievement);
+        // World completion has priority over stage completion.
+        targetAchievement = worldAchievement;
       }
     }
 
-    setAchievementModal(achievement);
-    setAchievementQueue(queue);
+    setAchievementRewardsOpened(prev => {
+      const next = { ...prev };
+      delete next[id];
+      delete next[targetAchievement.id];
+      return next;
+    });
+
+    setAchievementModal(targetAchievement);
+    setAchievementQueue([]);
   };
 
   const geminiKeyStatus = getGeminiApiKeyStatus();
@@ -1543,8 +1575,7 @@ export default function App() {
                 return alreadyOpened;
               }
 
-              const unlocked = handleClaimAchievement(achievementModal.id);
-              return mapUnlockedToRewards(unlocked);
+              return handleClaimAchievement(achievementModal.id);
             }}
            onClaim={() => {
               const returnTarget = achievementReturnTarget;
