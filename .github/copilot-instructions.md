@@ -1,5 +1,19 @@
 # GitHub Copilot – Istruzioni per il progetto
 
+## Accessibility Quick Rules
+
+Quando generi o modifichi codice:
+
+- Rispetta sempre **WCAG 2.2 AA** e **WAI-ARIA APG**.
+- Garantire navigazione da tastiera, screen reader, contrasto alto e supporto al reduced motion.
+- Non usare il colore come unico veicolo informativo.
+- Evitare animazioni lampeggianti, strobo o distrazioni.
+- Usare HTML semantico, ARIA valido e focus visibile.
+- Mantenere leggibilità anche in grayscale e nei temi chiaro/scuro.
+- Verificare il risultato con **Lighthouse a11y >= 95** e senza critical axe-core issues.
+
+---
+
 ## Flusso Git obbligatorio (Git Flow)
 
 **Prima di qualsiasi modifica al codice:**
@@ -41,44 +55,12 @@ git pull origin <branch-corrente>
 
 ## Accessibility Standards
 
-All generated code must comply with:
+Le quick rules sopra sono vincolanti. In caso di dubbio, applica sempre:
 
-- WCAG 2.2 AA
-- WAI-ARIA Authoring Practices Guide
-
-Accessibility Requirements:
-
-- Support keyboard-only navigation
-- Support screen readers
-- Support color-blind users
-- Support low-vision users
-- Support high-contrast users
-- Support reduced-motion preferences
-
-Color Rules:
-
-- Never use color as the only carrier of information
-- Ensure WCAG contrast compliance
-- Avoid red/green dependent workflows
-- UI must remain understandable in grayscale
-
-Motion Rules:
-
-- Respect prefers-reduced-motion
-- No flashing content
-- No strobe effects
-- No distracting animations
-
-Components:
-
-- Proper semantic HTML
-- Valid ARIA attributes
-- Visible focus indicators
-
-Validation:
-
-- Lighthouse accessibility >= 95
-- No critical axe-core violations
-
-Assume all code will be audited against WCAG 2.2 AA.
+- WCAG 2.2 AA e WAI-ARIA APG
+- contrasto corretto in tutti i temi e in grayscale
+- navigazione da tastiera, screen reader e focus visibile
+- supporto a prefers-reduced-motion senza flash, strobo o animazioni distraenti
+- HTML semantico, ARIA valido, niente colore come unico canale informativo
+- Lighthouse accessibility >= 95 e nessun critical axe-core issue
 
