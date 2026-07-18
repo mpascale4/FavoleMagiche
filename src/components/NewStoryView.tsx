@@ -329,9 +329,7 @@ export default function NewStoryView({
   // Sorting & Filtering for CHARACTER_TRAITS
   const { effectiveAllTraits, effectiveUnlockedTraits } = useMemo(() => {
     if (charType === "Bebè") {
-      const bebeSet = new Set(BEBE_TRAITS);
-      const unlockedSet = new Set([...BEBE_TRAITS.slice(0, 5), ...unlockedCharacterTraits.filter(t => bebeSet.has(t))]);
-      return { effectiveAllTraits: BEBE_TRAITS, effectiveUnlockedTraits: Array.from(unlockedSet) };
+      return { effectiveAllTraits: BEBE_TRAITS, effectiveUnlockedTraits: BEBE_TRAITS };
     }
     return { effectiveAllTraits: CHARACTER_TRAITS, effectiveUnlockedTraits: unlockedCharacterTraits };
   }, [charType, unlockedCharacterTraits]);

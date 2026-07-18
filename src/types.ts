@@ -142,12 +142,7 @@ export const BEBE_TRAITS = [
   "Giocherellone",
   "Coccolone",
   "Goloso",
-  "Curioso",
-  "Pasticcione",
-  "Dormiglione",
-  "Allegro",
-  "Testardo",
-  "Timido"
+  "Dormiglione"
 ];
 
 export const CHARACTER_TRAITS = [
