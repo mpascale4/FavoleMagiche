@@ -197,18 +197,19 @@ export default function ArchiveView({
   };
 
   return (
-    <div className="flex-1 flex flex-col p-5">
+    <section className="flex-1 flex flex-col p-5" aria-labelledby="archive-title">
       {/* Back Header */}
-      <div className="flex items-center gap-2 mb-4 shrink-0">
+      <header className="flex items-center gap-2 mb-4 shrink-0">
         <button
           onClick={() => { playClickSound(); onBack(); }}
           id="btn-back-archive"
+          aria-label="Torna alla Home"
           className="w-9 h-9 bg-white hover:bg-natural-pink-light text-natural-burgundy rounded-xl flex items-center justify-center border-2 border-natural-pink-border shadow-xs transition-colors"
         >
           <ArrowLeft size={18} />
         </button>
-        <h3 className="text-lg font-bold text-natural-burgundy font-serif italic">Libreria Magica</h3>
-      </div>
+        <h3 id="archive-title" className="text-lg font-bold text-natural-burgundy font-serif italic">Libreria Magica</h3>
+      </header>
 
       {/* Search and Favorites Bar */}
       <div className="space-y-2.5 mb-4 shrink-0">
@@ -219,6 +220,7 @@ export default function ArchiveView({
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             id="input-archive-search"
+            aria-label="Cerca favole in archivio"
             placeholder="Cerca titolo, personaggio, morale..."
             className="w-full bg-white border-2 border-natural-pink-light rounded-2xl pl-10 pr-4 py-2.5 text-xs text-natural-text focus:outline-none focus:ring-4 focus:ring-natural-pink-light/30 font-bold"
           />
@@ -229,6 +231,8 @@ export default function ArchiveView({
           <button
             onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
             id="btn-archive-toggle-favorites"
+            aria-pressed={showFavoritesOnly}
+            aria-label={showFavoritesOnly ? "Mostra tutte le favole" : "Mostra solo le favole preferite"}
             className={`flex items-center gap-1 px-3 py-1.5 rounded-full border-2 font-bold text-[10px] transition-all cursor-pointer ${
               showFavoritesOnly
                 ? "bg-gradient-to-r from-natural-yellow to-[#FFB300] text-white border-natural-yellow shadow-xs"
@@ -242,9 +246,12 @@ export default function ArchiveView({
       </div>
 
       {/* Horizontal Category Pill List */}
-      <div className="flex gap-1.5 overflow-x-auto pb-2 mb-3 shrink-0 scrollbar-none">
+      <div className="flex gap-1.5 overflow-x-auto pb-2 mb-3 shrink-0 scrollbar-none" role="radiogroup" aria-label="Filtro categoria">
         <button
           onClick={() => setSelectedCat("Tutte")}
+          role="radio"
+          aria-checked={selectedCat === "Tutte"}
+          aria-label="Categoria tutte"
           className={`px-3 py-1.5 rounded-full font-bold text-[10px] border-2 transition-all shrink-0 cursor-pointer ${
             selectedCat === "Tutte"
               ? "bg-gradient-to-r from-natural-pink to-[#EC407A] text-white border-[#EC407A] shadow-xs"
@@ -257,6 +264,9 @@ export default function ArchiveView({
           <button
             key={cat}
             onClick={() => setSelectedCat(cat)}
+            role="radio"
+            aria-checked={selectedCat === cat}
+            aria-label={`Categoria ${cat}`}
             className={`px-3 py-1.5 rounded-full font-bold text-[10px] border-2 transition-all shrink-0 cursor-pointer ${
               selectedCat === cat
                 ? "bg-gradient-to-r from-natural-pink to-[#EC407A] text-white border-[#EC407A] shadow-xs"
@@ -292,6 +302,16 @@ export default function ArchiveView({
                 <div
                   key={`series-collapsed-${sId}`}
                   onClick={() => { playClickSound(); toggleSeries(sId); }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      playClickSound();
+                      toggleSeries(sId);
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Espandi serie ${firstStory.titolo.replace(/ - Capitolo \d+$/, "")}`}
                   className={`group cursor-pointer rounded-2xl border-4 p-3.5 shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-between gap-3 relative ${cardColorClass} mb-3`}
                 >
                   <div className="absolute -right-1.5 -bottom-1.5 bg-amber-100 text-amber-800 border-2 border-amber-300 rounded-lg px-2 py-1 flex items-center gap-1 shadow-sm z-10">
@@ -425,6 +445,17 @@ export default function ArchiveView({
                       </div>
 
                       <div className="flex flex-col items-end gap-2 shrink-0">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            playClickSound();
+                            onSelectStory(story);
+                          }}
+                          aria-label={`Apri favola ${story.titolo}`}
+                          className="px-2 py-1 text-[9px] font-black rounded-lg border border-white/70 bg-white/80 text-slate-700 hover:bg-white transition-all"
+                        >
+                          Apri
+                        </button>
                         {story.preferita && (
                           <span className="text-natural-yellow">
                             <Star size={14} fill="currentColor" />
@@ -437,6 +468,7 @@ export default function ArchiveView({
                             setStoryToDelete(story);
                           }}
                           id={`btn-delete-story-${story.id}`}
+                          aria-label={`Sposta nel cestino la favola ${story.titolo}`}
                           className="p-1.5 text-natural-text/40 hover:text-[#EC407A] hover:bg-white/80 rounded-lg transition-all"
                           title="Sposta nel cestino"
                         >
@@ -485,6 +517,7 @@ export default function ArchiveView({
                           playClickSound();
                           if (onRestoreStory) onRestoreStory(story.id);
                         }}
+                        aria-label={`Ripristina favola ${story.titolo}`}
                         className="p-1.5 bg-green-100 hover:bg-green-200 text-green-700 border border-green-300 rounded-lg transition-all cursor-pointer"
                         title="Ripristina favola"
                       >
@@ -497,6 +530,7 @@ export default function ArchiveView({
                           playClickSound();
                           setStoryToPermanentlyDelete(story);
                         }}
+                        aria-label={`Elimina definitivamente favola ${story.titolo}`}
                         className="p-1.5 bg-red-100 hover:bg-red-200 text-red-700 border border-red-300 rounded-lg transition-all cursor-pointer"
                         title="Elimina definitivamente"
                       >
@@ -517,16 +551,16 @@ export default function ArchiveView({
 
       {/* Custom Confirmation Dialog */}
       {storyToDelete && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-5 z-50 animate-fade-in">
-          <div className="bg-white rounded-[2rem] border-4 border-natural-pink-border p-6 max-w-sm w-full text-center space-y-4 shadow-xl transform scale-100 transition-all animate-scale-up">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-5 z-50 animate-fade-in" role="presentation">
+          <div className="bg-white rounded-[2rem] border-4 border-natural-pink-border p-6 max-w-sm w-full text-center space-y-4 shadow-xl transform scale-100 transition-all animate-scale-up" role="dialog" aria-modal="true" aria-labelledby="archive-delete-title" aria-describedby="archive-delete-description">
             <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center text-2xl mx-auto border-2 border-red-100">
               🗑️
             </div>
             <div className="space-y-1.5">
-              <h4 className="font-extrabold text-sm text-natural-burgundy font-serif italic">
+              <h4 id="archive-delete-title" className="font-extrabold text-sm text-natural-burgundy font-serif italic">
                 Spostare nel cestino?
               </h4>
-              <p className="text-[11px] text-natural-text font-bold leading-relaxed">
+              <p id="archive-delete-description" className="text-[11px] text-natural-text font-bold leading-relaxed">
                 Vuoi spostare <span className="text-natural-burgundy font-black">"{storyToDelete.titolo}"</span> nel cestino? Potrai ripristinarla entro 30 giorni.
               </p>
             </div>
@@ -553,16 +587,16 @@ export default function ArchiveView({
 
       {/* Permanent Delete Confirmation Dialog */}
       {storyToPermanentlyDelete && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-5 z-50 animate-fade-in">
-          <div className="bg-white rounded-[2rem] border-4 border-natural-pink-border p-6 max-w-sm w-full text-center space-y-4 shadow-xl transform scale-100 transition-all animate-scale-up">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-5 z-50 animate-fade-in" role="presentation">
+          <div className="bg-white rounded-[2rem] border-4 border-natural-pink-border p-6 max-w-sm w-full text-center space-y-4 shadow-xl transform scale-100 transition-all animate-scale-up" role="dialog" aria-modal="true" aria-labelledby="archive-hard-delete-title" aria-describedby="archive-hard-delete-description">
             <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center text-2xl mx-auto border-2 border-red-100">
               ⚠️
             </div>
             <div className="space-y-1.5">
-              <h4 className="font-extrabold text-sm text-natural-burgundy font-serif italic">
+              <h4 id="archive-hard-delete-title" className="font-extrabold text-sm text-natural-burgundy font-serif italic">
                 Eliminare definitivamente?
               </h4>
-              <p className="text-[11px] text-natural-text font-bold leading-relaxed">
+              <p id="archive-hard-delete-description" className="text-[11px] text-natural-text font-bold leading-relaxed">
                 Questa azione è permanente. La favola <span className="text-natural-burgundy font-black">"{storyToPermanentlyDelete.titolo}"</span> non potrà più essere recuperata.
               </p>
             </div>
@@ -586,6 +620,6 @@ export default function ArchiveView({
           </div>
         </div>
       )}
-    </div>
+    </section>
   );
 }

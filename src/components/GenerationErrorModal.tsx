@@ -19,9 +19,12 @@ export default function GenerationErrorModal({
   onCancel,
   showRetryButton = true
 }: GenerationErrorModalProps) {
+  const titleId = "generation-error-title";
+  const descriptionId = "generation-error-description";
+
   return (
-    <div className="fixed inset-0 bg-slate-950/70 flex items-center justify-center p-4 z-[200]">
-      <div className="bg-white rounded-[2.5rem] border-4 border-red-200 p-6 max-w-sm w-full shadow-[0_10px_40px_rgba(220,38,38,0.3)] space-y-4 animate-in fade-in scale-95">
+    <div className="fixed inset-0 bg-slate-950/70 flex items-center justify-center p-4 z-[200]" role="presentation">
+      <div className="bg-white rounded-[2.5rem] border-4 border-red-200 p-6 max-w-sm w-full shadow-[0_10px_40px_rgba(220,38,38,0.3)] space-y-4 animate-in fade-in scale-95" role="dialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={descriptionId}>
         {/* Error Icon */}
         <div className="flex justify-center mb-2">
           <div className="w-16 h-16 rounded-full bg-red-100/80 flex items-center justify-center shadow-lg">
@@ -30,12 +33,12 @@ export default function GenerationErrorModal({
         </div>
 
         {/* Title */}
-        <h2 className="text-center font-bold text-lg text-red-600 font-serif">
+        <h2 id={titleId} className="text-center font-bold text-lg text-red-600 font-serif">
           {title}
         </h2>
 
         {/* Message */}
-        <p className="text-center text-sm font-semibold text-slate-700">
+        <p id={descriptionId} className="text-center text-sm font-semibold text-slate-700">
           {message}
         </p>
 
@@ -54,6 +57,7 @@ export default function GenerationErrorModal({
               playClickSound();
               onCancel();
             }}
+            aria-label="Chiudi errore e torna indietro"
             className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 font-extrabold text-sm rounded-full transition-all border-2 border-slate-200 cursor-pointer"
           >
             Indietro
@@ -65,6 +69,7 @@ export default function GenerationErrorModal({
                 playClickSound();
                 onRetry();
               }}
+              aria-label="Riprova generazione favola"
               className="flex-1 py-3 bg-red-500 hover:bg-red-600 active:scale-95 text-white font-extrabold text-sm rounded-full transition-all border-2 border-red-700 shadow-lg cursor-pointer"
             >
               Riprova

@@ -70,8 +70,8 @@ export default function GenerationView({
   }, []);
 
   return (
-    <div className="flex-1 flex flex-col p-6 items-center justify-center bg-natural-bg text-natural-text text-center relative scrollbar-none">
-      
+    <section className="flex-1 flex flex-col p-6 items-center justify-center bg-natural-bg text-natural-text text-center relative scrollbar-none" aria-labelledby="generation-title">
+
       {/* Sparkles backdrop animation */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(236,64,122,0.08),transparent_50%)] pointer-events-none"></div>
 
@@ -119,7 +119,7 @@ export default function GenerationView({
       </div>
 
       {/* Main Info */}
-      <h3 className="text-xl font-bold tracking-tight mb-1 text-natural-burgundy font-serif italic">
+      <h3 id="generation-title" className="text-xl font-bold tracking-tight mb-1 text-natural-burgundy font-serif italic">
         La Magia e in Azione (Client-Side)...
       </h3>
       <p className="text-[11px] text-natural-text/80 mb-4 font-bold">
@@ -127,7 +127,7 @@ export default function GenerationView({
       </p>
 
       {/* Real-time Detailed Log Terminal */}
-      <div className="w-full max-w-[290px] bg-[#110D26] text-slate-100 rounded-2xl p-3 mb-4 shadow-md text-left font-mono text-[9px] border-2 border-[#EC407A]/40">
+      <div className="w-full max-w-[290px] bg-[#110D26] text-slate-100 rounded-2xl p-3 mb-4 shadow-md text-left font-mono text-[9px] border-2 border-[#EC407A]/40" role="region" aria-label="Registro avanzamento generazione">
         <div className="flex items-center justify-between border-b border-slate-700/50 pb-1.5 mb-2">
           <span className="font-extrabold text-[#F06292] uppercase tracking-wider flex items-center gap-1 text-[8.5px]">
             <span>📋</span> Registro Magico (AI Logs - Lato Client)
@@ -137,7 +137,7 @@ export default function GenerationView({
             <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
           </span>
         </div>
-        <div className="max-h-20 overflow-y-auto space-y-1.5 scrollbar-none">
+        <div className="max-h-20 overflow-y-auto space-y-1.5 scrollbar-none" aria-live="polite" aria-atomic="false">
           {logs.map((log, index) => (
             <div key={index} className="leading-snug break-words">
               <span className="text-slate-400 mr-1 select-none">[{log.time}]</span>
@@ -163,7 +163,7 @@ export default function GenerationView({
       </div>
 
       {/* Progress Bar Container */}
-      <div className="w-full max-w-[280px] bg-natural-pink-light/30 p-1.5 rounded-full border-2 border-natural-pink-border shadow-inner">
+      <div className="w-full max-w-[280px] bg-natural-pink-light/30 p-1.5 rounded-full border-2 border-natural-pink-border shadow-inner" role="progressbar" aria-label="Avanzamento generazione favola" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress)}>
         <div className="relative h-4 bg-white rounded-full overflow-hidden">
           
           {/* Animated striped bar */}
@@ -190,12 +190,14 @@ export default function GenerationView({
       <div className="flex flex-col gap-2 mt-8 w-full max-w-[240px]">
         <button
           onClick={onNavigateHome}
+          aria-label="Continua in background e torna alla Home"
           className="w-full py-2.5 px-4 bg-gradient-to-r from-natural-pink to-[#EC407A] hover:brightness-105 active:scale-98 text-white font-black text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5"
         >
           <span>Continua in Background 🏃‍♂️</span>
         </button>
         <button
           onClick={onCancel}
+          aria-label="Annulla la generazione in corso"
           className="w-full py-2 px-4 bg-slate-100 hover:bg-slate-200 active:scale-98 text-slate-600 font-bold text-xs rounded-xl transition-all"
         >
           Stoppa / Annulla
@@ -206,6 +208,6 @@ export default function GenerationView({
         Ora puoi navigare l'app e leggere altre favole mentre l'IA magica scrive la tua nuova storia in background!
       </span>
 
-    </div>
+    </section>
   );
 }
