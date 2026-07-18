@@ -235,7 +235,7 @@ export default function SettingsView({
           <h3 className="text-lg font-bold text-natural-burgundy font-serif italic flex-1">Impostazioni App</h3>
         </div>
 
-        <div className="bg-white rounded-[2rem] p-4 border-4 border-natural-pink-border shadow-sm space-y-2.5">
+        <div className="bg-white rounded-[2rem] p-4 border-4 border-natural-pink-border shadow-sm space-y-3">
           <div className="flex items-center justify-between gap-2">
             <h4 className="font-extrabold text-[11px] uppercase tracking-wider text-natural-burgundy">Stato Gemini</h4>
             <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full ${
@@ -305,7 +305,7 @@ export default function SettingsView({
         </div>
 
         {/* VOICE SELECTION CARD (Requested Feature) */}
-        <div className="bg-white rounded-[2rem] p-4 border-4 border-natural-pink-border shadow-sm space-y-4">
+        <div className="bg-white rounded-[2rem] p-4 border-4 border-natural-pink-border shadow-sm space-y-3">
           <div className="flex items-center gap-2.5 text-natural-burgundy pb-1 border-b-2 border-natural-pink-light">
             <div className="w-8 h-8 bg-pink-100 rounded-xl flex items-center justify-center text-natural-pink">
               <Volume2 size={16} />
@@ -692,7 +692,7 @@ export default function SettingsView({
       </div>
 
       {/* PRIVACY & COMPLIANCE CARD */}
-      <div className="bg-gradient-to-br from-emerald-50 to-[#E8F5E9] rounded-[2rem] p-4 border-4 border-emerald-200 shadow-sm space-y-2.5">
+      <div className="bg-gradient-to-br from-emerald-50 to-[#E8F5E9] rounded-[2rem] p-4 border-4 border-emerald-200 shadow-sm space-y-3">
         <div className="flex items-center gap-2 text-emerald-800">
           <span className="text-xl">🛡️</span>
           <div>
