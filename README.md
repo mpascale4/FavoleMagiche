@@ -21,3 +21,16 @@ View your app in AI Studio: https://ai.studio/apps/64589ee6-64f8-4b51-a6eb-d00f5
    `npm run dev`
 4. Build di produzione:
    `npm run build`
+
+## Accessibilita (WCAG 2.2 AA)
+
+- Checklist QA operativa: `docs/WCAG_QA_CHECKLIST.md`
+- Architettura e linee guida: `docs/ACCESSIBILITY_ARCHITECTURE.md`
+
+Verifica rapida locale:
+
+`npm run lint`
+`npm run test`
+`npm run build`
+`npm run test:lighthouse`
+
