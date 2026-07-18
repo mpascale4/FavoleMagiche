@@ -861,7 +861,7 @@ export default function NewStoryView({
                       <span className="truncate">{cat}</span>
                     </div>
                     {usage > 0 && (
-                      <span className="text-[8px] bg-natural-burgundy/10 text-natural-burgundy/70 font-black px-1 rounded-sm mt-1 self-start uppercase tracking-tighter">
+                      <span className="text-[8px] bg-natural-burgundy/25 text-natural-burgundy font-black px-1.5 rounded-sm mt-1 self-start uppercase tracking-tighter">
                         Usata: {usage}
                       </span>
                     )}
@@ -1006,7 +1006,7 @@ export default function NewStoryView({
                     <span>{emoji}</span>
                     <span>{getEducationalThemeDisplayName(theme)}</span>
                     {usage > 0 && (
-                      <span className="text-[7.5px] bg-[#FFF8E1] text-[#E65100] font-black px-1 rounded-full">
+                      <span className="text-[8px] bg-amber-300 text-slate-900 font-black px-1.5 rounded-full border border-amber-500">
                         {usage}
                       </span>
                     )}

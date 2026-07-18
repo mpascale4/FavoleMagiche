@@ -98,7 +98,7 @@ export default function ArchiveView({
   const renderReadingStatusBadge = (count: number) => {
     if (count === 0) {
       return (
-        <span className="flex items-center gap-1 shrink-0 ml-auto bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-400 dark:border-slate-600 rounded-full px-2 py-0.5 text-[8.5px] shadow-3xs font-black">
+        <span className="flex items-center gap-1 shrink-0 ml-auto bg-slate-300 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-500 dark:border-slate-600 rounded-full px-2 py-0.5 text-[8.5px] shadow-3xs font-black">
           💤 Mai letta
         </span>
       );
@@ -432,7 +432,7 @@ export default function ArchiveView({
                           </p>
 
                           {/* Creation and Last Read Dates */}
-                          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[8.5px] font-bold text-slate-500/80 pt-1 border-t border-black/5 mt-1">
+                          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[9px] font-black text-slate-700 pt-1 border-t border-black/5 mt-1">
                             <span className="flex items-center gap-0.5 shrink-0">
                               <Calendar size={9} className="opacity-60" /> Creata: <span className="font-extrabold text-slate-700/90">{formatDate(story.dataCreazione || story.data)}</span>
                             </span>

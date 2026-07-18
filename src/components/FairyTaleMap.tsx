@@ -152,7 +152,7 @@ export default function FairyTaleMap({
                     )}
 
                     {/* Step label */}
-                    <p className="text-[7.5px] font-black uppercase text-natural-text/50 tracking-wider">
+                    <p className="text-[8px] font-black uppercase text-natural-burgundy tracking-wider">
                       {ach.title}
                     </p>
                     <div className="flex items-center gap-2 mt-1">
@@ -163,7 +163,7 @@ export default function FairyTaleMap({
                         }`}>
                           {worldName}
                         </h5>
-                        <span className="text-[7.5px] font-bold font-mono text-slate-500 bg-white/70 px-1 py-0.2 rounded mt-0.5 inline-block">
+                        <span className="text-[8px] font-black font-mono text-slate-800 bg-white px-1.5 py-0.5 rounded mt-0.5 inline-block border border-slate-300/70">
                           {progressInStage}/5 Favole
                         </span>
                       </div>
