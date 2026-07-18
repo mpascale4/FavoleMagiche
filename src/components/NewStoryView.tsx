@@ -21,6 +21,7 @@ import {
 
 const TYPE_EMOJIS: Record<string, string> = {
   "Bambino": "👦",
+  "Bebè": "👶",
   "Bambina": "👧",
   "Cucciolo": "🐶",
   "Robot": "🤖",
@@ -853,7 +854,7 @@ export default function NewStoryView({
                   >
                     {isNew && (
                       <span className="absolute -top-1.5 -right-1 text-[7px] bg-[#EC407A] text-white px-1.5 py-0.5 rounded-full font-black animate-pulse shadow-xs uppercase tracking-tighter z-10">
-                        NEW ✨
+                        NUOVO ✨
                       </span>
                     )}
                     <div className="flex items-center gap-1.5">
@@ -994,13 +995,13 @@ export default function NewStoryView({
                     id={`btn-theme-${theme.toLowerCase()}`}
                     className={`py-1.5 px-3 rounded-full font-extrabold text-[10px] border-2 transition-all flex items-center gap-1 relative ${
                       selected
-                        ? "bg-natural-yellow-light text-[#F57C00] border-natural-yellow scale-102 shadow-2xs"
-                        : "bg-white text-natural-text border-slate-100 hover:border-natural-yellow-light"
+                        ? "bg-amber-100 text-amber-900 border-amber-400 scale-102 shadow-2xs"
+                        : "bg-white text-slate-700 border-slate-300 hover:border-amber-400"
                     }`}
                   >
                     {isNew && (
                       <span className="absolute -top-1.5 -right-1 text-[7px] bg-[#EC407A] text-white px-1.5 py-0.5 rounded-full font-black animate-pulse shadow-xs uppercase tracking-tighter z-10">
-                        NEW ✨
+                        NUOVO ✨
                       </span>
                     )}
                     <span>{emoji}</span>
@@ -1253,7 +1254,7 @@ export default function NewStoryView({
                               >
                                 {isNew && (
                                   <span className="absolute -top-1.5 -right-1 text-[7px] bg-[#EC407A] text-white px-1.5 py-0.5 rounded-full font-black animate-pulse shadow-xs uppercase tracking-tighter z-10">
-                                    NEW ✨
+                                    NUOVO ✨
                                   </span>
                                 )}
                                 <span>{emoji}</span>
@@ -1441,7 +1442,7 @@ export default function NewStoryView({
                               >
                                 {isNew && (
                                   <span className="absolute -top-1.5 -right-1 text-[7px] bg-[#EC407A] text-white px-1.5 py-0.5 rounded-full font-black animate-pulse shadow-xs uppercase tracking-tighter z-10">
-                                    NEW ✨
+                                    NUOVO ✨
                                   </span>
                                 )}
                                 <span>{emoji}</span>

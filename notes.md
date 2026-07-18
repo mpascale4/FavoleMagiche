@@ -1,0 +1,5 @@
+- Tema delle storie non crea contrasti
+- Cambia "new" in "nuovo" perché i bimbi non conoscono l'inglese magari
+- Negli alberi fai vedere tutto
+- aggiungi bebè
+- gestisci massimo tempo registrazione

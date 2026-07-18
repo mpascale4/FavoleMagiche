@@ -316,3 +316,108 @@ export function playOpenBoxClickSound() {
   });
 }
 
+
+/**
+ * Sound for collecting a fruit in the tree minigame
+ */
+export function playFruitCollectSound() {
+  withAudioContext((ctx) => {
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(600, now);
+    osc.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
+    
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.1, now + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+    
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    
+    osc.start(now);
+    osc.stop(now + 0.2);
+  });
+}
+
+/**
+ * Sound for shooing a bug in the tree minigame
+ */
+export function playBugShooSound() {
+  withAudioContext((ctx) => {
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    
+    // Buzzy low pitch sound going away
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(150, now);
+    osc.frequency.exponentialRampToValueAtTime(80, now + 0.2);
+    
+    gain.gain.setValueAtTime(0.05, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+    
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    
+    osc.start(now);
+    osc.stop(now + 0.3);
+  });
+}
+
+/**
+ * Sound for failing the minigame
+ */
+export function playGameFailSound() {
+  withAudioContext((ctx) => {
+    const now = ctx.currentTime;
+    const notes = [300, 250, 200];
+    
+    notes.forEach((freq, i) => {
+      const time = now + i * 0.15;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(freq, time);
+      
+      gain.gain.setValueAtTime(0.1, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + 0.2);
+      
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(time);
+      osc.stop(time + 0.2);
+    });
+  });
+}
+
+/**
+ * Sound for winning the minigame
+ */
+export function playGameWinSound() {
+  withAudioContext((ctx) => {
+    const now = ctx.currentTime;
+    const notes = [400, 500, 600, 800];
+    
+    notes.forEach((freq, i) => {
+      const time = now + i * 0.1;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, time);
+      
+      gain.gain.setValueAtTime(0, time);
+      gain.gain.linearRampToValueAtTime(0.1, time + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + 0.3);
+      
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(time);
+      osc.stop(time + 0.35);
+    });
+  });
+}

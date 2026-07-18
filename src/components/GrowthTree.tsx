@@ -1,7 +1,7 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { ArrowLeft, Sparkles, BookOpen, Heart, Award, Star } from "lucide-react";
 import { Story } from "../types";
-import { playClickSound } from "../utils/audio";
+import { playClickSound, playFruitCollectSound, playBugShooSound, playGameFailSound, playGameWinSound } from "../utils/audio";
 
 interface GrowthTreeProps {
   stories: Story[];
@@ -18,6 +18,40 @@ const THEME_TREES = [
 
 export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
   const [selectedTheme, setSelectedTheme] = useState("Gentilezza");
+  const [previewStage, setPreviewStage] = useState<number | null>(null);
+  
+  // Game states
+  const [gameState, setGameState] = useState<'idle' | 'playing' | 'gameover' | 'won'>('idle');
+  const [activeTargets, setActiveTargets] = useState<{id: number, type: 'fruit'|'bug', x: number, y: number, speedX: number, speedY: number, char: string}[]>([]);
+  const [targetsLeft, setTargetsLeft] = useState(20);
+  const [targetClicksRequired, setTargetClicksRequired] = useState(20);
+  const [gameMessage, setGameMessage] = useState("");
+
+  useEffect(() => {
+    setPreviewStage(null);
+    setGameState('idle');
+    setTargetsLeft(20);
+    setTargetClicksRequired(20);
+    setGameMessage("");
+    setActiveTargets([]);
+  }, [selectedTheme]);
+
+  const startGame = () => {
+    setGameState('playing');
+    setTargetsLeft(targetClicksRequired);
+    setActiveTargets([]);
+    setGameMessage("");
+    playClickSound();
+  };
+
+  const resetGame = () => {
+    setTargetClicksRequired(20);
+    setGameState('playing');
+    setTargetsLeft(20);
+    setActiveTargets([]);
+    setGameMessage("");
+    playClickSound();
+  };
 
   // Calculate stats
   const themeCounts = useMemo(() => {
@@ -47,7 +81,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
   const readCount = themeCounts[selectedTheme] || 0;
 
   // Determine stage (0 to 4)
-  const growthStage = useMemo(() => {
+  const actualGrowthStage = useMemo(() => {
     if (readCount === 0) return 0;
     if (readCount === 1) return 1;
     if (readCount <= 3) return 2;
@@ -55,13 +89,101 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
     return 4; // 6+ is fully bloomed!
   }, [readCount]);
 
+  const growthStage = previewStage !== null ? previewStage : actualGrowthStage;
+
+  // Game Logic Effect
+  // Spawn logic
+  useEffect(() => {
+    if (gameState !== 'playing') return;
+
+    // Faster spawn based on required clicks (level proxy)
+    const spawnRate = Math.max(400, 1500 - (targetClicksRequired - 20) * 50);
+
+    const spawnInterval = setInterval(() => {
+      setActiveTargets(prev => {
+        if (prev.length >= 5) return prev; // Max 5 targets at a time
+
+        const isBug = Math.random() > 0.6;
+        
+        let x, y, speedX, speedY, char;
+        
+        // Base speed based on required clicks
+        const baseSpeed = 1 + (targetClicksRequired - 20) * 0.05;
+
+        if (isBug) {
+          // Bug from left or right
+          const fromLeft = Math.random() > 0.5;
+          x = fromLeft ? -20 : 220;
+          y = 30 + Math.random() * 110; // random height around canopy
+          speedX = fromLeft ? (1.5 * baseSpeed) : (-1.5 * baseSpeed);
+          speedY = 0;
+          char = Math.random() > 0.5 ? '🦟' : '🪰';
+        } else {
+          // Fruit from top
+          x = 40 + Math.random() * 120; // random x above canopy
+          y = -20;
+          speedX = 0;
+          speedY = 1.5 * baseSpeed;
+          char = activeTreeInfo.decoration;
+        }
+
+        const newItem = {
+          id: Date.now() + Math.random(),
+          type: isBug ? 'bug' : 'fruit',
+          char, x, y, speedX, speedY
+        };
+
+        return [...prev, newItem];
+      });
+    }, spawnRate);
+
+    return () => clearInterval(spawnInterval);
+  }, [gameState, targetClicksRequired, activeTreeInfo.decoration]);
+
+  // Movement and Collision logic
+  useEffect(() => {
+    if (gameState !== 'playing') return;
+
+    const moveInterval = setInterval(() => {
+      setActiveTargets(prev => {
+        let isGameOver = false;
+        
+        const next = prev.map(t => ({
+          ...t,
+          x: t.x + t.speedX,
+          y: t.y + t.speedY
+        }));
+
+        for (const t of next) {
+          if (t.type === 'fruit' && t.y >= 180) isGameOver = true;
+          if (t.type === 'bug' && t.speedX > 0 && t.x >= 100) isGameOver = true;
+          if (t.type === 'bug' && t.speedX < 0 && t.x <= 100) isGameOver = true;
+        }
+
+        if (isGameOver) {
+          setTimeout(() => {
+            setGameState('gameover');
+            setGameMessage("Game Over! L'albero ha perso la sua magia!");
+            playGameFailSound();
+          }, 0);
+          return [];
+        }
+
+        return next;
+      });
+    }, 50);
+
+    return () => clearInterval(moveInterval);
+  }, [gameState]);
+
+  const safeStage = Math.max(0, Math.min(4, growthStage));
   const stageDetails = [
     { name: "Seme d'Oro 🌱", message: "La terra magica accoglie il seme d'oro. Leggi o crea una storia di questo tema per vederlo spuntare!", percent: 5 },
     { name: "Germoglio 🌱", message: "Splendido! Sta spuntando una tenera fogliolina dorata. Continua a leggere!", percent: 25 },
     { name: "Arboscello 🌿", message: "Il tuo albero si sta allungando verso il sole con i primi rami verdi!", percent: 50 },
     { name: "Albero Rigoglioso 🌳", message: "Un albero forte e pieno di foglie sane! Manca pochissimo alla fioritura!", percent: 75 },
     { name: "Fioritura Splendente! 🌸✨", message: "Incredibile! Il tuo Albero della virtù è fiorito e risplende di pura magia!", percent: 100 }
-  ][growthStage];
+  ][safeStage];
 
   return (
     <div className="flex flex-col h-full bg-gradient-to-b from-[#FFFDF0] to-[#FFF9E6] p-4 font-sans select-none overflow-y-auto">
@@ -124,8 +246,48 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
           </div>
 
           {/* SVG Growth Tree Render */}
-          <div className="w-44 h-44 relative mt-2 flex items-center justify-center">
-            <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-md">
+          <div className="relative flex flex-col items-center">
+            {gameState !== 'idle' && <div className="w-44 h-44 mt-2"></div>}
+            
+            <div className={
+              gameState !== 'idle'
+                ? "fixed inset-0 z-50 bg-gradient-to-b from-emerald-950/95 to-emerald-900/95 backdrop-blur-sm flex flex-col items-center justify-center p-4 animate-in fade-in zoom-in-95 duration-200"
+                : "w-44 h-44 relative mt-2 flex items-center justify-center"
+            }>
+              
+              {gameState !== 'idle' && (
+                <div className="absolute top-6 w-full max-w-md px-6 flex justify-between items-center z-50">
+                  <div className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/20">
+                    <span className="text-white/60 text-[10px] font-bold uppercase tracking-wider block leading-none">Da Raccogliere</span>
+                    <span className="text-2xl font-black text-emerald-400 leading-none">{targetsLeft}</span>
+                  </div>
+                  <button onClick={() => setGameState('idle')} className="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white/90 hover:text-white px-4 py-2 rounded-full text-xs font-bold transition-colors">
+                    Chiudi
+                  </button>
+                </div>
+              )}
+
+              {gameState === 'gameover' && (
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-rose-500/90 backdrop-blur-md p-6 rounded-3xl shadow-2xl border-2 border-rose-400 text-center z-50 animate-in zoom-in duration-300 w-64">
+                  <h2 className="text-2xl font-black text-white mb-1 shadow-sm">Game Over!</h2>
+                  <p className="text-rose-100 font-bold text-xs mb-5">{gameMessage}</p>
+                  <button onClick={resetGame} className="w-full py-3 bg-white text-rose-600 hover:bg-rose-50 rounded-xl font-black shadow-xl hover:scale-105 active:scale-95 transition-all">
+                    Riprova
+                  </button>
+                </div>
+              )}
+
+              {gameState === 'won' && (
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-emerald-500/90 backdrop-blur-md p-6 rounded-3xl shadow-2xl border-2 border-emerald-400 text-center z-50 animate-in zoom-in duration-300 w-64">
+                  <h2 className="text-2xl font-black text-white mb-1 shadow-sm">Vittoria!</h2>
+                  <p className="text-emerald-100 font-bold text-xs mb-5">{gameMessage}</p>
+                  <button onClick={startGame} className="w-full py-3 bg-white text-emerald-600 hover:bg-emerald-50 rounded-xl font-black shadow-xl hover:scale-105 active:scale-95 transition-all">
+                    Livello Successivo
+                  </button>
+                </div>
+              )}
+
+            <svg viewBox="0 0 200 200" className={gameState !== 'idle' ? "w-full max-w-[60vh] max-h-[60vh] drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]" : "w-full h-full drop-shadow-md"}>
               <defs>
                 <linearGradient id="trunkGrad" x1="0%" y1="0%" x2="100%" y2="0%">
                   <stop offset="0%" stopColor="#8D6E63" />
@@ -235,11 +397,70 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
                   <circle cx="135" cy="55" r="2.5" fill="#FFF" className="animate-ping" />
                 </g>
               )}
+
+              {/* Minigame Active Targets */}
+              {activeTargets.map(item => (
+                <g
+                  key={item.id}
+                  className="cursor-pointer transition-transform duration-75 ease-linear"
+                  style={{ transform: `translate(${item.x}px, ${item.y}px)` }}
+                  onClick={(e) => {
+                    e.stopPropagation(); // prevent triggering tree bounce
+                    if (gameState !== 'playing') return;
+
+                    if (item.type === 'fruit') {
+                      playFruitCollectSound();
+                    } else {
+                      playBugShooSound();
+                    }
+
+                    setActiveTargets(curr => curr.filter(t => t.id !== item.id));
+                    
+                    setTargetsLeft(curr => {
+                      const newLeft = curr - 1;
+                      if (newLeft <= 0) {
+                        setTimeout(() => {
+                          setGameState('won');
+                          setGameMessage("Vittoria! Hai protetto l'albero!");
+                          setTargetClicksRequired(prev => prev + 5);
+                          playGameWinSound();
+                        }, 0);
+                        return 0;
+                      }
+                      return newLeft;
+                    });
+                  }}
+                >
+                  <circle cx="0" cy="-5" r="14" fill="white" opacity="0.6" className="animate-ping" />
+                  <text 
+                    x="0" 
+                    y="0" 
+                    fontSize="18" 
+                    textAnchor="middle"
+                    className="animate-pulse"
+                  >
+                    {item.char}
+                  </text>
+                </g>
+              ))}
             </svg>
 
             {/* Stage title floating above tree */}
             <div className="absolute bottom-2 bg-[#FFFDE7]/90 border border-amber-300 rounded-full px-3 py-0.5 text-[9px] font-black text-amber-800 shadow-xs uppercase tracking-wide">
               {stageDetails.name}
+            </div>
+
+            {/* Minigame Overlay Start Button */}
+            {growthStage >= 4 && gameState === 'idle' && (
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 mt-12">
+                <button
+                  onClick={startGame}
+                  className="px-3 py-1.5 bg-white/70 backdrop-blur-sm hover:bg-white text-emerald-700 border border-emerald-200/50 rounded-full font-bold text-[10px] shadow-xs hover:scale-105 active:scale-95 transition-all flex items-center gap-1.5 opacity-80 hover:opacity-100"
+                >
+                  <Sparkles size={12} className="text-emerald-500" /> Gioca
+                </button>
+              </div>
+            )}
             </div>
           </div>
         </div>
@@ -256,20 +477,51 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
           </div>
 
           {/* Progress bar */}
-          <div className="bg-slate-50 p-2.5 rounded-2xl border border-slate-100/80 space-y-1">
+          <div className="bg-slate-50 p-2.5 rounded-2xl border border-slate-100/80 space-y-2 group">
             <div className="flex justify-between text-[7.5px] font-black text-theme-secondary uppercase">
-              <span>Livello di Fioritura</span>
+              <span className={previewStage !== null ? "text-amber-500 font-extrabold" : ""}>
+                {previewStage !== null ? "Gioco: Prova l'albero!" : "Livello di Fioritura"}
+              </span>
               <span>{stageDetails.percent}%</span>
             </div>
-            <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden border">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-green-500 transition-all duration-500"
-                style={{ width: `${stageDetails.percent}%` }}
+            
+            <div className="relative w-full h-4 flex items-center">
+              <input
+                type="range"
+                min="0"
+                max="4"
+                step="1"
+                value={growthStage}
+                onChange={(e) => {
+                  playClickSound();
+                  setPreviewStage(Number(e.target.value));
+                }}
+                className="absolute w-full h-full opacity-0 cursor-pointer z-10"
+              />
+              <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden border pointer-events-none">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-green-500 transition-all duration-500"
+                  style={{ width: `${stageDetails.percent}%` }}
+                />
+              </div>
+              <div 
+                className="absolute w-4 h-4 bg-white border-2 border-green-500 rounded-full shadow transition-all duration-500 pointer-events-none"
+                style={{ left: `calc(${stageDetails.percent}% - 8px)` }}
               />
             </div>
+
             <p className="text-[8px] font-medium text-theme-secondary text-center pt-0.5">
               Stato: <span className="font-extrabold text-[#EC407A]">{stageDetails.name}</span>
             </p>
+
+            {previewStage !== null && (
+               <button
+                 onClick={() => { playClickSound(); setPreviewStage(null); }}
+                 className="w-full mt-1 text-[7px] bg-amber-100 text-amber-800 py-1.5 rounded-md font-bold uppercase tracking-wide hover:bg-amber-200 transition-colors shadow-xs"
+               >
+                 Torna al livello reale
+               </button>
+            )}
           </div>
 
           <div className="bg-amber-50/70 p-2.5 rounded-2xl border border-amber-100/50">
@@ -277,6 +529,21 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
               "{stageDetails.message}"
             </p>
           </div>
+
+          {/* Minigame status */}
+          {growthStage >= 4 && gameState === 'idle' && (
+            <div className="bg-emerald-50 p-2.5 rounded-2xl border border-emerald-200 space-y-2">
+              <h4 className="text-[10px] font-black text-emerald-800 uppercase text-center flex items-center justify-center gap-1">
+                <Sparkles size={10} /> Minigioco Magico!
+              </h4>
+              <p className="text-[8px] text-emerald-700 font-bold text-center leading-tight">
+                Clicca i frutti in caduta e gli insetti per scacciarli! Attento a non farli scappare.
+              </p>
+              <button onClick={startGame} className="w-full py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-[10px] font-bold cursor-pointer transition-colors shadow-xs">
+                Gioca Ora!
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

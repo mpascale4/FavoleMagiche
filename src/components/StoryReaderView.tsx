@@ -130,9 +130,34 @@ export default function StoryReaderView({
   const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [selectedVoiceName, setSelectedVoiceName] = useState<string>("");
 
-  const [playbackSpeed, setPlaybackSpeed] = useState<number>(1);
+  const playbackSpeedRef = useRef<number>(1);
+  // Ensure we sync the initial state
+  useEffect(() => { playbackSpeedRef.current = playbackSpeed; }, []);
+  const [playbackSpeed, setPlaybackSpeed] = useState<number>(() => {
+    const isBedtime = story.categoria?.toLowerCase().includes("buona") || 
+                      story.categoria?.toLowerCase().includes("nanna") || 
+                      !!story.isBedtimeMode;
+    const pref = settings?.stileVisuale || "auto";
+    let theme = pref;
+    if (pref === "auto") {
+      const cat = (story.categoria || "").toLowerCase();
+      if (cat.includes("comico") || cat.includes("divert")) theme = "alba";
+      else if (cat.includes("natur") || cat.includes("dinosaur")) theme = "bosco";
+      else if (cat.includes("mar") || cat.includes("ocean") || cat.includes("sirena")) theme = "oceano";
+      else if (cat.includes("spazi") || cat.includes("fantascienza") || cat.includes("mister")) theme = "notte";
+      else if (cat.includes("classica") || cat.includes("fantasy")) theme = "alba";
+      else if (cat.includes("avventur")) theme = "tramonto";
+      else theme = "giorno";
+    }
+    if (isBedtime) theme = "notte";
+    return theme === "notte" ? 0.5 : 1;
+  });
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [recordingSeconds, setRecordingSeconds] = useState<number>(0);
+
+  useEffect(() => {
+    playbackSpeedRef.current = playbackSpeed;
+  }, [playbackSpeed]);
   const [recordings, setRecordings] = useState<Record<string, string>>({});
   const [playingRecording, setPlayingRecording] = useState<{ readerType: string } | null>(null);
   const [fontSize, setFontSize] = useState<"sm" | "base" | "lg" | "xl" | "2xl">("base");
@@ -217,7 +242,17 @@ export default function StoryReaderView({
 
       if (timerRef.current) clearInterval(timerRef.current);
       timerRef.current = setInterval(() => {
-        setRecordingSeconds(prev => prev + 1);
+        setRecordingSeconds(prev => {
+          if (prev >= 299) {
+            if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+              mediaRecorderRef.current.stop();
+            }
+            setIsRecording(false);
+            if (timerRef.current) clearInterval(timerRef.current);
+            return 300;
+          }
+          return prev + 1;
+        });
       }, 1000);
     } catch (err) {
       console.error("Microphone access error:", err);
@@ -844,7 +879,7 @@ export default function StoryReaderView({
 
     utterance.pitch = settings?.tonoVoce !== undefined ? settings.tonoVoce : defaultPitch;
     const baseRate = settings?.velocitaVoce !== undefined ? settings.velocitaVoce : defaultRate;
-    const activeSpeed = speedOverride !== undefined ? speedOverride : playbackSpeed;
+    const activeSpeed = speedOverride !== undefined ? speedOverride : playbackSpeedRef.current;
     utterance.rate = baseRate * activeSpeed;
 
     // Reset progress tracking refs

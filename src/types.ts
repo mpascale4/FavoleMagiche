@@ -116,6 +116,7 @@ export const DURATIONS = [
 
 export const CHARACTER_TYPES = [
   "Bambino",
+  "Bebè",
   "Bambina",
   "Cucciolo",
   "Robot",
@@ -129,6 +130,7 @@ export const CHARACTER_TYPES = [
 
 export const INITIAL_CHARACTER_TYPES = [
   "Bambino",
+  "Bebè",
   "Bambina",
   "Cucciolo",
   "Robot",
@@ -186,14 +188,24 @@ export const INITIAL_CHARACTER_TRAITS = [
 ];
 
 export const CHARACTER_TYPES_BY_CATEGORY: Record<string, string[]> = {
-  "Fantasy": ["Bambino", "Bambina", "Fata", "Unicorno", "Drago", "Folletto"],
-  "Avventura": ["Bambino", "Bambina", "Cucciolo", "Astronauta", "Folletto"],
-  "Mistero": ["Bambino", "Bambina", "Robot", "Folletto"],
-  "Fiaba Classica": ["Bambino", "Bambina", "Fata", "Cucciolo", "Drago", "Sirena"],
-  "Natura": ["Bambino", "Bambina", "Cucciolo", "Sirena"],
-  "Spazio": ["Bambino", "Bambina", "Robot", "Astronauta"],
-  "Preistoria": ["Bambino", "Bambina", "Cucciolo", "Drago"],
-  "Supereroi": ["Bambino", "Bambina", "Robot"],
-  "Mitologia": ["Bambino", "Bambina", "Fata", "Drago", "Sirena"],
-  "Abissi": ["Bambino", "Bambina", "Cucciolo", "Sirena"]
+  "Fantasy": ["Bambino",
+  "Bebè", "Bambina", "Fata", "Unicorno", "Drago", "Folletto"],
+  "Avventura": ["Bambino",
+  "Bebè", "Bambina", "Cucciolo", "Astronauta", "Folletto"],
+  "Mistero": ["Bambino",
+  "Bebè", "Bambina", "Robot", "Folletto"],
+  "Fiaba Classica": ["Bambino",
+  "Bebè", "Bambina", "Fata", "Cucciolo", "Drago", "Sirena"],
+  "Natura": ["Bambino",
+  "Bebè", "Bambina", "Cucciolo", "Sirena"],
+  "Spazio": ["Bambino",
+  "Bebè", "Bambina", "Robot", "Astronauta"],
+  "Preistoria": ["Bambino",
+  "Bebè", "Bambina", "Cucciolo", "Drago"],
+  "Supereroi": ["Bambino",
+  "Bebè", "Bambina", "Robot"],
+  "Mitologia": ["Bambino",
+  "Bebè", "Bambina", "Fata", "Drago", "Sirena"],
+  "Abissi": ["Bambino",
+  "Bebè", "Bambina", "Cucciolo", "Sirena"]
 };
