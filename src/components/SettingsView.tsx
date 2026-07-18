@@ -255,10 +255,10 @@ export default function SettingsView({
 
   return (
     <>
-      <div className="flex-1 flex flex-col gap-4 p-5 scrollbar-none overflow-y-auto max-h-[640px]">
+      <section className="flex-1 flex flex-col gap-4 p-5 scrollbar-none overflow-y-auto max-h-[640px]" aria-labelledby="settings-title">
        <div className="space-y-4">
          {/* Back Header + Developer Mode Button */}
-         <div className="flex items-center gap-2 mb-2 shrink-0">
+         <header className="flex items-center gap-2 mb-2 shrink-0">
            <button
              onClick={() => {
                playClickSound();
@@ -268,12 +268,13 @@ export default function SettingsView({
                onBack();
              }}
              id="btn-back-settings"
+             aria-label="Torna alla schermata Home"
              className="w-9 h-9 bg-white hover:bg-natural-pink-light text-natural-burgundy rounded-xl flex items-center justify-center border-2 border-natural-pink-border shadow-xs transition-colors cursor-pointer"
            >
              <ArrowLeft size={18} />
            </button>
 
-           <h3 className="text-lg font-bold text-natural-burgundy font-serif italic flex-1">Impostazioni App</h3>
+           <h3 id="settings-title" className="text-lg font-bold text-natural-burgundy font-serif italic flex-1">Impostazioni App</h3>
 
            {/* Developer Mode Button - Top Right */}
            <button
@@ -283,10 +284,11 @@ export default function SettingsView({
              }}
              className="w-9 h-9 bg-slate-800/40 hover:bg-slate-700/60 border border-slate-600 text-slate-400 hover:text-slate-300 rounded-xl flex items-center justify-center transition-all cursor-pointer"
              title="🧪 Developer Mode"
+             aria-label="Apri Developer Mode"
            >
              <Terminal size={16} />
            </button>
-         </div>
+         </header>
 
          {isDeveloperNightForced && (
            <section
@@ -308,7 +310,7 @@ export default function SettingsView({
            </section>
          )}
 
-        <div className="bg-white rounded-[2rem] p-4 border-4 border-natural-pink-border shadow-sm space-y-3">
+        <section className="bg-white rounded-[2rem] p-4 border-4 border-natural-pink-border shadow-sm space-y-3" aria-label="Stato integrazione Gemini">
           <div className="flex items-center justify-between gap-2">
             <h4 className="font-extrabold text-[11px] uppercase tracking-wider text-natural-burgundy">Stato Gemini</h4>
             <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full ${
@@ -322,7 +324,7 @@ export default function SettingsView({
             </span>
           </div>
 
-          <p className="text-[10px] font-bold text-natural-text">{geminiRuntimeStatus.message}</p>
+          <p className="text-[10px] font-bold text-natural-text" role="status" aria-live="polite">{geminiRuntimeStatus.message}</p>
 
           {geminiRuntimeStatus.model && (
             <p className="text-[9px] text-slate-500 font-semibold">Modello usato: {geminiRuntimeStatus.model}</p>
@@ -342,7 +344,7 @@ export default function SettingsView({
                 <span>Log Generazioni (ultimi {generationLogs.length})</span>
               </div>
 
-              <div className="max-h-48 overflow-y-auto bg-slate-50/80 rounded-lg p-2 space-y-1.5 border border-slate-200/50">
+              <div className="max-h-48 overflow-y-auto bg-slate-50/80 rounded-lg p-2 space-y-1.5 border border-slate-200/50" role="region" aria-label="Log ultime generazioni">
                 {generationLogs
                   .slice()
                   .reverse()
@@ -375,10 +377,10 @@ export default function SettingsView({
               </div>
             </div>
           )}
-        </div>
+        </section>
 
         {/* VOICE SELECTION CARD (Requested Feature) */}
-        <div className="bg-white rounded-[2rem] p-4 border-4 border-natural-pink-border shadow-sm space-y-3">
+        <section className="bg-white rounded-[2rem] p-4 border-4 border-natural-pink-border shadow-sm space-y-3" aria-label="Impostazioni voce di lettura">
           <div className="flex items-center gap-2.5 text-natural-burgundy pb-1 border-b-2 border-natural-pink-light">
             <div className="w-8 h-8 bg-pink-100 rounded-xl flex items-center justify-center text-natural-pink">
               <Volume2 size={16} />
@@ -402,6 +404,8 @@ export default function SettingsView({
                 <button
                   key={voiceOpt.id}
                   onClick={() => handleStyleChange(voiceOpt.id as any)}
+                  aria-pressed={isActive}
+                  aria-label={`Seleziona stile voce ${voiceOpt.label}`}
                   className={`p-2.5 rounded-2xl border-2 transition-all text-left flex flex-col justify-between ${
                     isActive
                       ? "bg-pink-50/70 border-natural-pink text-natural-burgundy shadow-xs scale-[1.02]"
@@ -429,12 +433,14 @@ export default function SettingsView({
                 <span className="text-natural-burgundy">{(settings.tonoVoce ?? 1.0).toFixed(2)}x</span>
               </div>
               <input
+                id="voice-pitch"
                 type="range"
                 min="0.5"
                 max="1.5"
                 step="0.05"
                 value={settings.tonoVoce ?? 1.0}
                 onChange={(e) => onUpdateSettings({ tonoVoce: parseFloat(e.target.value) })}
+                aria-label="Regola altezza tono della voce"
                 className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-natural-pink"
               />
               <p className="text-[8px] text-slate-400 font-bold text-right italic">
@@ -449,12 +455,14 @@ export default function SettingsView({
                 <span className="text-natural-burgundy">{(settings.velocitaVoce ?? 0.85).toFixed(2)}x</span>
               </div>
               <input
+                id="voice-rate"
                 type="range"
                 min="0.5"
                 max="1.5"
                 step="0.05"
                 value={settings.velocitaVoce ?? 0.85}
                 onChange={(e) => onUpdateSettings({ velocitaVoce: parseFloat(e.target.value) })}
+                aria-label="Regola velocita di lettura"
                 className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-natural-pink"
               />
               <p className="text-[8px] text-slate-400 font-bold text-right italic">
@@ -466,8 +474,9 @@ export default function SettingsView({
           {/* System TTS Voice Selector */}
           {availableVoices.length > 0 && (
             <div className="space-y-1.5">
-              <label className="text-[9.5px] font-extrabold text-slate-700 block">Sorgente Sintesi Vocale:</label>
+              <label htmlFor="voice-source" className="text-[9.5px] font-extrabold text-slate-700 block">Sorgente Sintesi Vocale:</label>
               <select
+                id="voice-source"
                 value={settings.nomeVoceDispositivo || ""}
                 onChange={(e) => onUpdateSettings({ nomeVoceDispositivo: e.target.value })}
                 className="w-full bg-white border-2 border-natural-pink-border/80 rounded-xl px-2.5 py-1.5 text-[10px] font-bold text-natural-text focus:outline-none cursor-pointer hover:bg-slate-50 transition-all truncate"
@@ -485,6 +494,8 @@ export default function SettingsView({
           {/* Preview Test Action */}
           <button
             onClick={handlePlayPreview}
+            aria-pressed={isPreviewPlaying}
+            aria-label={isPreviewPlaying ? "Ferma anteprima della voce" : "Ascolta anteprima della voce"}
             className={`w-full py-2.5 rounded-2xl font-extrabold text-[11px] flex items-center justify-center gap-1.5 transition-all cursor-pointer border shadow-xs ${
               isPreviewPlaying
                 ? "bg-[#FFE0E6] hover:bg-[#FFD1DC] text-[#C2185B] border-[#FFB2C5]"
@@ -501,10 +512,10 @@ export default function SettingsView({
               </>
             )}
           </button>
-        </div>
+        </section>
 
         {/* STORAGE DASHBOARD CARD */}
-        <div className="bg-white rounded-[2rem] p-4 border-4 border-natural-pink-border shadow-sm space-y-3">
+        <section className="bg-white rounded-[2rem] p-4 border-4 border-natural-pink-border shadow-sm space-y-3" aria-label="Gestione spazio locale">
           <div className="flex items-center gap-2.5 text-natural-burgundy">
             <div className="w-8 h-8 bg-[#FCE4EC] rounded-xl flex items-center justify-center text-[#EC407A]">
               <HardDrive size={16} />
@@ -540,15 +551,15 @@ export default function SettingsView({
           </div>
 
           {isOverLimit && settings.avvisaSuperamento && (
-            <div className="bg-red-50 text-red-700 text-[9px] font-bold p-2 rounded-xl flex items-start gap-1 border border-red-100 leading-normal">
+            <div role="alert" className="bg-red-50 text-red-700 text-[9px] font-bold p-2 rounded-xl flex items-start gap-1 border border-red-100 leading-normal">
               <Bell size={11} className="shrink-0 mt-0.5 text-red-600 animate-bounce" />
               <span>Attenzione! Hai superato la soglia di spazio ({settings.sogliaSpazio}).</span>
             </div>
           )}
-        </div>
+        </section>
 
         {/* AMBIANCE & MUSIC */}
-        <div className="space-y-3 bg-white rounded-[2rem] p-4 border-4 border-natural-pink-border shadow-sm">
+        <section className="space-y-3 bg-white rounded-[2rem] p-4 border-4 border-natural-pink-border shadow-sm" aria-label="Musica e atmosfera">
           <div className="flex items-center gap-2.5 text-natural-burgundy pb-1.5 border-b-2 border-natural-pink-light">
             <div className="w-8 h-8 bg-amber-50 rounded-xl flex items-center justify-center text-amber-500">
               <Music size={16} />
@@ -560,7 +571,7 @@ export default function SettingsView({
           </div>
 
           {/* Background Music Toggle */}
-          <label className="flex items-center justify-between cursor-pointer py-1 text-xs">
+          <label className="flex items-center justify-between cursor-pointer py-1 text-xs" htmlFor="toggle-music-bg">
             <div className="space-y-0.5 pr-2">
               <span className="font-extrabold text-natural-burgundy block">Musica di Sottofondo 🎶</span>
               <span className="text-[9px] text-natural-text/70 block font-bold leading-tight">
@@ -568,15 +579,18 @@ export default function SettingsView({
               </span>
             </div>
             <input
+              id="toggle-music-bg"
               type="checkbox"
               checked={settings.musicaSottofondo !== false}
               onChange={(e) => onUpdateSettings({ musicaSottofondo: e.target.checked })}
+              role="switch"
+              aria-checked={settings.musicaSottofondo !== false}
               className="w-4 h-4 rounded-md accent-[#EC407A] shrink-0"
             />
           </label>
 
           {/* Audio Effects Toggle */}
-          <label className="flex items-center justify-between cursor-pointer py-1.5 text-xs border-t border-slate-100 mt-1">
+          <label className="flex items-center justify-between cursor-pointer py-1.5 text-xs border-t border-slate-100 mt-1" htmlFor="toggle-audio-effects">
             <div className="space-y-0.5 pr-2">
               <span className="font-extrabold text-natural-burgundy block">Effetti Audio 🪄</span>
               <span className="text-[9px] text-natural-text/70 block font-bold leading-tight">
@@ -584,14 +598,17 @@ export default function SettingsView({
               </span>
             </div>
             <input
+              id="toggle-audio-effects"
               type="checkbox"
               checked={settings.effettiAudio !== false}
               onChange={(e) => onUpdateSettings({ effettiAudio: e.target.checked })}
+              role="switch"
+              aria-checked={settings.effettiAudio !== false}
               className="w-4 h-4 rounded-md accent-[#EC407A] shrink-0"
             />
           </label>
 
-          <label className="flex items-center justify-between cursor-pointer py-1.5 text-xs border-t border-slate-100 mt-1">
+          <label className="flex items-center justify-between cursor-pointer py-1.5 text-xs border-t border-slate-100 mt-1" htmlFor="toggle-audio-adaptive">
             <div className="space-y-0.5 pr-2">
               <span className="font-extrabold text-natural-burgundy block">Audio adattivo giorno/notte 🌗</span>
               <span className="text-[9px] text-natural-text/70 block font-bold leading-tight">
@@ -599,9 +616,12 @@ export default function SettingsView({
               </span>
             </div>
             <input
+              id="toggle-audio-adaptive"
               type="checkbox"
               checked={settings.audioAdattivo !== false}
               onChange={(e) => onUpdateSettings({ audioAdattivo: e.target.checked })}
+              role="switch"
+              aria-checked={settings.audioAdattivo !== false}
               className="w-4 h-4 rounded-md accent-[#EC407A] shrink-0"
             />
           </label>
@@ -615,8 +635,10 @@ export default function SettingsView({
               </span>
             </div>
             <select
+              id="select-visual-style"
               value={settings.stileVisuale || "auto"}
               onChange={(e) => onUpdateSettings({ stileVisuale: e.target.value as any })}
+              aria-label="Seleziona stile visuale"
               className="w-44 max-w-[176px] bg-[#FCE4EC]/30 border-2 border-natural-pink-border rounded-xl px-2 py-1 text-[11px] text-natural-burgundy font-extrabold cursor-pointer focus:outline-none truncate text-ellipsis"
             >
               <option value="auto">Tema della Categoria (Magico) ✨</option>
@@ -629,10 +651,10 @@ export default function SettingsView({
               <option value="horror">Brivido Spaventoso (Spettrale & Notturno) 👻</option>
             </select>
           </div>
-        </div>
+        </section>
 
         {/* OPTION RULES CARD */}
-        <div className="space-y-3 bg-white rounded-[2rem] p-4 border-4 border-natural-pink-border shadow-sm">
+        <section className="space-y-3 bg-white rounded-[2rem] p-4 border-4 border-natural-pink-border shadow-sm" aria-label="Regole di salvataggio">
           <h4 className="font-extrabold text-[10.5px] text-natural-burgundy uppercase tracking-wider pb-1.5 border-b-2 border-natural-pink-light">
             Regole Di Salvataggio
           </h4>
@@ -644,6 +666,7 @@ export default function SettingsView({
               value={settings.sogliaSpazio}
               onChange={handleThresholdChange}
               id="select-storage-threshold"
+              aria-label="Seleziona soglia spazio"
               className="bg-[#FCE4EC]/30 border-2 border-natural-pink-border rounded-xl px-2 py-1 text-xs text-natural-burgundy font-extrabold cursor-pointer focus:outline-none"
             >
               <option value="500 MB">500 MB</option>
@@ -654,7 +677,7 @@ export default function SettingsView({
           </div>
 
           {/* Toggle 1: Warn */}
-          <label className="flex items-center justify-between cursor-pointer py-1 text-xs">
+          <label className="flex items-center justify-between cursor-pointer py-1 text-xs" htmlFor="toggle-warn-limit">
             <div className="space-y-0.5 pr-2">
               <span className="font-extrabold text-natural-burgundy block">Avvisa al Superamento</span>
               <span className="text-[9px] text-natural-text/70 block font-bold leading-tight">
@@ -662,15 +685,18 @@ export default function SettingsView({
               </span>
             </div>
             <input
+              id="toggle-warn-limit"
               type="checkbox"
               checked={settings.avvisaSuperamento}
               onChange={(e) => onUpdateSettings({ avvisaSuperamento: e.target.checked })}
+              role="switch"
+              aria-checked={settings.avvisaSuperamento}
               className="w-4 h-4 rounded-md accent-[#EC407A] shrink-0"
             />
           </label>
 
           {/* Toggle 2: Auto Delete */}
-          <label className="flex items-center justify-between cursor-pointer py-1 text-xs">
+          <label className="flex items-center justify-between cursor-pointer py-1 text-xs" htmlFor="toggle-auto-delete">
             <div className="space-y-0.5 pr-2">
               <span className="font-extrabold text-natural-burgundy block">Eliminazione Automatica</span>
               <span className="text-[9px] text-natural-text/70 block font-bold leading-tight">
@@ -678,15 +704,18 @@ export default function SettingsView({
               </span>
             </div>
             <input
+              id="toggle-auto-delete"
               type="checkbox"
               checked={settings.eliminaInAutomatico}
               onChange={(e) => onUpdateSettings({ eliminaInAutomatico: e.target.checked })}
+              role="switch"
+              aria-checked={settings.eliminaInAutomatico}
               className="w-4 h-4 rounded-md accent-[#EC407A] shrink-0"
             />
           </label>
 
           {/* Toggle 3: Keep Favorites */}
-          <label className="flex items-center justify-between cursor-pointer py-1 text-xs">
+          <label className="flex items-center justify-between cursor-pointer py-1 text-xs" htmlFor="toggle-keep-favorites">
             <div className="space-y-0.5 pr-2">
               <span className="font-extrabold text-natural-burgundy block">Conserva Preferite</span>
               <span className="text-[9px] text-natural-text/70 block font-bold leading-tight">
@@ -694,17 +723,20 @@ export default function SettingsView({
               </span>
             </div>
             <input
+              id="toggle-keep-favorites"
               type="checkbox"
               checked={settings.conservaPreferite}
               onChange={(e) => onUpdateSettings({ conservaPreferite: e.target.checked })}
+              role="switch"
+              aria-checked={settings.conservaPreferite}
               className="w-4 h-4 rounded-md accent-[#EC407A] shrink-0"
             />
           </label>
-        </div>
+        </section>
       </div>
 
       {/* PARENTAL CONTROL CARD */}
-      <div className="bg-white rounded-[2rem] p-4 border-4 border-natural-pink-border shadow-sm space-y-3">
+      <section className="bg-white rounded-[2rem] p-4 border-4 border-natural-pink-border shadow-sm space-y-3" aria-label="Controllo genitori e sicurezza">
         <div className="flex items-center gap-2.5 text-natural-burgundy">
           <div className="w-8 h-8 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500">
             <Lock size={16} />
@@ -726,6 +758,7 @@ export default function SettingsView({
             </div>
             <button
               onClick={() => { playClickSound(); setShowChangePinModal(true); }}
+              aria-label="Apri modifica PIN genitore"
               className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 active:scale-95 text-blue-600 font-bold text-[10px] rounded-lg transition-all border border-blue-200 shadow-sm cursor-pointer shrink-0"
             >
               Modifica PIN
@@ -741,12 +774,16 @@ export default function SettingsView({
               </span>
             </div>
             <input
+              id="toggle-kids-mode"
               type="checkbox"
               checked={settings.modalitaBambino === true}
               onChange={(e) => {
                 playClickSound();
                 onUpdateSettings({ modalitaBambino: e.target.checked });
               }}
+              role="switch"
+              aria-checked={settings.modalitaBambino === true}
+              aria-label="Attiva o disattiva modalita bambino"
               className="w-4 h-4 rounded-md accent-blue-500 shrink-0 cursor-pointer"
             />
           </div>
@@ -760,7 +797,9 @@ export default function SettingsView({
               </span>
             </div>
             <select
+              id="select-sleep-timer"
               value={settings.timerNannaMinutes || 0}
+              aria-label="Imposta timer della nanna"
               onChange={(e) => {
                 playClickSound();
                 onUpdateSettings({ timerNannaMinutes: parseInt(e.target.value) });
@@ -777,10 +816,10 @@ export default function SettingsView({
             </select>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* PRIVACY & COMPLIANCE CARD */}
-      <div className="bg-gradient-to-br from-emerald-50 to-[#E8F5E9] rounded-[2rem] p-4 border-4 border-emerald-200 shadow-sm space-y-3">
+      <section className="bg-gradient-to-br from-emerald-50 to-[#E8F5E9] rounded-[2rem] p-4 border-4 border-emerald-200 shadow-sm space-y-3" aria-label="Privacy e compliance">
         <div className="flex items-center gap-2 text-emerald-800">
           <span className="text-xl">🛡️</span>
           <div>
@@ -796,14 +835,14 @@ export default function SettingsView({
           <li><span className="text-emerald-950">Voce Sicura:</span> La sintesi vocale (TTS) è eseguita localmente dal browser e non invia streaming audio a server esterni.</li>
           <li><span className="text-emerald-950">Nessuna Pubblicità:</span> Nessun tracciatore o pubblicità per garantire un'esperienza serena.</li>
         </ul>
-       </div>
-     </div>
+       </section>
 
      {/* Danger Zone */}
      <div className="px-4 space-y-2 shrink-0 pb-1">
        <button
          onClick={() => setShowConfirmClear(true)}
          id="btn-clear-archive-settings"
+         aria-label="Apri conferma svuota archivio storie"
          className="w-full py-2.5 bg-red-50 hover:bg-red-100 text-[#C2185B] border-2 border-red-200 rounded-full text-xs font-black flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm"
        >
          <Trash2 size={13} /> Svuota Intero Archivio Storie
@@ -814,17 +853,17 @@ export default function SettingsView({
      </div>
 
       {/* Custom Archive Emptying Confirmation Modal */}
-      {showConfirmClear && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-5 z-50 animate-fade-in">
-          <div className="bg-white rounded-[2rem] border-4 border-red-200 p-6 max-w-sm w-full text-center space-y-4 shadow-xl transform scale-100 transition-all animate-scale-up">
+       {showConfirmClear && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-5 z-50 animate-fade-in" role="presentation">
+          <div className="bg-white rounded-[2rem] border-4 border-red-200 p-6 max-w-sm w-full text-center space-y-4 shadow-xl transform scale-100 transition-all animate-scale-up" role="dialog" aria-modal="true" aria-labelledby="clear-archive-title" aria-describedby="clear-archive-description">
             <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center text-2xl mx-auto border-2 border-red-100">
               🚨
             </div>
             <div className="space-y-1.5">
-              <h4 className="font-extrabold text-sm text-[#C2185B] font-serif italic">
+              <h4 id="clear-archive-title" className="font-extrabold text-sm text-[#C2185B] font-serif italic">
                 Svuotare l'intera biblioteca?
               </h4>
-              <p className="text-[11px] text-natural-text font-bold leading-relaxed">
+              <p id="clear-archive-description" className="text-[11px] text-natural-text font-bold leading-relaxed">
                 Stai per eliminare per sempre <span className="text-[#C2185B] font-black">tutte le {storiesCount} favole</span> conservate. Questa azione non è reversibile. Sei assolutamente sicuro?
               </p>
             </div>
@@ -859,6 +898,7 @@ export default function SettingsView({
         />
        )}
 
+      </section>
      </>
    );
  }
