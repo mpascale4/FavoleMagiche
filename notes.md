@@ -3,3 +3,6 @@
 - Negli alberi fai vedere tutto
 - aggiungi bebè
 - gestisci massimo tempo registrazione
+note
+bebè sbloccato
+---
