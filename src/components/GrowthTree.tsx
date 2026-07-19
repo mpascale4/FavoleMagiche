@@ -114,7 +114,8 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
     return 4; // 15+ is fully bloomed!
   }, [readCount]);
 
-  const growthStage = previewStage !== null ? previewStage : actualGrowthStage;
+  const growthStage = gameState !== 'idle' ? 4 : (previewStage !== null ? previewStage : actualGrowthStage);
+  const collectedCount = gameState !== 'idle' ? Math.max(0, 10 - targetsLeft) : 10;
 
   // Game Logic Effect
   // Spawn logic
@@ -355,7 +356,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
                 </div>
               )}
 
-            <svg viewBox="0 0 200 200" className={gameState !== 'idle' ? "w-full max-w-[60vh] max-h-[60vh] drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]" : "w-full h-full drop-shadow-md"}>
+            <svg viewBox="0 0 200 200" className={`${gameState !== 'idle' ? "w-full max-w-[60vh] max-h-[60vh]" : "w-full h-full"} ${gameState === 'won' ? "drop-shadow-[0_0_60px_rgba(251,191,36,0.8)] animate-pulse" : (gameState !== 'idle' ? "drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]" : "drop-shadow-md")} transition-all duration-1000`}>
               <defs>
                 <linearGradient id="trunkGrad" x1="0%" y1="0%" x2="100%" y2="0%">
                   <stop offset="0%" stopColor="#8D6E63" />
@@ -445,18 +446,16 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
 
                   {/* Theme decorations/fruits/blooms scattered on canopy */}
                   <g className="animate-pulse">
-                    {/* Position 1 */}
-                    <text x="65" y="90" fontSize="14" textAnchor="middle">{activeTreeInfo.decoration}</text>
-                    {/* Position 2 */}
-                    <text x="125" y="85" fontSize="14" textAnchor="middle">{activeTreeInfo.decoration}</text>
-                    {/* Position 3 */}
-                    <text x="95" y="65" fontSize="15" textAnchor="middle">{activeTreeInfo.decoration}</text>
-                    {/* Position 4 */}
-                    <text x="80" y="78" fontSize="12" textAnchor="middle">{activeTreeInfo.decoration}</text>
-                    {/* Position 5 */}
-                    <text x="112" y="74" fontSize="12" textAnchor="middle">{activeTreeInfo.decoration}</text>
-                    {/* Position 6 */}
-                    <text x="100" y="92" fontSize="13" textAnchor="middle">{activeTreeInfo.decoration}</text>
+                    {collectedCount >= 1 && <text x="65" y="90" fontSize="14" textAnchor="middle" className="animate-in zoom-in">{activeTreeInfo.decoration}</text>}
+                    {collectedCount >= 2 && <text x="125" y="85" fontSize="14" textAnchor="middle" className="animate-in zoom-in">{activeTreeInfo.decoration}</text>}
+                    {collectedCount >= 3 && <text x="95" y="65" fontSize="15" textAnchor="middle" className="animate-in zoom-in">{activeTreeInfo.decoration}</text>}
+                    {collectedCount >= 4 && <text x="80" y="78" fontSize="12" textAnchor="middle" className="animate-in zoom-in">{activeTreeInfo.decoration}</text>}
+                    {collectedCount >= 5 && <text x="112" y="74" fontSize="12" textAnchor="middle" className="animate-in zoom-in">{activeTreeInfo.decoration}</text>}
+                    {collectedCount >= 6 && <text x="100" y="92" fontSize="13" textAnchor="middle" className="animate-in zoom-in">{activeTreeInfo.decoration}</text>}
+                    {collectedCount >= 7 && <text x="55" y="105" fontSize="13" textAnchor="middle" className="animate-in zoom-in">{activeTreeInfo.decoration}</text>}
+                    {collectedCount >= 8 && <text x="135" y="98" fontSize="13" textAnchor="middle" className="animate-in zoom-in">{activeTreeInfo.decoration}</text>}
+                    {collectedCount >= 9 && <text x="85" y="55" fontSize="12" textAnchor="middle" className="animate-in zoom-in">{activeTreeInfo.decoration}</text>}
+                    {collectedCount >= 10 && <text x="110" y="55" fontSize="12" textAnchor="middle" className="animate-in zoom-in">{activeTreeInfo.decoration}</text>}
                   </g>
                   
                   {/* Sparkle circles around canopy */}
