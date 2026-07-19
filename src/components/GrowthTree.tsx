@@ -449,6 +449,18 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
             <div className="absolute bottom-2 bg-[#FFFDE7]/90 border border-amber-300 rounded-full px-3 py-0.5 text-[9px] font-black text-amber-800 shadow-xs uppercase tracking-wide">
               {stageDetails.name}
             </div>
+
+            {/* Minigame Floating Start Button (Top-Right) */}
+            {growthStage >= 4 && gameState === 'idle' && (
+              <div className="absolute top-4 right-4 z-20">
+                <button
+                  onClick={startGame}
+                  className="px-4 py-2 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-yellow-900 border-2 border-yellow-200 rounded-full font-black text-xs shadow-lg hover:scale-110 active:scale-95 transition-all flex items-center gap-2 animate-bounce"
+                >
+                  <Play size={16} fill="currentColor" /> GIOCA
+                </button>
+              </div>
+            )}
             </div>
           </div>
         </div>
