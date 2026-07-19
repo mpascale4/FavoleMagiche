@@ -1,8 +1,9 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import { ArrowLeft, Sparkles, BookOpen, Heart, Award, Star, Play, X, Info } from "lucide-react";
 import { Story } from "../types";
 import { playClickSound, playFruitCollectSound, playBugShooSound, playGameFailSound, playGameWinSound } from "../utils/audio";
 import confetti from "canvas-confetti";
+import { chooseBalancedSpawnType, pickRandomEnemy, FRUITS_PER_ROUND, type SpawnBalanceState } from "./growthTreeGame";
 
 interface GrowthTreeProps {
   stories: Story[];
@@ -31,6 +32,12 @@ const THEME_TREES = [
 export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
   const [selectedTheme, setSelectedTheme] = useState("Gentilezza");
   const [previewStage, setPreviewStage] = useState<number | null>(null);
+  const spawnBalanceRef = useRef<SpawnBalanceState>({
+    spawnedFruits: 0,
+    spawnedBugs: 0,
+    consecutiveFruits: 0,
+    consecutiveBugs: 0,
+  });
   
   // Game states
   const [gameState, setGameState] = useState<'idle' | 'intro' | 'playing' | 'gameover' | 'won'>('idle');
@@ -58,16 +65,40 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
     return stories.filter(s => s.temaEducativo === selectedTheme).length * 5;
   }, [stories, selectedTheme]);
 
+  const earnedCreditsByTheme = useMemo(() => {
+    const credits: Record<string, number> = {
+      Amicizia: 0,
+      Coraggio: 0,
+      Gentilezza: 0,
+      Rispetto: 0,
+      Collaborazione: 0
+    };
+
+    stories.forEach((story) => {
+      if (credits[story.temaEducativo] !== undefined) {
+        credits[story.temaEducativo] += 5;
+      }
+    });
+
+    return credits;
+  }, [stories]);
+
   const availableCredits = Math.max(0, earnedCredits - (spentCredits[selectedTheme] || 0));
 
   useEffect(() => {
     setPreviewStage(null);
     setGameState('idle');
-    setTargetsLeft(10);
+    setTargetsLeft(FRUITS_PER_ROUND);
     setGameLevel(1);
     setGameMessage("");
     setActiveTargets([]);
     setShowWinPopup(false);
+    spawnBalanceRef.current = {
+      spawnedFruits: 0,
+      spawnedBugs: 0,
+      consecutiveFruits: 0,
+      consecutiveBugs: 0,
+    };
   }, [selectedTheme]);
 
   // Prevent scrolling when game is active
@@ -87,8 +118,14 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
       if (availableCredits <= 0) return;
       setSpentCredits(prev => ({ ...prev, [selectedTheme]: (prev[selectedTheme] || 0) + 1 }));
     }
+    spawnBalanceRef.current = {
+      spawnedFruits: 0,
+      spawnedBugs: 0,
+      consecutiveFruits: 0,
+      consecutiveBugs: 0,
+    };
     setGameState('playing');
-    setTargetsLeft(10);
+    setTargetsLeft(FRUITS_PER_ROUND);
     setActiveTargets([]);
     setGameMessage("");
     setShowWinPopup(false);
@@ -139,14 +176,36 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
   useEffect(() => {
     if (gameState !== 'playing') return;
 
-    // Faster spawn based on required clicks (level proxy)
-    const spawnRate = Math.max(800, 1500 - (gameLevel - 1) * 100);
+    const collectedFruits = FRUITS_PER_ROUND - targetsLeft;
+    const roundProgress = Math.max(0, Math.min(1, collectedFruits / FRUITS_PER_ROUND));
+
+    // Gradually increase pressure while the round progresses.
+    const spawnRate = Math.max(650, 1550 - (gameLevel - 1) * 85 - Math.floor(collectedFruits * 40));
+    const maxTargets = Math.min(7, 3 + Math.floor(gameLevel * 0.5) + Math.floor(collectedFruits / 4));
 
     const spawnInterval = setInterval(() => {
       setActiveTargets(prev => {
-        if (prev.length >= (3 + Math.floor(gameLevel * 0.5))) return prev; // Increase max targets with level
+        if (prev.length >= maxTargets) return prev;
 
-        const isBug = Math.random() > 0.6;
+        const nextSpawnType = chooseBalancedSpawnType(spawnBalanceRef.current, gameLevel, roundProgress);
+
+        const isBug = nextSpawnType === 'bug';
+
+        if (isBug) {
+          spawnBalanceRef.current = {
+            ...spawnBalanceRef.current,
+            spawnedBugs: spawnBalanceRef.current.spawnedBugs + 1,
+            consecutiveBugs: spawnBalanceRef.current.consecutiveBugs + 1,
+            consecutiveFruits: 0,
+          };
+        } else {
+          spawnBalanceRef.current = {
+            ...spawnBalanceRef.current,
+            spawnedFruits: spawnBalanceRef.current.spawnedFruits + 1,
+            consecutiveFruits: spawnBalanceRef.current.consecutiveFruits + 1,
+            consecutiveBugs: 0,
+          };
+        }
         
         let x, y, speedX, speedY, char;
         
@@ -172,7 +231,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
           
           speedX = fromLeft ? (1.5 * baseSpeed) : (-1.5 * baseSpeed);
           speedY = distanceY / travelTime;
-          char = activeTreeInfo.enemies[Math.floor(Math.random() * activeTreeInfo.enemies.length)];
+          char = pickRandomEnemy(activeTreeInfo.enemies);
         } else {
           // Fruit from top
           x = 40 + Math.random() * 120; // random x above canopy
@@ -193,7 +252,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
     }, spawnRate);
 
     return () => clearInterval(spawnInterval);
-  }, [gameState, gameLevel, activeTreeInfo.decoration, growthStage]);
+  }, [gameState, gameLevel, activeTreeInfo.decoration, growthStage, targetsLeft]);
 
   // Win Condition Effect
   useEffect(() => {
@@ -310,7 +369,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
       <div className="flex gap-1.5 overflow-x-auto pb-3 pt-1 scrollbar-none shrink-0">
         {THEME_TREES.map(t => {
           const count = themeCounts[t.theme] || 0;
-          const tCredits = Math.max(0, count * 5 - (spentCredits[t.theme] || 0));
+          const tCredits = Math.max(0, (earnedCreditsByTheme[t.theme] || 0) - (spentCredits[t.theme] || 0));
           const isSelected = selectedTheme === t.theme;
           return (
             <button
@@ -323,11 +382,14 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
               }`}
               style={{ borderColor: isSelected ? t.color : undefined }}
             >
-              <span className="text-base">{t.icon}</span>
+              <div className="flex flex-col items-center leading-none shrink-0">
+                <span className="text-base">{t.icon}</span>
+                <span className="text-[8px] font-black text-amber-500 mt-0.5">{tCredits}</span>
+              </div>
               <div className="text-left leading-none">
                 <span className="block text-[10px]">{t.theme}</span>
                 <span className="text-[7.5px] font-mono text-theme-secondary font-extrabold flex items-center gap-0.5 mt-0.5">
-                  XP: {count} <span className="opacity-50">|</span> 🍎 {tCredits}
+                  XP: {count}
                 </span>
               </div>
             </button>
@@ -628,7 +690,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
                   </p>
                   <p className="text-[9px] text-emerald-600/80 mt-1 uppercase tracking-wide">Costo per partita: 1 credito</p>
                 </div>
-                <button onClick={() => startGame(true)} className="w-full py-3 bg-yellow-400 hover:bg-yellow-300 text-yellow-900 rounded-xl font-black shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 text-sm cursor-pointer">
+                <button onClick={() => startGame(true)} className="w-full py-3 bg-amber-700 hover:bg-amber-600 text-white rounded-xl font-black shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 text-sm border-2 border-amber-200 cursor-pointer">
                   <Play size={16} fill="currentColor" /> GIOCA ORA
                 </button>
               </div>
