@@ -38,6 +38,25 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
   const [gameLevel, setGameLevel] = useState(1);
   const [gameMessage, setGameMessage] = useState("");
 
+  const [spentCredits, setSpentCredits] = useState<Record<string, number>>(() => {
+    try {
+      const saved = localStorage.getItem('magic_tree_credits_spent');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem('magic_tree_credits_spent', JSON.stringify(spentCredits));
+  }, [spentCredits]);
+
+  const earnedCredits = useMemo(() => {
+    return stories.filter(s => s.temaEducativo === selectedTheme).length * 5;
+  }, [stories, selectedTheme]);
+
+  const availableCredits = Math.max(0, earnedCredits - (spentCredits[selectedTheme] || 0));
+
   useEffect(() => {
     setPreviewStage(null);
     setGameState('idle');
@@ -47,7 +66,11 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
     setActiveTargets([]);
   }, [selectedTheme]);
 
-  const startGame = () => {
+  const startGame = (costCredit: boolean = true) => {
+    if (costCredit) {
+      if (availableCredits <= 0) return;
+      setSpentCredits(prev => ({ ...prev, [selectedTheme]: (prev[selectedTheme] || 0) + 1 }));
+    }
     setGameState('playing');
     setTargetsLeft(20);
     setActiveTargets([]);
@@ -291,20 +314,26 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
               )}
 
               {gameState === 'gameover' && (
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-rose-500/90 backdrop-blur-md p-6 rounded-3xl shadow-2xl border-2 border-rose-400 text-center z-50 animate-in zoom-in duration-300 w-64">
-                  <h2 className="text-2xl font-black text-white mb-1 shadow-sm">Game Over!</h2>
-                  <p className="text-rose-100 font-bold text-xs mb-5">{gameMessage}</p>
-                  <button onClick={startGame} className="w-full py-3 bg-white text-rose-600 hover:bg-rose-50 rounded-xl font-black shadow-xl hover:scale-105 active:scale-95 transition-all">
-                    Riprova
-                  </button>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white/95 backdrop-blur-md p-6 rounded-3xl shadow-2xl border-2 border-rose-300 text-center z-50 animate-in zoom-in duration-300 w-64">
+                  <h2 className="text-2xl font-black text-rose-600 mb-1 drop-shadow-sm">Game Over!</h2>
+                  <p className="text-rose-900 font-bold text-xs mb-5">{gameMessage}</p>
+                  {availableCredits > 0 ? (
+                    <button onClick={() => startGame(true)} className="w-full py-3 bg-rose-500 text-white hover:bg-rose-400 rounded-xl font-black shadow-xl hover:scale-105 active:scale-95 transition-all">
+                      Riprova (Costo: 1)
+                    </button>
+                  ) : (
+                    <button onClick={() => setGameState('idle')} className="w-full py-3 bg-slate-200 text-slate-500 rounded-xl font-black shadow-xl">
+                      Fine crediti
+                    </button>
+                  )}
                 </div>
               )}
 
               {gameState === 'won' && (
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-emerald-500/90 backdrop-blur-md p-6 rounded-3xl shadow-2xl border-2 border-emerald-400 text-center z-50 animate-in zoom-in duration-300 w-64">
-                  <h2 className="text-2xl font-black text-white mb-1 shadow-sm">Vittoria!</h2>
-                  <p className="text-emerald-100 font-bold text-xs mb-5">{gameMessage}</p>
-                  <button onClick={startGame} className="w-full py-3 bg-white text-emerald-600 hover:bg-emerald-50 rounded-xl font-black shadow-xl hover:scale-105 active:scale-95 transition-all">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white/95 backdrop-blur-md p-6 rounded-3xl shadow-2xl border-2 border-emerald-300 text-center z-50 animate-in zoom-in duration-300 w-64">
+                  <h2 className="text-2xl font-black text-emerald-600 mb-1 drop-shadow-sm">Vittoria!</h2>
+                  <p className="text-emerald-900 font-bold text-xs mb-5">{gameMessage}</p>
+                  <button onClick={() => startGame(false)} className="w-full py-3 bg-emerald-500 text-white hover:bg-emerald-400 rounded-xl font-black shadow-xl hover:scale-105 active:scale-95 transition-all">
                     Livello Successivo
                   </button>
                 </div>
@@ -461,34 +490,40 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
             </div>
 
             {/* Minigame Floating Start Button (Top-Right) */}
-            {growthStage >= 4 && gameState === 'idle' && (
+            {availableCredits > 0 && gameState === 'idle' && (
               <div className="absolute top-4 right-4 z-20">
                 <button
                   onClick={() => setGameState('intro')}
                   className="px-4 py-2 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-yellow-900 border-2 border-yellow-200 rounded-full font-black text-xs shadow-lg hover:scale-110 active:scale-95 transition-all flex items-center gap-2 animate-bounce"
                 >
-                  <Play size={16} fill="currentColor" /> GIOCA
+                  <Play size={16} fill="currentColor" /> GIOCA ({availableCredits})
                 </button>
               </div>
             )}
             {/* Minigame Intro Popup */}
             {gameState === 'intro' && (
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-br from-emerald-500 to-teal-600 p-6 rounded-3xl shadow-2xl border-2 border-emerald-300 text-center z-50 animate-in zoom-in duration-300 w-72">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white/95 backdrop-blur-md p-6 rounded-3xl shadow-2xl border-2 border-emerald-300 text-center z-50 animate-in zoom-in duration-300 w-72">
                 <button 
                   onClick={() => setGameState('idle')}
-                  className="absolute top-3 right-3 text-emerald-100 hover:text-white transition-colors"
+                  className="absolute top-3 right-3 text-emerald-600 hover:text-emerald-800 transition-colors"
                 >
                   <X size={20} />
                 </button>
-                <div className="absolute -top-10 -left-10 w-24 h-24 bg-white/20 blur-2xl rounded-full"></div>
-                <h2 className="text-xl font-black text-white mb-2 flex items-center justify-center gap-2 drop-shadow-md">
-                  <Sparkles size={18} className="text-yellow-300" /> Minigioco Magico!
+                <div className="absolute -top-10 -left-10 w-24 h-24 bg-emerald-100/50 blur-2xl rounded-full"></div>
+                <h2 className="text-xl font-black text-emerald-700 mb-2 flex items-center justify-center gap-2 drop-shadow-sm">
+                  <Sparkles size={18} className="text-amber-500" /> Minigioco Magico!
                 </h2>
-                <p className="text-emerald-50 font-bold text-sm leading-relaxed mb-5 drop-shadow-sm">
+                <p className="text-slate-700 font-bold text-sm leading-relaxed mb-4">
                   Raccogli tutti i frutti dell'albero {getThemePreposition(selectedTheme)}.<br />
                   Difendilo dagli attacchi!
                 </p>
-                <button onClick={startGame} className="w-full py-3 bg-yellow-400 hover:bg-yellow-300 text-yellow-900 rounded-xl font-black shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 text-sm">
+                <div className="bg-emerald-50 rounded-xl p-3 mb-5 border border-emerald-100">
+                  <p className="text-xs font-bold text-emerald-800">
+                    Crediti disponibili: <span className="text-base font-black text-emerald-600">{availableCredits}</span>
+                  </p>
+                  <p className="text-[9px] text-emerald-600/80 mt-1 uppercase tracking-wide">Costo per partita: 1 credito</p>
+                </div>
+                <button onClick={() => startGame(true)} className="w-full py-3 bg-yellow-400 hover:bg-yellow-300 text-yellow-900 rounded-xl font-black shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 text-sm">
                   <Play size={16} fill="currentColor" /> GIOCA ORA
                 </button>
               </div>
