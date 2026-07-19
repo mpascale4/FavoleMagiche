@@ -8,6 +8,17 @@ interface GrowthTreeProps {
   onBack: () => void;
 }
 
+const getThemePreposition = (theme: string) => {
+  switch (theme.toLowerCase()) {
+    case 'amicizia': return "dell'amicizia";
+    case 'coraggio': return "del coraggio";
+    case 'gentilezza': return "della gentilezza";
+    case 'rispetto': return "del rispetto";
+    case 'collaborazione': return "della collaborazione";
+    default: return `della ${theme.toLowerCase()}`;
+  }
+};
+
 const THEME_TREES = [
   { theme: "Amicizia", icon: "🤝", color: "#EC407A", bgGradient: "from-pink-100 to-rose-200", leafColor: "#F48FB1", decoration: "💖", desc: "Ogni gesto d'affetto fa crescere rami forti d'unione." },
   { theme: "Coraggio", icon: "🦁", color: "#FF9800", bgGradient: "from-amber-100 to-orange-200", leafColor: "#FFCC80", decoration: "⭐", desc: "La fiducia in te stesso illumina la chioma come calde stelle." },
@@ -474,7 +485,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
                   <Sparkles size={18} className="text-yellow-300" /> Minigioco Magico!
                 </h2>
                 <p className="text-emerald-50 font-bold text-sm leading-relaxed mb-5 drop-shadow-sm">
-                  Raccogli tutti i frutti dell'albero della {selectedTheme.toLowerCase()}.<br />
+                  Raccogli tutti i frutti dell'albero {getThemePreposition(selectedTheme)}.<br />
                   Difendilo dagli attacchi!
                 </p>
                 <button onClick={startGame} className="w-full py-3 bg-yellow-400 hover:bg-yellow-300 text-yellow-900 rounded-xl font-black shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 text-sm">
