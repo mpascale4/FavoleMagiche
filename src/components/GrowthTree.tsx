@@ -37,6 +37,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
   const [targetsLeft, setTargetsLeft] = useState(10);
   const [gameLevel, setGameLevel] = useState(1);
   const [gameMessage, setGameMessage] = useState("");
+  const [showWinPopup, setShowWinPopup] = useState(false);
 
   const [spentCredits, setSpentCredits] = useState<Record<string, number>>(() => {
     try {
@@ -64,6 +65,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
     setGameLevel(1);
     setGameMessage("");
     setActiveTargets([]);
+    setShowWinPopup(false);
   }, [selectedTheme]);
 
   // Prevent scrolling when game is active
@@ -87,6 +89,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
     setTargetsLeft(10);
     setActiveTargets([]);
     setGameMessage("");
+    setShowWinPopup(false);
     playClickSound();
   };
 
@@ -192,12 +195,17 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
 
   // Win Condition Effect
   useEffect(() => {
+    let timeout: NodeJS.Timeout;
     if (gameState === 'playing' && targetsLeft === 0) {
       setGameState('won');
       setGameMessage("Vittoria! Hai protetto l'albero!");
       setGameLevel(prev => prev + 1);
       playGameWinSound();
+      timeout = setTimeout(() => {
+        setShowWinPopup(true);
+      }, 3000);
     }
+    return () => clearTimeout(timeout);
   }, [targetsLeft, gameState]);
 
   // Movement and Collision logic
@@ -358,7 +366,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
                 </div>
               )}
 
-              {gameState === 'won' && (
+              {gameState === 'won' && showWinPopup && (
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white/95 backdrop-blur-md p-6 rounded-3xl shadow-2xl border-2 border-emerald-300 text-center z-50 animate-in zoom-in duration-300 w-64">
                   <h2 className="text-2xl font-black text-emerald-600 mb-1 drop-shadow-sm">Vittoria!</h2>
                   <p className="text-emerald-900 font-bold text-xs mb-5">{gameMessage}</p>
@@ -368,7 +376,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
                 </div>
               )}
 
-            <svg viewBox="0 0 200 200" className={`${gameState !== 'idle' ? "w-full max-w-[60vh] max-h-[60vh]" : "w-full h-full"} ${gameState === 'won' ? "drop-shadow-[0_0_60px_rgba(251,191,36,0.8)] animate-pulse" : (gameState !== 'idle' ? "drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]" : "drop-shadow-md")} transition-all duration-1000`}>
+            <svg viewBox="0 0 200 200" className={`${gameState !== 'idle' ? "w-full max-w-[45vh] max-h-[45vh]" : "w-full h-full"} ${gameState === 'won' ? "drop-shadow-[0_0_60px_rgba(251,191,36,0.8)] animate-pulse" : (gameState !== 'idle' ? "drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]" : "drop-shadow-md")} transition-all duration-1000`}>
               <defs>
                 <linearGradient id="trunkGrad" x1="0%" y1="0%" x2="100%" y2="0%">
                   <stop offset="0%" stopColor="#8D6E63" />
