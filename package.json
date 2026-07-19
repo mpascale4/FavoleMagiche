@@ -10,7 +10,6 @@
     "test:watch": "vitest",
     "test:a11y": "vitest run src/accessibility",
     "test:lighthouse": "lhci autorun --config=./lighthouserc.json",
-    "start": "vite preview",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
