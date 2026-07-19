@@ -20,11 +20,11 @@ const getThemePreposition = (theme: string) => {
 };
 
 const THEME_TREES = [
-  { theme: "Amicizia", icon: "🤝", color: "#EC407A", bgGradient: "from-pink-100 to-rose-200", leafColor: "#F48FB1", decoration: "💖", desc: "Ogni gesto d'affetto fa crescere rami forti d'unione." },
-  { theme: "Coraggio", icon: "🦁", color: "#FF9800", bgGradient: "from-amber-100 to-orange-200", leafColor: "#FFCC80", decoration: "⭐", desc: "La fiducia in te stesso illumina la chioma come calde stelle." },
-  { theme: "Gentilezza", icon: "🌸", color: "#4CAF50", bgGradient: "from-emerald-100 to-green-200", leafColor: "#A5D6A7", decoration: "🌸", desc: "La cura verso gli altri fa sbocciare splendidi petali profumati." },
-  { theme: "Rispetto", icon: "🙏", color: "#2196F3", bgGradient: "from-blue-100 to-cyan-200", leafColor: "#90CAF9", decoration: "🕊️", desc: "L'ascolto e la comprensione fanno scendere radici stabili e profonde." },
-  { theme: "Collaborazione", icon: "🐝", color: "#9C27B0", bgGradient: "from-purple-100 to-indigo-200", leafColor: "#CE93D8", decoration: "🍎", desc: "Il lavoro di squadra appende frutti d'oro pronti per essere divisi." }
+  { theme: "Amicizia", icon: "🤝", color: "#EC407A", bgGradient: "from-pink-100 to-rose-200", leafColor: "#F48FB1", decoration: "💖", enemies: ["💔", "🌩️"], desc: "Ogni gesto d'affetto fa crescere rami forti d'unione." },
+  { theme: "Coraggio", icon: "🦁", color: "#FF9800", bgGradient: "from-amber-100 to-orange-200", leafColor: "#FFCC80", decoration: "⭐", enemies: ["☄️", "🌑"], desc: "La fiducia in te stesso illumina la chioma come calde stelle." },
+  { theme: "Gentilezza", icon: "🌸", color: "#4CAF50", bgGradient: "from-emerald-100 to-green-200", leafColor: "#A5D6A7", decoration: "🌸", enemies: ["🐛", "🥀"], desc: "La cura verso gli altri fa sbocciare splendidi petali profumati." },
+  { theme: "Rispetto", icon: "🙏", color: "#2196F3", bgGradient: "from-blue-100 to-cyan-200", leafColor: "#90CAF9", decoration: "🕊️", enemies: ["🦅", "🌪️"], desc: "L'ascolto e la comprensione fanno scendere radici stabili e profonde." },
+  { theme: "Collaborazione", icon: "🐝", color: "#9C27B0", bgGradient: "from-purple-100 to-indigo-200", leafColor: "#CE93D8", decoration: "🍎", enemies: ["🐛", "🪱"], desc: "Il lavoro di squadra appende frutti d'oro pronti per essere divisi." }
 ];
 
 export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
@@ -154,7 +154,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
           
           speedX = fromLeft ? (1.5 * baseSpeed) : (-1.5 * baseSpeed);
           speedY = distanceY / travelTime;
-          char = Math.random() > 0.5 ? '🦟' : '🪰';
+          char = Math.random() > 0.5 ? activeTreeInfo.enemies[0] : activeTreeInfo.enemies[1];
         } else {
           // Fruit from top
           x = 40 + Math.random() * 120; // random x above canopy
