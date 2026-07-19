@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { ArrowLeft, Sparkles, BookOpen, Heart, Award, Star, Play, X } from "lucide-react";
+import { ArrowLeft, Sparkles, BookOpen, Heart, Award, Star, Play, X, Info } from "lucide-react";
 import { Story } from "../types";
 import { playClickSound, playFruitCollectSound, playBugShooSound, playGameFailSound, playGameWinSound } from "../utils/audio";
 import confetti from "canvas-confetti";
@@ -39,6 +39,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
   const [gameLevel, setGameLevel] = useState(1);
   const [gameMessage, setGameMessage] = useState("");
   const [showWinPopup, setShowWinPopup] = useState(false);
+  const [showCreditsInfo, setShowCreditsInfo] = useState(false);
 
   const [spentCredits, setSpentCredits] = useState<Record<string, number>>(() => {
     try {
@@ -555,16 +556,56 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
             </div>
 
             {/* Minigame Floating Start Button (Top-Right) */}
-            {availableCredits > 0 && gameState === 'idle' && (
-              <div className="absolute top-4 right-4 z-20">
+            {gameState === 'idle' && (
+              <div className="absolute top-4 right-4 z-20 flex gap-2">
                 <button
-                  onClick={() => setGameState('intro')}
-                  className="px-4 py-2 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-yellow-900 border-2 border-yellow-200 rounded-full font-black text-xs shadow-lg hover:scale-110 active:scale-95 transition-all flex items-center gap-2 animate-bounce"
+                  onClick={() => setShowCreditsInfo(true)}
+                  className="w-8 h-8 bg-white/70 hover:bg-white text-slate-600 rounded-full flex items-center justify-center shadow-md transition-all"
                 >
-                  <Play size={16} fill="currentColor" /> GIOCA ({availableCredits})
+                  <Info size={18} />
+                </button>
+                {availableCredits > 0 ? (
+                  <button
+                    onClick={() => setGameState('intro')}
+                    className="px-4 py-2 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-yellow-900 border-2 border-yellow-200 rounded-full font-black text-xs shadow-lg hover:scale-110 active:scale-95 transition-all flex items-center gap-2 animate-bounce"
+                  >
+                    <Play size={16} fill="currentColor" /> GIOCA ({availableCredits})
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setShowCreditsInfo(true)}
+                    className="px-4 py-2 bg-slate-200 text-slate-400 border-2 border-slate-300 rounded-full font-black text-xs shadow-sm transition-all flex items-center gap-2"
+                  >
+                    <Play size={16} fill="currentColor" /> GIOCA (0)
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Credits Info Popup */}
+            {showCreditsInfo && (
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white/95 backdrop-blur-md p-6 rounded-3xl shadow-2xl border-2 border-amber-300 text-center z-50 animate-in zoom-in duration-300 w-72">
+                <button 
+                  onClick={() => setShowCreditsInfo(false)}
+                  className="absolute top-3 right-3 text-slate-400 hover:text-slate-600 transition-colors"
+                >
+                  <X size={20} />
+                </button>
+                <div className="w-12 h-12 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Star size={24} fill="currentColor" />
+                </div>
+                <h2 className="text-xl font-black text-slate-800 mb-2">Come giocare?</h2>
+                <p className="text-slate-600 text-xs font-medium mb-4 leading-relaxed">
+                  Per difendere l'albero hai bisogno di <strong>crediti 🍎</strong>. Puoi guadagnarli facilmente <strong>leggendo le storie</strong> di questo tema.
+                  <br/><br/>
+                  Ogni storia letta ti darà nuovi crediti!
+                </p>
+                <button onClick={() => setShowCreditsInfo(false)} className="w-full py-3 bg-amber-400 hover:bg-amber-300 text-amber-900 rounded-xl font-black shadow-xl hover:scale-105 active:scale-95 transition-all">
+                  Ho capito!
                 </button>
               </div>
             )}
+
             {/* Minigame Intro Popup */}
             {gameState === 'intro' && (
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white/95 backdrop-blur-md p-6 rounded-3xl shadow-2xl border-2 border-emerald-300 text-center z-50 animate-in zoom-in duration-300 w-72">
