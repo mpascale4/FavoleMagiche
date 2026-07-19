@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import { ArrowLeft, Sparkles, BookOpen, Heart, Award, Star, Play, X } from "lucide-react";
 import { Story } from "../types";
 import { playClickSound, playFruitCollectSound, playBugShooSound, playGameFailSound, playGameWinSound } from "../utils/audio";
+import confetti from "canvas-confetti";
 
 interface GrowthTreeProps {
   stories: Story[];
@@ -20,10 +21,10 @@ const getThemePreposition = (theme: string) => {
 };
 
 const THEME_TREES = [
-  { theme: "Amicizia", icon: "🤝", color: "#EC407A", bgGradient: "from-pink-100 to-rose-200", leafColor: "#F48FB1", decoration: "💖", enemies: ["💔", "🌩️", "🌧️", "🦇", "🕷️"], desc: "Ogni gesto d'affetto fa crescere rami forti d'unione." },
-  { theme: "Coraggio", icon: "🦁", color: "#FF9800", bgGradient: "from-amber-100 to-orange-200", leafColor: "#FFCC80", decoration: "⭐", enemies: ["☄️", "🌑", "👻", "👾", "🐉"], desc: "La fiducia in te stesso illumina la chioma come calde stelle." },
-  { theme: "Gentilezza", icon: "🌸", color: "#4CAF50", bgGradient: "from-emerald-100 to-green-200", leafColor: "#A5D6A7", decoration: "🌸", enemies: ["🐛", "🥀", "🦂", "🕸️", "🦟"], desc: "La cura verso gli altri fa sbocciare splendidi petali profumati." },
-  { theme: "Rispetto", icon: "🙏", color: "#2196F3", bgGradient: "from-blue-100 to-cyan-200", leafColor: "#90CAF9", decoration: "🕊️", enemies: ["🦅", "🌪️", "⚡", "🌋", "🔥"], desc: "L'ascolto e la comprensione fanno scendere radici stabili e profonde." },
+  { theme: "Amicizia", icon: "🤝", color: "#EC407A", bgGradient: "from-pink-100 to-rose-200", leafColor: "#F48FB1", decoration: "💖", enemies: ["💔", "🥀", "🌩️", "🌧️", "🕸️"], desc: "Ogni gesto d'affetto fa crescere rami forti d'unione." },
+  { theme: "Coraggio", icon: "🦁", color: "#FF9800", bgGradient: "from-amber-100 to-orange-200", leafColor: "#FFCC80", decoration: "⭐", enemies: ["🌑", "☁️", "☄️", "🌪️", "🦇"], desc: "La fiducia in te stesso illumina la chioma come calde stelle." },
+  { theme: "Gentilezza", icon: "🌸", color: "#4CAF50", bgGradient: "from-emerald-100 to-green-200", leafColor: "#A5D6A7", decoration: "🌸", enemies: ["🐛", "🥀", "🐌", "🦗", "🐜"], desc: "La cura verso gli altri fa sbocciare splendidi petali profumati." },
+  { theme: "Rispetto", icon: "🙏", color: "#2196F3", bgGradient: "from-blue-100 to-cyan-200", leafColor: "#90CAF9", decoration: "🕊️", enemies: ["🦅", "🦉", "🌩️", "🌪️", "🦇"], desc: "L'ascolto e la comprensione fanno scendere radici stabili e profonde." },
   { theme: "Collaborazione", icon: "🐝", color: "#9C27B0", bgGradient: "from-purple-100 to-indigo-200", leafColor: "#CE93D8", decoration: "🍎", enemies: ["🐛", "🪱", "🐌", "🦗", "🐜"], desc: "Il lavoro di squadra appende frutti d'oro pronti per essere divisi." }
 ];
 
@@ -201,12 +202,38 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
       setGameMessage("Vittoria! Hai protetto l'albero!");
       setGameLevel(prev => prev + 1);
       playGameWinSound();
+      
+      const duration = 3000;
+      const end = Date.now() + duration;
+
+      const frame = () => {
+        confetti({
+          particleCount: 5,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 },
+          colors: [activeTreeInfo.color, activeTreeInfo.leafColor, '#FBBF24']
+        });
+        confetti({
+          particleCount: 5,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 },
+          colors: [activeTreeInfo.color, activeTreeInfo.leafColor, '#FBBF24']
+        });
+
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+      };
+      frame();
+
       timeout = setTimeout(() => {
         setShowWinPopup(true);
-      }, 3000);
+      }, duration);
     }
     return () => clearTimeout(timeout);
-  }, [targetsLeft, gameState]);
+  }, [targetsLeft, gameState, activeTreeInfo]);
 
   // Movement and Collision logic
   useEffect(() => {
@@ -376,7 +403,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
                 </div>
               )}
 
-            <svg viewBox="0 0 200 200" className={`${gameState !== 'idle' ? "w-full max-w-[45vh] max-h-[45vh]" : "w-full h-full"} ${gameState === 'won' ? "drop-shadow-[0_0_60px_rgba(251,191,36,0.8)] animate-pulse" : (gameState !== 'idle' ? "drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]" : "drop-shadow-md")} transition-all duration-1000`}>
+            <svg viewBox="0 0 200 200" className={`${gameState !== 'idle' ? "w-full max-w-[45vh] max-h-[45vh]" : "w-full h-full"} ${gameState === 'won' ? "drop-shadow-[0_0_80px_rgba(251,191,36,1)] scale-[1.05] origin-bottom animate-pulse" : (gameState !== 'idle' ? "drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]" : "drop-shadow-md")} transition-all duration-1000`}>
               <defs>
                 <linearGradient id="trunkGrad" x1="0%" y1="0%" x2="100%" y2="0%">
                   <stop offset="0%" stopColor="#8D6E63" />
