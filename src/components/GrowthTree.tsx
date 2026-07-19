@@ -201,7 +201,6 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
     if (gameState === 'playing' && targetsLeft === 0) {
       setGameState('won');
       setGameMessage("Livello Completato! Hai protetto l'albero!");
-      setGameLevel(prev => prev + 1);
       playGameWinSound();
       
       const duration = 3000;
@@ -375,7 +374,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
                     <span className="text-white/60 text-[9px] font-bold uppercase tracking-wider block leading-none">Crediti</span>
                     <span className="text-xl font-black text-rose-400 leading-none">{availableCredits}</span>
                   </div>
-                  <button onClick={() => setGameState('idle')} className="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white/90 hover:text-white px-3 py-2 rounded-full text-xs font-bold transition-colors ml-1 shrink-0">
+                  <button onClick={() => setGameState('idle')} className="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white/90 hover:text-white px-3 py-2 rounded-full text-xs font-bold transition-colors ml-1 shrink-0 cursor-pointer">
                     <X size={18} />
                   </button>
                 </div>
@@ -386,11 +385,11 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
                   <h2 className="text-2xl font-black text-rose-600 mb-1 drop-shadow-sm">Game Over!</h2>
                   <p className="text-rose-900 font-bold text-xs mb-5">{gameMessage}</p>
                   {availableCredits > 0 ? (
-                    <button onClick={() => startGame(true)} className="w-full py-3 bg-rose-500 text-white hover:bg-rose-400 rounded-xl font-black shadow-xl hover:scale-105 active:scale-95 transition-all">
+                    <button onClick={() => startGame(true)} className="w-full py-3 bg-rose-500 text-white hover:bg-rose-400 rounded-xl font-black shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer">
                       Riprova (Costo: 1)
                     </button>
                   ) : (
-                    <button onClick={() => setGameState('idle')} className="w-full py-3 bg-slate-200 text-slate-500 rounded-xl font-black shadow-xl">
+                    <button onClick={() => setGameState('idle')} className="w-full py-3 bg-slate-200 text-slate-500 rounded-xl font-black shadow-xl cursor-pointer">
                       Fine crediti
                     </button>
                   )}
@@ -401,7 +400,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white/95 backdrop-blur-md p-6 rounded-3xl shadow-2xl border-2 border-emerald-300 text-center z-50 animate-in zoom-in duration-300 w-64">
                   <h2 className="text-2xl font-black text-emerald-600 mb-1 drop-shadow-sm">Livello Completato!</h2>
                   <p className="text-emerald-900 font-bold text-xs mb-5">{gameMessage}</p>
-                  <button onClick={() => startGame(false)} className="w-full py-3 bg-emerald-500 text-white hover:bg-emerald-400 rounded-xl font-black shadow-xl hover:scale-105 active:scale-95 transition-all">
+                  <button onClick={() => { setGameLevel(prev => prev + 1); startGame(false); }} className="w-full py-3 bg-emerald-500 text-white hover:bg-emerald-400 rounded-xl font-black shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer">
                     Livello Successivo
                   </button>
                 </div>
@@ -560,21 +559,21 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
               <div className="absolute top-4 right-4 z-20 flex gap-2">
                 <button
                   onClick={() => setShowCreditsInfo(true)}
-                  className="w-8 h-8 bg-white/70 hover:bg-white text-slate-600 rounded-full flex items-center justify-center shadow-md transition-all"
+                  className="w-8 h-8 bg-white/70 hover:bg-white text-slate-600 rounded-full flex items-center justify-center shadow-md transition-all cursor-pointer"
                 >
                   <Info size={18} />
                 </button>
                 {availableCredits > 0 ? (
                   <button
                     onClick={() => setGameState('intro')}
-                    className="px-4 py-2 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-yellow-900 border-2 border-yellow-200 rounded-full font-black text-xs shadow-lg hover:scale-110 active:scale-95 transition-all flex items-center gap-2 animate-bounce"
+                    className="px-4 py-2 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-yellow-900 border-2 border-yellow-200 rounded-full font-black text-xs shadow-lg hover:scale-110 active:scale-95 transition-all flex items-center gap-2 animate-bounce cursor-pointer"
                   >
                     <Play size={16} fill="currentColor" /> GIOCA ({availableCredits})
                   </button>
                 ) : (
                   <button
                     onClick={() => setShowCreditsInfo(true)}
-                    className="px-4 py-2 bg-slate-200 text-slate-400 border-2 border-slate-300 rounded-full font-black text-xs shadow-sm transition-all flex items-center gap-2"
+                    className="px-4 py-2 bg-slate-200 text-slate-400 border-2 border-slate-300 rounded-full font-black text-xs shadow-sm transition-all flex items-center gap-2 cursor-pointer"
                   >
                     <Play size={16} fill="currentColor" /> GIOCA (0)
                   </button>
@@ -587,7 +586,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white/95 backdrop-blur-md p-6 rounded-3xl shadow-2xl border-2 border-amber-300 text-center z-50 animate-in zoom-in duration-300 w-72">
                 <button 
                   onClick={() => setShowCreditsInfo(false)}
-                  className="absolute top-3 right-3 text-slate-400 hover:text-slate-600 transition-colors"
+                  className="absolute top-3 right-3 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
                 >
                   <X size={20} />
                 </button>
@@ -600,7 +599,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
                   <br/><br/>
                   Ogni storia letta ti darà nuovi crediti!
                 </p>
-                <button onClick={() => setShowCreditsInfo(false)} className="w-full py-3 bg-amber-400 hover:bg-amber-300 text-amber-900 rounded-xl font-black shadow-xl hover:scale-105 active:scale-95 transition-all">
+                <button onClick={() => setShowCreditsInfo(false)} className="w-full py-3 bg-amber-400 hover:bg-amber-300 text-amber-900 rounded-xl font-black shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer">
                   Ho capito!
                 </button>
               </div>
@@ -611,7 +610,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white/95 backdrop-blur-md p-6 rounded-3xl shadow-2xl border-2 border-emerald-300 text-center z-50 animate-in zoom-in duration-300 w-72">
                 <button 
                   onClick={() => setGameState('idle')}
-                  className="absolute top-3 right-3 text-emerald-600 hover:text-emerald-800 transition-colors"
+                  className="absolute top-3 right-3 text-emerald-600 hover:text-emerald-800 transition-colors cursor-pointer"
                 >
                   <X size={20} />
                 </button>
@@ -629,7 +628,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
                   </p>
                   <p className="text-[9px] text-emerald-600/80 mt-1 uppercase tracking-wide">Costo per partita: 1 credito</p>
                 </div>
-                <button onClick={() => startGame(true)} className="w-full py-3 bg-yellow-400 hover:bg-yellow-300 text-yellow-900 rounded-xl font-black shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 text-sm">
+                <button onClick={() => startGame(true)} className="w-full py-3 bg-yellow-400 hover:bg-yellow-300 text-yellow-900 rounded-xl font-black shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 text-sm cursor-pointer">
                   <Play size={16} fill="currentColor" /> GIOCA ORA
                 </button>
               </div>
