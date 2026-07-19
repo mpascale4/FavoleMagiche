@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { ArrowLeft, Sparkles, BookOpen, Heart, Award, Star } from "lucide-react";
+import { ArrowLeft, Sparkles, BookOpen, Heart, Award, Star, Play } from "lucide-react";
 import { Story } from "../types";
 import { playClickSound, playFruitCollectSound, playBugShooSound, playGameFailSound, playGameWinSound } from "../utils/audio";
 
@@ -37,15 +37,6 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
   }, [selectedTheme]);
 
   const startGame = () => {
-    setGameState('playing');
-    setTargetsLeft(20);
-    setActiveTargets([]);
-    setGameMessage("");
-    playClickSound();
-  };
-
-  const resetGame = () => {
-    setGameLevel(1);
     setGameState('playing');
     setTargetsLeft(20);
     setActiveTargets([]);
@@ -292,7 +283,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-rose-500/90 backdrop-blur-md p-6 rounded-3xl shadow-2xl border-2 border-rose-400 text-center z-50 animate-in zoom-in duration-300 w-64">
                   <h2 className="text-2xl font-black text-white mb-1 shadow-sm">Game Over!</h2>
                   <p className="text-rose-100 font-bold text-xs mb-5">{gameMessage}</p>
-                  <button onClick={resetGame} className="w-full py-3 bg-white text-rose-600 hover:bg-rose-50 rounded-xl font-black shadow-xl hover:scale-105 active:scale-95 transition-all">
+                  <button onClick={startGame} className="w-full py-3 bg-white text-rose-600 hover:bg-rose-50 rounded-xl font-black shadow-xl hover:scale-105 active:scale-95 transition-all">
                     Riprova
                   </button>
                 </div>
@@ -458,18 +449,6 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
             <div className="absolute bottom-2 bg-[#FFFDE7]/90 border border-amber-300 rounded-full px-3 py-0.5 text-[9px] font-black text-amber-800 shadow-xs uppercase tracking-wide">
               {stageDetails.name}
             </div>
-
-            {/* Minigame Overlay Start Button */}
-            {growthStage >= 4 && gameState === 'idle' && (
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 mt-12">
-                <button
-                  onClick={startGame}
-                  className="px-3 py-1.5 bg-white/70 backdrop-blur-sm hover:bg-white text-emerald-700 border border-emerald-200/50 rounded-full font-bold text-[10px] shadow-xs hover:scale-105 active:scale-95 transition-all flex items-center gap-1.5 opacity-80 hover:opacity-100"
-                >
-                  <Sparkles size={12} className="text-emerald-500" /> Gioca
-                </button>
-              </div>
-            )}
             </div>
           </div>
         </div>
@@ -541,15 +520,17 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
 
           {/* Minigame status */}
           {growthStage >= 4 && gameState === 'idle' && (
-            <div className="bg-emerald-50 p-2.5 rounded-2xl border border-emerald-200 space-y-2">
-              <h4 className="text-[10px] font-black text-emerald-800 uppercase text-center flex items-center justify-center gap-1">
-                <Sparkles size={10} /> Minigioco Magico!
+            <div className="bg-gradient-to-br from-emerald-500 to-teal-600 p-3.5 rounded-2xl border-2 border-emerald-300 shadow-xl space-y-2 relative overflow-hidden animate-in zoom-in duration-500">
+              <div className="absolute -top-10 -right-10 w-24 h-24 bg-white/20 blur-2xl rounded-full"></div>
+              <h4 className="text-[12px] font-black text-white uppercase text-center flex items-center justify-center gap-1 drop-shadow-md relative z-10">
+                <Sparkles size={14} className="text-yellow-300" /> Minigioco Magico!
               </h4>
-              <p className="text-[8px] text-emerald-700 font-bold text-center leading-tight">
-                Clicca i frutti in caduta e gli insetti per scacciarli! Attento a non farli scappare.
+              <p className="text-[10px] text-emerald-50 font-bold text-center leading-relaxed relative z-10 drop-shadow-sm">
+                Raccogli tutti i frutti dell'albero della {selectedTheme.toLowerCase()}.<br />
+                Difendilo dagli attacchi!
               </p>
-              <button onClick={startGame} className="w-full py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-[10px] font-bold cursor-pointer transition-colors shadow-xs">
-                Gioca Ora!
+              <button onClick={startGame} className="w-full py-2.5 mt-2 bg-yellow-400 hover:bg-yellow-300 text-yellow-900 rounded-xl text-xs font-black cursor-pointer transition-all shadow-lg hover:scale-105 active:scale-95 relative z-10 flex items-center justify-center gap-1.5">
+                <Play size={14} fill="currentColor" /> GIOCA ORA!
               </button>
             </div>
           )}
