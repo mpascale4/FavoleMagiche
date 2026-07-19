@@ -1,14 +1,7 @@
-- Tema delle storie non crea contrasti
-- Cambia "new" in "nuovo" perché i bimbi non conoscono l'inglese magari
-- Negli alberi fai vedere tutto
-- aggiungi bebè
-- gestisci massimo tempo registrazione
-note
-bebè sbloccato
----
-
-- bottone per segnalare errori o suggerimenti con screenshot
-- possibilità di inviare una storia ad un altro device magari via WhatsApp...ad es la mamma lontana da casa potrebbe registrare la storia con la sua voce e il bimbo la riproduce sul proprio device
-- rivedere la lista delle opzioni sbloccata e bloccate e anche il numero massimo
-- aggiungere la possibilità di donare
-- ricontrollare contrasto
+Aggiornamento effettuato: 1. Nemici resi più coerenti in base al tema/frutto da raccogliere, 2. Aggiunto effetto coriandoli magici e albero super illuminato a compimento del minigioco (durata 3 secondi), 3. Bloccato scroll finestra di sfondo durante il minigioco, 4. Scalato un po' l'albero per non occupare tutto lo schermo. Build e push su develop completati con successo
+Aggiornamento effettuato: 1. Ritardata la comparsa del popup 'Livello Completato!' a 3 secondi dopo aver raccolto tutti i frutti, in modo da mostrare per intero l'effetto visivo di vittoria, 2. Aggiunto il conteggio dei crediti disponibili nella lista orizzontale dei temi dell'albero (vista esplora). Build e push eseguiti con successo
+Aggiornamento effettuato: aggiunto un pulsante (?) in alto a destra per spiegare come si guadagnano i crediti (leggendo le storie), e se i crediti sono a 0 il tasto gioca disabilitato apre lo stesso popup informativo. Il popup spiega in modo chiaro la meccanica di guadagno dei crediti.
+Aggiornamento effettuato: corretto il timing del passaggio livello. Ora quando si raccolgono tutti i frutti, l'effetto coriandoli e glow sull'albero durano per 3 secondi senza che il contatore del livello cambi prematuramente. Solo alla comparsa del popup 'Livello Completato!' e al click su 'Livello Successivo' il livello viene effettivamente incrementato. Aggiunto anche l'attributo cursor-pointer sui pulsanti del minigioco e dei popup dove non era presente esplicitamente.
+Risolto errore di deployment rimuovendo lo script 'start' dal package.json in modo che venga utilizzato il server statico della piattaforma.
+Risposta all'utente sul problema del push e deployment fornita.
+Richiesto chiarimento all'utente sul token GitHub: il file .github/ghb non è presente nel workspace. Suggerito di usare l'interfaccia di AI Studio (Export to GitHub) o di incollare il token (ghp_...) direttamente in chat.
