@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { ArrowLeft, Sparkles, BookOpen, Heart, Award, Star, Play } from "lucide-react";
+import { ArrowLeft, Sparkles, BookOpen, Heart, Award, Star, Play, X } from "lucide-react";
 import { Story } from "../types";
 import { playClickSound, playFruitCollectSound, playBugShooSound, playGameFailSound, playGameWinSound } from "../utils/audio";
 
@@ -21,7 +21,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
   const [previewStage, setPreviewStage] = useState<number | null>(null);
   
   // Game states
-  const [gameState, setGameState] = useState<'idle' | 'playing' | 'gameover' | 'won'>('idle');
+  const [gameState, setGameState] = useState<'idle' | 'intro' | 'playing' | 'gameover' | 'won'>('idle');
   const [activeTargets, setActiveTargets] = useState<{id: number, type: 'fruit'|'bug', x: number, y: number, speedX: number, speedY: number, char: string}[]>([]);
   const [targetsLeft, setTargetsLeft] = useState(20);
   const [gameLevel, setGameLevel] = useState(1);
@@ -454,10 +454,32 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
             {growthStage >= 4 && gameState === 'idle' && (
               <div className="absolute top-4 right-4 z-20">
                 <button
-                  onClick={startGame}
+                  onClick={() => setGameState('intro')}
                   className="px-4 py-2 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-yellow-900 border-2 border-yellow-200 rounded-full font-black text-xs shadow-lg hover:scale-110 active:scale-95 transition-all flex items-center gap-2 animate-bounce"
                 >
                   <Play size={16} fill="currentColor" /> GIOCA
+                </button>
+              </div>
+            )}
+            {/* Minigame Intro Popup */}
+            {gameState === 'intro' && (
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-br from-emerald-500 to-teal-600 p-6 rounded-3xl shadow-2xl border-2 border-emerald-300 text-center z-50 animate-in zoom-in duration-300 w-72">
+                <button 
+                  onClick={() => setGameState('idle')}
+                  className="absolute top-3 right-3 text-emerald-100 hover:text-white transition-colors"
+                >
+                  <X size={20} />
+                </button>
+                <div className="absolute -top-10 -left-10 w-24 h-24 bg-white/20 blur-2xl rounded-full"></div>
+                <h2 className="text-xl font-black text-white mb-2 flex items-center justify-center gap-2 drop-shadow-md">
+                  <Sparkles size={18} className="text-yellow-300" /> Minigioco Magico!
+                </h2>
+                <p className="text-emerald-50 font-bold text-sm leading-relaxed mb-5 drop-shadow-sm">
+                  Raccogli tutti i frutti dell'albero della {selectedTheme.toLowerCase()}.<br />
+                  Difendilo dagli attacchi!
+                </p>
+                <button onClick={startGame} className="w-full py-3 bg-yellow-400 hover:bg-yellow-300 text-yellow-900 rounded-xl font-black shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 text-sm">
+                  <Play size={16} fill="currentColor" /> GIOCA ORA
                 </button>
               </div>
             )}
@@ -529,23 +551,6 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
               "{stageDetails.message}"
             </p>
           </div>
-
-          {/* Minigame status */}
-          {growthStage >= 4 && gameState === 'idle' && (
-            <div className="bg-gradient-to-br from-emerald-500 to-teal-600 p-3.5 rounded-2xl border-2 border-emerald-300 shadow-xl space-y-2 relative overflow-hidden animate-in zoom-in duration-500">
-              <div className="absolute -top-10 -right-10 w-24 h-24 bg-white/20 blur-2xl rounded-full"></div>
-              <h4 className="text-[12px] font-black text-white uppercase text-center flex items-center justify-center gap-1 drop-shadow-md relative z-10">
-                <Sparkles size={14} className="text-yellow-300" /> Minigioco Magico!
-              </h4>
-              <p className="text-[10px] text-emerald-50 font-bold text-center leading-relaxed relative z-10 drop-shadow-sm">
-                Raccogli tutti i frutti dell'albero della {selectedTheme.toLowerCase()}.<br />
-                Difendilo dagli attacchi!
-              </p>
-              <button onClick={startGame} className="w-full py-2.5 mt-2 bg-yellow-400 hover:bg-yellow-300 text-yellow-900 rounded-xl text-xs font-black cursor-pointer transition-all shadow-lg hover:scale-105 active:scale-95 relative z-10 flex items-center justify-center gap-1.5">
-                <Play size={14} fill="currentColor" /> GIOCA ORA!
-              </button>
-            </div>
-          )}
         </div>
       </div>
 
