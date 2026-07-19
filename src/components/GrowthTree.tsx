@@ -199,7 +199,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
     let timeout: NodeJS.Timeout;
     if (gameState === 'playing' && targetsLeft === 0) {
       setGameState('won');
-      setGameMessage("Vittoria! Hai protetto l'albero!");
+      setGameMessage("Livello Completato! Hai protetto l'albero!");
       setGameLevel(prev => prev + 1);
       playGameWinSound();
       
@@ -310,6 +310,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
       <div className="flex gap-1.5 overflow-x-auto pb-3 pt-1 scrollbar-none shrink-0">
         {THEME_TREES.map(t => {
           const count = themeCounts[t.theme] || 0;
+          const tCredits = Math.max(0, count * 5 - (spentCredits[t.theme] || 0));
           const isSelected = selectedTheme === t.theme;
           return (
             <button
@@ -325,7 +326,9 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
               <span className="text-base">{t.icon}</span>
               <div className="text-left leading-none">
                 <span className="block text-[10px]">{t.theme}</span>
-                <span className="text-[7.5px] font-mono text-theme-secondary font-extrabold">XP: {count}</span>
+                <span className="text-[7.5px] font-mono text-theme-secondary font-extrabold flex items-center gap-0.5 mt-0.5">
+                  XP: {count} <span className="opacity-50">|</span> 🍎 {tCredits}
+                </span>
               </div>
             </button>
           );
@@ -395,7 +398,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
 
               {gameState === 'won' && showWinPopup && (
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white/95 backdrop-blur-md p-6 rounded-3xl shadow-2xl border-2 border-emerald-300 text-center z-50 animate-in zoom-in duration-300 w-64">
-                  <h2 className="text-2xl font-black text-emerald-600 mb-1 drop-shadow-sm">Vittoria!</h2>
+                  <h2 className="text-2xl font-black text-emerald-600 mb-1 drop-shadow-sm">Livello Completato!</h2>
                   <p className="text-emerald-900 font-bold text-xs mb-5">{gameMessage}</p>
                   <button onClick={() => startGame(false)} className="w-full py-3 bg-emerald-500 text-white hover:bg-emerald-400 rounded-xl font-black shadow-xl hover:scale-105 active:scale-95 transition-all">
                     Livello Successivo
