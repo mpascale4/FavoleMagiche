@@ -136,9 +136,11 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
     };
   }, [gameState]);
 
+  const isMinigameAudioActive = gameState !== 'idle';
+
   // Dedicated minigame soundtrack while the game overlay is active
   useEffect(() => {
-    if (gameState !== 'idle') {
+    if (isMinigameAudioActive) {
       audioEngine.stopBackgroundMusic();
       startTreeMinigameMusic();
       return () => {
@@ -148,7 +150,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
 
     stopTreeMinigameMusic();
     audioEngine.startBackgroundMusic();
-  }, [gameState]);
+  }, [isMinigameAudioActive]);
 
   const startGame = (costCredit: boolean = true) => {
     if (costCredit) {

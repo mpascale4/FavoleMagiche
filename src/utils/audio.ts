@@ -18,6 +18,7 @@ type AppAudioSettings = {
 let miniGameMusicInterval: ReturnType<typeof setInterval> | null = null;
 let miniGameMusicGain: GainNode | null = null;
 let miniGameMusicStep = 0;
+let miniGameMusicSession = 0;
 
 function readStoredAudioSettings(): AppAudioSettings | null {
   return readJsonStorage<AppAudioSettings | null>("favole_magiche_settings", null);
@@ -462,6 +463,7 @@ export function playOneUpSound() {
 }
 
 export function startTreeMinigameMusic() {
+  miniGameMusicSession += 1;
   if (miniGameMusicInterval) return;
   if (!isBackgroundMusicEnabled()) return;
 
@@ -506,6 +508,7 @@ export function startTreeMinigameMusic() {
 }
 
 export function stopTreeMinigameMusic() {
+  const sessionAtStop = miniGameMusicSession;
   if (miniGameMusicInterval) {
     clearInterval(miniGameMusicInterval);
     miniGameMusicInterval = null;
@@ -517,6 +520,7 @@ export function stopTreeMinigameMusic() {
     miniGameMusicGain.gain.setValueAtTime(miniGameMusicGain.gain.value, now);
     miniGameMusicGain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
     setTimeout(() => {
+      if (sessionAtStop !== miniGameMusicSession) return;
       miniGameMusicGain?.disconnect();
       miniGameMusicGain = null;
     }, 300);
