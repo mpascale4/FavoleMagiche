@@ -62,6 +62,8 @@ export interface AppSettings {
   pinAccesso?: string;
   modalitaBambino?: boolean;
   timerNannaMinutes?: number; // 0 for disabled, 5, 10, 15, 30, 45, 60
+  generationMode?: "client" | "backend";
+  backendBaseUrl?: string;
 }
 
 export type ScreenType = "home" | "profiles" | "new-story" | "generating" | "reader" | "archive" | "settings" | "premium" | "albero";

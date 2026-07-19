@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "backend:start": "node backend/server.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:a11y": "vitest run src/accessibility",

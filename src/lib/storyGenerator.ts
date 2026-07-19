@@ -1,6 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { Character } from "../types";
-import { GEMINI_API_KEY, getGeminiApiKeyStatus } from "../config/api";
+import { DEFAULT_BACKEND_BASE_URL, GEMINI_API_KEY, type GenerationMode, getEffectiveGenerationMode, getGeminiApiKeyStatus, normalizeBackendBaseUrl } from "../config/api";
 
 export interface GenerationLog {
   timestamp: string;
@@ -73,6 +73,11 @@ export interface StoryGenerationResult {
 interface GenerationOptions {
   onProgress?: (progress: number, step: string) => void;
   isCancelled?: () => boolean;
+}
+
+interface GenerationRuntimeConfig {
+  mode?: GenerationMode;
+  backendBaseUrl?: string;
 }
 
 const COLORS = ["pastel-pink", "pastel-blue", "pastel-purple", "pastel-green", "pastel-yellow"];
@@ -190,6 +195,42 @@ function normalizeGeminiResponse(raw: string, config: StoryGenerationConfig): St
     personaggiGenerati: Array.isArray(parsed.personaggiGenerati)
       ? parsed.personaggiGenerati.filter((p: string) => typeof p === "string").slice(0, 6)
       : config.personaggi.map((p) => p.nome)
+  };
+}
+
+function normalizeStoryResult(raw: Partial<StoryGenerationResult>, config: StoryGenerationConfig): StoryGenerationResult {
+  const pageCount = expectedPages(config.durata);
+  const pagine = Array.isArray(raw.pagine)
+    ? raw.pagine.filter((page): page is string => typeof page === "string" && page.trim().length > 0).slice(0, pageCount)
+    : [];
+
+  while (pagine.length < pageCount) {
+    pagine.push("La storia continua con un piccolo momento di magia e gentilezza.");
+  }
+
+  const coverColor = raw.coverColor && COLORS.includes(raw.coverColor) ? raw.coverColor : "pastel-blue";
+  const coverTheme = typeof raw.coverTheme === "string" && raw.coverTheme.trim().length > 0
+    ? raw.coverTheme
+    : (COVER_THEMES[config.categoria] || "star");
+
+  return {
+    titolo: typeof raw.titolo === "string" && raw.titolo.trim() ? raw.titolo : `Favola su ${config.temaEducativo} ✨`,
+    pagine,
+    morale: typeof raw.morale === "string" && raw.morale.trim()
+      ? raw.morale
+      : `La morale e che ${config.temaEducativo.toLowerCase()} ci aiuta a crescere con il sorriso.`,
+    coverTheme,
+    coverColor,
+    copertinaDescrizione: typeof raw.copertinaDescrizione === "string" && raw.copertinaDescrizione.trim()
+      ? raw.copertinaDescrizione
+      : `Una scena dolce in stile ${config.categoria.toLowerCase()} con ${config.nomeBambino}.`,
+    personaggiGenerati: Array.isArray(raw.personaggiGenerati)
+      ? raw.personaggiGenerati.filter((p): p is string => typeof p === "string").slice(0, 6)
+      : config.personaggi.map((p) => p.nome),
+    isOffline: !!raw.isOffline,
+    generationSource: raw.generationSource === "fallback" ? "fallback" : "gemini",
+    usedModel: typeof raw.usedModel === "string" ? raw.usedModel : undefined,
+    fallbackReason: typeof raw.fallbackReason === "string" ? raw.fallbackReason : undefined
   };
 }
 
@@ -366,12 +407,13 @@ export async function generateStoryClient(
     ensureNotCancelled(options.isCancelled);
     options.onProgress?.(85, "Rifinitura delle pagine e della morale...");
 
-    if (!response?.text) {
+    const responseText = response?.text;
+    if (!responseText) {
       throw new Error("Risposta Gemini vuota");
     }
 
     return {
-      ...normalizeGeminiResponse(response.text, config),
+      ...normalizeGeminiResponse(responseText, config),
       generationSource: "gemini",
       usedModel
     };
@@ -392,5 +434,90 @@ export async function generateStoryClient(
     options.onProgress?.(78, `${fallbackReason}. Preparo una favola segreta...`);
     return generateFallbackStory(config, fallbackReason);
   }
+}
+
+export async function generateStoryBackend(
+  config: StoryGenerationConfig,
+  options: GenerationOptions = {},
+  runtime: GenerationRuntimeConfig = {}
+): Promise<StoryGenerationResult> {
+  const backendBaseUrl = normalizeBackendBaseUrl(runtime.backendBaseUrl || DEFAULT_BACKEND_BASE_URL);
+  if (!backendBaseUrl) {
+    throw new Error("URL backend non configurato. Inseriscilo nelle impostazioni o in VITE_BACKEND_BASE_URL.");
+  }
+
+  options.onProgress?.(12, "Preparazione dell'incantesimo (server protetto)...");
+  ensureNotCancelled(options.isCancelled);
+
+  const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+  const cancelWatcher = typeof window !== "undefined"
+    ? window.setInterval(() => {
+        if (options.isCancelled?.()) {
+          controller?.abort();
+        }
+      }, 150)
+    : null;
+
+  try {
+    options.onProgress?.(36, "Invio della richiesta al laboratorio delle favole...");
+
+    const response = await fetch(`${backendBaseUrl}/api/stories/generate`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      body: JSON.stringify(config),
+      signal: controller?.signal
+    });
+
+    ensureNotCancelled(options.isCancelled);
+    options.onProgress?.(78, "Il server sta rifinendo le pagine e la morale...");
+
+    const payload = await response.json().catch(() => null) as (Partial<StoryGenerationResult> & { error?: string }) | null;
+    if (!response.ok) {
+      throw new Error(payload?.error || `Backend non disponibile (${response.status})`);
+    }
+
+    if (!payload) {
+      throw new Error("Risposta backend vuota o non valida");
+    }
+
+    const result = normalizeStoryResult(payload, config);
+    saveGenerationLog({
+      timestamp: new Date().toISOString(),
+      source: result.generationSource === "fallback" ? "fallback" : "gemini",
+      model: result.usedModel,
+      reason: result.generationSource === "fallback" ? (result.fallbackReason || "Piano di riserva attivato dal backend") : "Generazione completata via backend"
+    });
+    return result;
+  } catch (error) {
+    if ((error as Error).message === "GENERATION_CANCELLED" || (error as { name?: string }).name === "AbortError") {
+      throw new Error("GENERATION_CANCELLED");
+    }
+
+    saveGenerationLog({
+      timestamp: new Date().toISOString(),
+      source: "error",
+      error: (error as Error)?.message || "Errore backend sconosciuto"
+    });
+    throw error;
+  } finally {
+    if (cancelWatcher !== null) {
+      window.clearInterval(cancelWatcher);
+    }
+  }
+}
+
+export async function generateStory(
+  config: StoryGenerationConfig,
+  options: GenerationOptions = {},
+  runtime: GenerationRuntimeConfig = {}
+): Promise<StoryGenerationResult> {
+  const mode = getEffectiveGenerationMode(runtime.mode);
+  if (mode === "backend") {
+    return generateStoryBackend(config, options, runtime);
+  }
+  return generateStoryClient(config, options);
 }
 

@@ -76,6 +76,14 @@ export default function SettingsView({
     onUpdateSettings({ sogliaSpazio: e.target.value as any });
   };
 
+  const handleGenerationModeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    onUpdateSettings({ generationMode: event.target.value as AppSettings["generationMode"] });
+  };
+
+  const handleBackendUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    onUpdateSettings({ backendBaseUrl: event.target.value.trim() });
+  };
+
   // Sync available system speech voices
   useEffect(() => {
     setGenerationLogs(getGenerationLogs());
@@ -411,6 +419,71 @@ export default function SettingsView({
               </div>
             </div>
           )}
+        </section>
+
+        <section className="bg-white rounded-[2rem] p-4 border-4 border-natural-pink-border shadow-sm space-y-3" aria-labelledby="generation-mode-title">
+          <div className="flex items-center gap-2.5 text-natural-burgundy pb-1 border-b-2 border-natural-pink-light">
+            <div className="w-8 h-8 bg-sky-100 rounded-xl flex items-center justify-center text-sky-700">
+              <RefreshCcw size={16} />
+            </div>
+            <div>
+              <h4 id="generation-mode-title" className="font-extrabold text-[11px] uppercase tracking-wider">Modalità Generazione</h4>
+              <p className="text-[9px] text-natural-pink font-extrabold">Default consigliato: lato client. Backend disponibile quando sei pronto.</p>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="generation-mode-select" className="block text-[10px] font-extrabold text-natural-burgundy">
+              Dove vuoi generare le favole?
+            </label>
+            <select
+              id="generation-mode-select"
+              value={settings.generationMode || "client"}
+              onChange={handleGenerationModeChange}
+              className="w-full rounded-2xl border-2 border-natural-pink-border bg-slate-50 px-3 py-2 text-[11px] font-bold text-natural-text focus:outline-none focus:ring-2 focus:ring-natural-pink"
+              aria-describedby="generation-mode-help"
+            >
+              <option value="client">Lato client (predefinito)</option>
+              <option value="backend">Backend remoto</option>
+            </select>
+            <p id="generation-mode-help" className="text-[9px] font-semibold text-theme-secondary">
+              La modalità client continua a usare la configurazione attuale. La modalità backend usa un server remoto con chiave Gemini protetta.
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="backend-url-input" className="block text-[10px] font-extrabold text-natural-burgundy">
+              URL backend remoto
+            </label>
+            <input
+              id="backend-url-input"
+              type="url"
+              inputMode="url"
+              placeholder="https://tuo-backend.example.com"
+              value={settings.backendBaseUrl || ""}
+              onChange={handleBackendUrlChange}
+              className="w-full rounded-2xl border-2 border-natural-pink-border bg-slate-50 px-3 py-2 text-[11px] font-bold text-natural-text placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-natural-pink"
+              aria-describedby="backend-url-help backend-url-warning"
+              spellCheck={false}
+              autoCapitalize="none"
+              autoCorrect="off"
+            />
+            <p id="backend-url-help" className="text-[9px] font-semibold text-theme-secondary">
+              Inserisci l'endpoint base del server, ad esempio <span className="font-mono">https://tuo-backend.example.com</span>. L'app userà automaticamente <span className="font-mono">/api/stories/generate</span>.
+            </p>
+            <p
+              id="backend-url-warning"
+              className={`text-[9px] font-bold ${settings.generationMode === "backend" && !(settings.backendBaseUrl || "").trim() ? "text-amber-700" : "text-theme-secondary"}`}
+              role="status"
+              aria-live="polite"
+            >
+              {settings.generationMode === "backend"
+                ? ((settings.backendBaseUrl || "").trim()
+                    ? "Backend configurato: la prossima generazione userà il server remoto."
+                    : "Attenzione: hai selezionato il backend ma l'URL è ancora vuoto.")
+                : "Finché resta attiva la modalità client, questo URL non viene usato."}
+            </p>
+          </div>
         </section>
 
         {/* VOICE SELECTION CARD (Requested Feature) */}

@@ -21,8 +21,8 @@ import { playFairyChorusSound, playClickSound } from "./utils/audio";
 import { ChildProfile, DeletedProfile, DeletedStory, Story, AppSettings, ScreenType, Character, CATEGORIES, EDUCATIONAL_THEMES, INITIAL_CATEGORIES, INITIAL_THEMES, CHARACTER_TYPES, INITIAL_CHARACTER_TYPES, CHARACTER_TRAITS, INITIAL_CHARACTER_TRAITS } from "./types";
 import { generateStage } from "./utils/stages";
 import { getEducationalThemeDisplayName } from "./utils/themeNames";
-import { generateStoryClient, StoryGenerationConfig } from "./lib/storyGenerator";
-import { getGeminiApiKeyStatus } from "./config/api";
+import { generateStory, StoryGenerationConfig } from "./lib/storyGenerator";
+import { DEFAULT_BACKEND_BASE_URL, DEFAULT_GENERATION_MODE, getEffectiveGenerationMode, getGeminiApiKeyStatus, normalizeBackendBaseUrl } from "./config/api";
 import { getGenerationLogs } from "./lib/storyGenerator";
 import { checkMilestonesReached, getAchievementById, type Achievement, type AchievementReward } from "./utils/achievements";
 import { getProfileStorageKey, hasStorageItem, readJsonStorage, removeStorageItem, setStorageItem, getStorageItem } from "./utils/storage";
@@ -75,6 +75,27 @@ const INITIAL_STORY: Story = {
   volteLetta: 3
 };
 
+const createDefaultSettings = (): AppSettings => ({
+  sogliaSpazio: "1 GB",
+  avvisaSuperamento: true,
+  eliminaInAutomatico: false,
+  conservaPreferite: true,
+  pinAccesso: "0000",
+  tipoVoce: "narratore",
+  nomeVoceDispositivo: "",
+  velocitaVoce: 0.85,
+  tonoVoce: 1.0,
+  musicaSottofondo: true,
+  effettiAudio: true,
+  audioAdattivo: true,
+  pauseMusicaliChiave: true,
+  stileVisuale: "auto",
+  modalitaBambino: false,
+  timerNannaMinutes: 0,
+  generationMode: DEFAULT_GENERATION_MODE,
+  backendBaseUrl: DEFAULT_BACKEND_BASE_URL
+});
+
 export default function App() {
   const [screen, setScreen] = useState<ScreenType>("home");
   const [pendingPinAction, setPendingPinAction] = useState<"settings" | { type: "delete_story", id: string } | null>(null);
@@ -92,24 +113,7 @@ export default function App() {
   const [deletedStories, setDeletedStories] = useState<DeletedStory[]>([]);
   const [selectedStory, setSelectedStory] = useState<Story | null>(null);
   const [readerBackTarget, setReaderBackTarget] = useState<"home" | "archive">("home");
-  const [settings, setSettings] = useState<AppSettings>({
-    sogliaSpazio: "1 GB",
-    avvisaSuperamento: true,
-    eliminaInAutomatico: false,
-    conservaPreferite: true,
-    pinAccesso: "0000",
-    tipoVoce: "narratore",
-    nomeVoceDispositivo: "",
-    velocitaVoce: 0.85,
-    tonoVoce: 1.0,
-    musicaSottofondo: true,
-    effettiAudio: true,
-    audioAdattivo: true,
-    pauseMusicaliChiave: true,
-    stileVisuale: "auto",
-    modalitaBambino: false,
-    timerNannaMinutes: 0
-  });
+  const [settings, setSettings] = useState<AppSettings>(createDefaultSettings);
   
   const [isPremium, setIsPremium] = useState(false);
   const [generatedToday, setGeneratedToday] = useState(0);
@@ -301,6 +305,7 @@ export default function App() {
     const savedSettings = getStorageItem("favole_magiche_settings");
     if (savedSettings) {
       const parsed = JSON.parse(savedSettings);
+      const defaults = createDefaultSettings();
       if (parsed.pinAccesso === undefined) {
         parsed.pinAccesso = "0000";
       }
@@ -313,7 +318,9 @@ export default function App() {
       if (parsed.audioAdattivo === undefined) {
         parsed.audioAdattivo = true;
       }
-      setSettings(parsed);
+      parsed.generationMode = getEffectiveGenerationMode(parsed.generationMode);
+      parsed.backendBaseUrl = normalizeBackendBaseUrl(parsed.backendBaseUrl || defaults.backendBaseUrl);
+      setSettings({ ...defaults, ...parsed });
     }
 
     // 4. Premium status
@@ -856,6 +863,8 @@ export default function App() {
   // Story Creation API Call orchestrator
   const handleGenerateStory = async (config: StoryGenerationConfig, forceBedtime?: boolean) => {
     const activeBedtime = forceBedtime !== undefined ? forceBedtime : isBedtimeMode;
+    const generationMode = getEffectiveGenerationMode(settings.generationMode);
+    const backendBaseUrl = normalizeBackendBaseUrl(settings.backendBaseUrl);
     setIsBedtimeMode(activeBedtime);
 
     // Save choices as default for future generations
@@ -876,7 +885,7 @@ export default function App() {
     setScreen("generating");
 
     try {
-      const generatedData = await generateStoryClient(
+      const generatedData = await generateStory(
         {
           ...config,
           isBedtimeMode: activeBedtime
@@ -890,6 +899,10 @@ export default function App() {
             setActiveJobStep(step);
           },
           isCancelled: () => generationSessionRef.current?.id !== localJobId || generationSessionRef.current?.cancelled === true
+        },
+        {
+          mode: generationMode,
+          backendBaseUrl
         }
       );
 
@@ -900,13 +913,13 @@ export default function App() {
       const statusUpdate: GeminiRuntimeStatus = generatedData.generationSource === "gemini"
         ? {
             state: "ok",
-            message: "Generazione AI attiva",
+            message: generationMode === "backend" ? "Generazione AI attiva via backend" : "Generazione AI attiva lato client",
             model: generatedData.usedModel,
             updatedAt: new Date().toISOString()
           }
         : {
             state: "fallback",
-            message: generatedData.fallbackReason || "Piano di riserva attivato",
+            message: generatedData.fallbackReason || (generationMode === "backend" ? "Piano di riserva attivato dal backend" : "Piano di riserva attivato lato client"),
             updatedAt: new Date().toISOString()
           };
       setGeminiRuntimeStatus(statusUpdate);
@@ -983,6 +996,12 @@ export default function App() {
       let title = "Ops! Magia Interrotta ✨";
       let message = "La fatina delle storie ha avuto un piccolo contrattempo.";
       let reason = "Sembra che i folletti abbiano staccato un filo magico! Prova a ripartire, di solito funziona.";
+
+      if (errorMsg.includes("URL backend non configurato")) {
+        title = "Configura il laboratorio remoto 🛠️";
+        message = "Hai scelto la modalità backend ma manca l'indirizzo del server.";
+        reason = "Apri le impostazioni, inserisci l'URL HTTPS del backend oppure torna alla modalità lato client.";
+      }
 
       if (errorMsg.includes("Nessun modello Gemini disponibile") || errorMsg.toLowerCase().includes("failed to call")) {
         title = "Folletti Stanchi 😴";
