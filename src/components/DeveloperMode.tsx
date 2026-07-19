@@ -218,6 +218,23 @@ export default function DeveloperMode({
           </div>
         </div>
 
+        {/* 1UP visual preview */}
+        <div className="space-y-3 border-b border-cyan-600 pb-4">
+          <h4 className="font-bold text-cyan-300">🍀 1UP Preview</h4>
+          <div className="bg-slate-800 rounded-xl border border-cyan-600 p-3 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-emerald-700/60 border border-emerald-400 flex items-center justify-center">
+                <span className="text-[11px] font-black text-yellow-300 tracking-wide">1UP</span>
+              </div>
+              <div className="text-left">
+                <p className="text-xs font-black text-cyan-200">Icona mostrata nel minigioco</p>
+                <p className="text-[10px] text-cyan-300/80">Spawn raro: max 1 volta per livello</p>
+              </div>
+            </div>
+            <span className="text-[10px] text-cyan-100 bg-slate-700 px-2 py-1 rounded border border-cyan-700">DEVELOP TEST</span>
+          </div>
+        </div>
+
         <div className="text-[11px] text-cyan-300 bg-slate-800 p-3 rounded border border-cyan-600 font-mono">
           <p>📋 Developer Mode Active</p>
           <p>PIN: 1357 (fixed)</p>

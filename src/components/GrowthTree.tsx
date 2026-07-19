@@ -30,11 +30,12 @@ const THEME_TREES = [
   { theme: "Collaborazione", icon: "🐝", color: "#9C27B0", bgGradient: "from-purple-100 to-indigo-200", leafColor: "#CE93D8", decoration: "🍎", enemies: ["🐛", "🪱", "🐌", "🦟", "🕷️"], desc: "Il lavoro di squadra appende frutti d'oro pronti per essere divisi." }
 ];
 
-const ONE_UP_VISUAL_ONLY_IN_DEVELOP = true;
+const ONE_UP_VISUAL_ONLY_IN_DEVELOP = import.meta.env.DEV;
 
 export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
   const [selectedTheme, setSelectedTheme] = useState("Gentilezza");
   const [previewStage, setPreviewStage] = useState<number | null>(null);
+  const oneUpSpawnedThisLevelRef = useRef(false);
   const spawnBalanceRef = useRef<SpawnBalanceState>({
     spawnedFruits: 0,
     spawnedBugs: 0,
@@ -114,6 +115,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
     setGameMessage("");
     setActiveTargets([]);
     setShowWinPopup(false);
+    oneUpSpawnedThisLevelRef.current = false;
     spawnBalanceRef.current = {
       spawnedFruits: 0,
       spawnedBugs: 0,
@@ -153,6 +155,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
       if (availableCredits <= 0) return;
       setSpentCredits(prev => ({ ...prev, [selectedTheme]: (prev[selectedTheme] || 0) + 1 }));
     }
+    oneUpSpawnedThisLevelRef.current = false;
     spawnBalanceRef.current = {
       spawnedFruits: 0,
       spawnedBugs: 0,
@@ -222,10 +225,14 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
       setActiveTargets(prev => {
         if (prev.length >= maxTargets) return prev;
 
-        const spawnOneUp = Math.random() < 0.02;
+        const spawnOneUp = !oneUpSpawnedThisLevelRef.current && Math.random() < 0.005;
         const nextSpawnType = spawnOneUp
           ? 'oneup'
           : chooseBalancedSpawnType(spawnBalanceRef.current, gameLevel, roundProgress);
+
+        if (spawnOneUp) {
+          oneUpSpawnedThisLevelRef.current = true;
+        }
 
         const isBug = nextSpawnType === 'bug';
         const isOneUp = nextSpawnType === 'oneup';
@@ -256,7 +263,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
           y = -25;
           speedX = (Math.random() - 0.5) * 0.8;
           speedY = 2.4 * baseSpeed;
-          char = "🍀";
+          char = "1UP";
         } else if (isBug) {
           // Bug from left or right
           const fromLeft = Math.random() > 0.5;
@@ -646,9 +653,9 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
                   <text 
                     x="0" 
                     y="0" 
-                    fontSize="18" 
+                    fontSize={item.type === 'oneup' ? "11" : "18"}
                     textAnchor="middle"
-                    className="animate-pulse"
+                    className={item.type === 'oneup' ? "animate-pulse font-black fill-yellow-300" : "animate-pulse"}
                   >
                     {item.char}
                   </text>
