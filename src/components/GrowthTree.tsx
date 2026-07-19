@@ -34,7 +34,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
   // Game states
   const [gameState, setGameState] = useState<'idle' | 'intro' | 'playing' | 'gameover' | 'won'>('idle');
   const [activeTargets, setActiveTargets] = useState<{id: number, type: 'fruit'|'bug', x: number, y: number, speedX: number, speedY: number, char: string}[]>([]);
-  const [targetsLeft, setTargetsLeft] = useState(20);
+  const [targetsLeft, setTargetsLeft] = useState(10);
   const [gameLevel, setGameLevel] = useState(1);
   const [gameMessage, setGameMessage] = useState("");
 
@@ -60,7 +60,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
   useEffect(() => {
     setPreviewStage(null);
     setGameState('idle');
-    setTargetsLeft(20);
+    setTargetsLeft(10);
     setGameLevel(1);
     setGameMessage("");
     setActiveTargets([]);
@@ -72,7 +72,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
       setSpentCredits(prev => ({ ...prev, [selectedTheme]: (prev[selectedTheme] || 0) + 1 }));
     }
     setGameState('playing');
-    setTargetsLeft(20);
+    setTargetsLeft(10);
     setActiveTargets([]);
     setGameMessage("");
     playClickSound();
