@@ -422,13 +422,12 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
 
                     if (item.type === 'fruit') {
                       playFruitCollectSound();
+                      setTargetsLeft(curr => Math.max(0, curr - 1));
                     } else {
                       playBugShooSound();
                     }
 
                     setActiveTargets(curr => curr.filter(t => t.id !== item.id));
-                    
-                    setTargetsLeft(curr => Math.max(0, curr - 1));
                   }}
                 >
                   <circle cx="0" cy="-5" r="14" fill="white" opacity="0.6" className="animate-ping" />
