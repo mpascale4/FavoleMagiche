@@ -76,7 +76,13 @@ export const CATEGORIES = [
   "Preistoria",
   "Supereroi",
   "Mitologia",
-  "Abissi"
+  "Abissi",
+  // Unlockable (5)
+  "Città Magica",
+  "Sottosopra",
+  "Il Domani",
+  "Fiabe del Mare",
+  "Terra Incognita"
 ];
 
 export const INITIAL_CATEGORIES = [
@@ -84,7 +90,12 @@ export const INITIAL_CATEGORIES = [
   "Avventura",
   "Mistero",
   "Fiaba Classica",
-  "Natura"
+  "Natura",
+  "Spazio",
+  "Preistoria",
+  "Supereroi",
+  "Mitologia",
+  "Abissi"
 ];
 
 export const EDUCATIONAL_THEMES = [
@@ -97,7 +108,13 @@ export const EDUCATIONAL_THEMES = [
   "Generosità",
   "Pazienza",
   "Gratitudine",
-  "Perdono"
+  "Perdono",
+  // Unlockable (5)
+  "Empatia",
+  "Creatività",
+  "Autonomia",
+  "Solidarietà",
+  "Responsabilità"
 ];
 
 export const INITIAL_THEMES = [
@@ -105,7 +122,12 @@ export const INITIAL_THEMES = [
   "Coraggio",
   "Gentilezza",
   "Rispetto",
-  "Collaborazione"
+  "Collaborazione",
+  "Onestà",
+  "Generosità",
+  "Pazienza",
+  "Gratitudine",
+  "Perdono"
 ];
 
 export const DURATIONS = [
@@ -125,7 +147,12 @@ export const CHARACTER_TYPES = [
   "Drago",
   "Unicorno",
   "Folletto",
-  "Sirena"
+  // Unlockable (5)
+  "Sirena",
+  "Strega Buona",
+  "Principe",
+  "Principessa",
+  "Folletto Marino"
 ];
 
 export const INITIAL_CHARACTER_TYPES = [
@@ -134,7 +161,11 @@ export const INITIAL_CHARACTER_TYPES = [
   "Bambina",
   "Cucciolo",
   "Robot",
-  "Fata"
+  "Fata",
+  "Astronauta",
+  "Drago",
+  "Unicorno",
+  "Folletto"
 ];
 
 export const BEBE_TRAITS = [
@@ -156,10 +187,12 @@ export const CHARACTER_TRAITS = [
   "Allegro",
   "Testardo",
   "Timido",
+  // Unlockable (5)
   "Piagnucolone",
   "Giocherellone",
   "Coccolone",
-  "Goloso"
+  "Goloso",
+  "Furbo"
 ];
 
 /**
@@ -200,7 +233,12 @@ export const INITIAL_CHARACTER_TRAITS = [
   "Coraggioso",
   "Pasticcione",
   "Fifone",
-  "Antipatico"
+  "Antipatico",
+  "Dormiglione",
+  "Saggio",
+  "Allegro",
+  "Testardo",
+  "Timido"
 ];
 
 export const CHARACTER_TYPES_BY_CATEGORY: Record<string, string[]> = {

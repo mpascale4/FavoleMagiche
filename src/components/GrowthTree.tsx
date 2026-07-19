@@ -254,45 +254,39 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
     return () => clearInterval(spawnInterval);
   }, [gameState, gameLevel, activeTreeInfo.decoration, growthStage, targetsLeft]);
 
-  // Win Condition Effect
+  // Capture colors at win-time so the confetti effect stays stable
+  const winColorsRef = useRef<string[]>([]);
+
+  // Step 1: detect win, transition state
   useEffect(() => {
-    let timeout: NodeJS.Timeout;
     if (gameState === 'playing' && targetsLeft === 0) {
+      winColorsRef.current = [activeTreeInfo.color, activeTreeInfo.leafColor, '#FBBF24'];
       setGameState('won');
       setGameMessage("Livello Completato! Hai protetto l'albero!");
+      setGameLevel(prev => prev + 1);
       playGameWinSound();
-      
-      const duration = 3000;
-      const end = Date.now() + duration;
-
-      const frame = () => {
-        confetti({
-          particleCount: 5,
-          angle: 60,
-          spread: 55,
-          origin: { x: 0 },
-          colors: [activeTreeInfo.color, activeTreeInfo.leafColor, '#FBBF24']
-        });
-        confetti({
-          particleCount: 5,
-          angle: 120,
-          spread: 55,
-          origin: { x: 1 },
-          colors: [activeTreeInfo.color, activeTreeInfo.leafColor, '#FBBF24']
-        });
-
-        if (Date.now() < end) {
-          requestAnimationFrame(frame);
-        }
-      };
-      frame();
-
-      timeout = setTimeout(() => {
-        setShowWinPopup(true);
-      }, duration);
     }
-    return () => clearTimeout(timeout);
   }, [targetsLeft, gameState, activeTreeInfo]);
+
+  // Step 2: run confetti + show popup when state becomes 'won'
+  // Depends only on gameState so the timeout is never cancelled mid-animation
+  useEffect(() => {
+    if (gameState !== 'won') return;
+
+    const duration = 3000;
+    const end = Date.now() + duration;
+    const colors = winColorsRef.current;
+
+    const frame = () => {
+      confetti({ particleCount: 5, angle: 60,  spread: 55, origin: { x: 0 }, colors });
+      confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors });
+      if (Date.now() < end) requestAnimationFrame(frame);
+    };
+    frame();
+
+    const timeout = setTimeout(() => setShowWinPopup(true), duration);
+    return () => clearTimeout(timeout);
+  }, [gameState]);
 
   // Movement and Collision logic
   useEffect(() => {
@@ -462,7 +456,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white/95 backdrop-blur-md p-6 rounded-3xl shadow-2xl border-2 border-emerald-300 text-center z-50 animate-in zoom-in duration-300 w-64">
                   <h2 className="text-2xl font-black text-emerald-600 mb-1 drop-shadow-sm">Livello Completato!</h2>
                   <p className="text-emerald-900 font-bold text-xs mb-5">{gameMessage}</p>
-                  <button onClick={() => { setGameLevel(prev => prev + 1); startGame(false); }} className="w-full py-3 bg-emerald-500 text-white hover:bg-emerald-400 rounded-xl font-black shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer">
+                  <button onClick={() => startGame(false)} className="w-full py-3 bg-emerald-500 text-white hover:bg-emerald-400 rounded-xl font-black shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer">
                     Livello Successivo
                   </button>
                 </div>
@@ -628,7 +622,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
                 {availableCredits > 0 ? (
                   <button
                     onClick={() => setGameState('intro')}
-                    className="px-4 py-2 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-yellow-900 border-2 border-yellow-200 rounded-full font-black text-xs shadow-lg hover:scale-110 active:scale-95 transition-all flex items-center gap-2 animate-bounce cursor-pointer"
+                    className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white border-2 border-amber-300 rounded-full font-black text-xs shadow-lg hover:scale-110 active:scale-95 transition-all flex items-center gap-2 animate-bounce cursor-pointer drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]"
                   >
                     <Play size={16} fill="currentColor" /> GIOCA ({availableCredits})
                   </button>
