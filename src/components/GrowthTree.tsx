@@ -263,7 +263,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
           y = -25;
           speedX = (Math.random() - 0.5) * 0.8;
           speedY = 2.4 * baseSpeed;
-          char = "1UP";
+          char = activeTreeInfo.decoration;
         } else if (isBug) {
           // Bug from left or right
           const fromLeft = Math.random() > 0.5;
@@ -650,15 +650,21 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
                   }}
                 >
                   <circle cx="0" cy="-5" r="14" fill="white" opacity="0.6" className="animate-ping" />
-                  <text 
-                    x="0" 
-                    y="0" 
-                    fontSize={item.type === 'oneup' ? "11" : "18"}
-                    textAnchor="middle"
-                    className={item.type === 'oneup' ? "animate-pulse font-black fill-yellow-300" : "animate-pulse"}
-                  >
-                    {item.char}
-                  </text>
+                  {item.type === 'oneup' ? (
+                    <>
+                      <text x="0" y="0" fontSize="18" textAnchor="middle" className="animate-pulse">
+                        {item.char}
+                      </text>
+                      <g transform="translate(9,-11)">
+                        <rect x="-9" y="-5" width="18" height="10" rx="4" fill="#065f46" stroke="#a7f3d0" strokeWidth="0.8" />
+                        <text x="0" y="2.5" fontSize="5" textAnchor="middle" fill="#fde047" fontWeight="900" letterSpacing="0.4">1UP</text>
+                      </g>
+                    </>
+                  ) : (
+                    <text x="0" y="0" fontSize="18" textAnchor="middle" className="animate-pulse">
+                      {item.char}
+                    </text>
+                  )}
                 </g>
               ))}
             </svg>

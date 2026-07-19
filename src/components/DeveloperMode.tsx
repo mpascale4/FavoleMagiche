@@ -220,14 +220,15 @@ export default function DeveloperMode({
 
         {/* 1UP visual preview */}
         <div className="space-y-3 border-b border-cyan-600 pb-4">
-          <h4 className="font-bold text-cyan-300">🍀 1UP Preview</h4>
+          <h4 className="font-bold text-cyan-300">🌸 1UP Preview</h4>
           <div className="bg-slate-800 rounded-xl border border-cyan-600 p-3 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-emerald-700/60 border border-emerald-400 flex items-center justify-center">
-                <span className="text-[11px] font-black text-yellow-300 tracking-wide">1UP</span>
+              <div className="relative w-10 h-10 rounded-full bg-emerald-700/60 border border-emerald-400 flex items-center justify-center">
+                <span className="text-xl">🌸</span>
+                <span className="absolute -top-1 -right-2 text-[8px] font-black text-yellow-300 bg-emerald-900 border border-emerald-300 rounded px-1 leading-none">1UP</span>
               </div>
               <div className="text-left">
-                <p className="text-xs font-black text-cyan-200">Icona mostrata nel minigioco</p>
+                <p className="text-xs font-black text-cyan-200">Fiore + badge 1UP (anteprima)</p>
                 <p className="text-[10px] text-cyan-300/80">Spawn raro: max 1 volta per livello</p>
               </div>
             </div>
