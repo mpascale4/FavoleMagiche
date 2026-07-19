@@ -140,8 +140,20 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
           const fromLeft = Math.random() > 0.5;
           x = fromLeft ? -20 : 220;
           y = 30 + Math.random() * 110; // random height around canopy
+          
+          let targetY = 100;
+          if (growthStage === 0) targetY = 176;
+          else if (growthStage === 1) targetY = 145;
+          else if (growthStage === 2) targetY = 125;
+          else if (growthStage === 3) targetY = 90;
+          else if (growthStage === 4) targetY = 70;
+          
+          const distanceX = 100 - x;
+          const distanceY = targetY - y;
+          const travelTime = Math.abs(distanceX) / (1.5 * baseSpeed);
+          
           speedX = fromLeft ? (1.5 * baseSpeed) : (-1.5 * baseSpeed);
-          speedY = 0;
+          speedY = distanceY / travelTime;
           char = Math.random() > 0.5 ? '🦟' : '🪰';
         } else {
           // Fruit from top
@@ -163,7 +175,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
     }, spawnRate);
 
     return () => clearInterval(spawnInterval);
-  }, [gameState, gameLevel, activeTreeInfo.decoration]);
+  }, [gameState, gameLevel, activeTreeInfo.decoration, growthStage]);
 
   // Win Condition Effect
   useEffect(() => {
