@@ -12,7 +12,12 @@ type AppAudioSettings = {
   audioAdattivo?: boolean;
   stileVisuale?: "auto" | "notte" | string;
   effettiAudio?: boolean;
+  musicaSottofondo?: boolean;
 };
+
+let miniGameMusicInterval: ReturnType<typeof setInterval> | null = null;
+let miniGameMusicGain: GainNode | null = null;
+let miniGameMusicStep = 0;
 
 function readStoredAudioSettings(): AppAudioSettings | null {
   return readJsonStorage<AppAudioSettings | null>("favole_magiche_settings", null);
@@ -48,6 +53,14 @@ function isSfxEnabled(): boolean {
   const parsed = readStoredAudioSettings();
   if (parsed) {
     return parsed.effettiAudio !== false;
+  }
+  return true;
+}
+
+function isBackgroundMusicEnabled(): boolean {
+  const parsed = readStoredAudioSettings();
+  if (parsed) {
+    return parsed.musicaSottofondo !== false;
   }
   return true;
 }
@@ -421,3 +434,94 @@ export function playGameWinSound() {
     });
   });
 }
+
+export function playOneUpSound() {
+  withAudioContext((ctx) => {
+    const now = ctx.currentTime;
+    const notes = [523.25, 659.25, 783.99, 1046.5];
+
+    notes.forEach((freq, index) => {
+      const time = now + index * 0.06;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(freq, time);
+      osc.frequency.exponentialRampToValueAtTime(freq * 1.2, time + 0.12);
+
+      gain.gain.setValueAtTime(0, time);
+      gain.gain.linearRampToValueAtTime(0.09, time + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + 0.22);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(time);
+      osc.stop(time + 0.24);
+    });
+  });
+}
+
+export function startTreeMinigameMusic() {
+  if (miniGameMusicInterval) return;
+  if (!isBackgroundMusicEnabled()) return;
+
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  miniGameMusicGain = ctx.createGain();
+  miniGameMusicGain.gain.setValueAtTime(0.07, ctx.currentTime);
+  miniGameMusicGain.connect(ctx.destination);
+  miniGameMusicStep = 0;
+
+  const night = shouldUseNightAudioMode();
+  const motif = night
+    ? [220, 246.94, 293.66, 329.63]
+    : [261.63, 329.63, 392, 523.25];
+
+  const playStep = () => {
+    if (!miniGameMusicGain) return;
+    const now = ctx.currentTime;
+    const freq = motif[miniGameMusicStep % motif.length];
+
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = night ? "sine" : "triangle";
+    osc.frequency.setValueAtTime(freq, now);
+    osc.frequency.exponentialRampToValueAtTime(freq * 1.05, now + 0.18);
+
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.12, now + 0.03);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+
+    osc.connect(gain);
+    gain.connect(miniGameMusicGain);
+    osc.start(now);
+    osc.stop(now + 0.3);
+
+    miniGameMusicStep += 1;
+  };
+
+  playStep();
+  miniGameMusicInterval = setInterval(playStep, 320);
+}
+
+export function stopTreeMinigameMusic() {
+  if (miniGameMusicInterval) {
+    clearInterval(miniGameMusicInterval);
+    miniGameMusicInterval = null;
+  }
+
+  const ctx = getAudioContext();
+  if (miniGameMusicGain && ctx) {
+    const now = ctx.currentTime;
+    miniGameMusicGain.gain.setValueAtTime(miniGameMusicGain.gain.value, now);
+    miniGameMusicGain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+    setTimeout(() => {
+      miniGameMusicGain?.disconnect();
+      miniGameMusicGain = null;
+    }, 300);
+  } else {
+    miniGameMusicGain = null;
+  }
+}
+

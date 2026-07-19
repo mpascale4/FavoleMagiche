@@ -1,9 +1,10 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { ArrowLeft, Sparkles, BookOpen, Heart, Award, Star, Play, X, Info } from "lucide-react";
 import { Story } from "../types";
-import { playClickSound, playFruitCollectSound, playBugShooSound, playGameFailSound, playGameWinSound } from "../utils/audio";
+import { playClickSound, playFruitCollectSound, playBugShooSound, playGameFailSound, playGameWinSound, playOneUpSound, startTreeMinigameMusic, stopTreeMinigameMusic } from "../utils/audio";
 import confetti from "canvas-confetti";
 import { chooseBalancedSpawnType, pickRandomEnemy, FRUITS_PER_ROUND, type SpawnBalanceState } from "./growthTreeGame";
+import { audioEngine } from "../lib/audioEngine";
 
 interface GrowthTreeProps {
   stories: Story[];
@@ -22,12 +23,14 @@ const getThemePreposition = (theme: string) => {
 };
 
 const THEME_TREES = [
-  { theme: "Amicizia", icon: "🤝", color: "#EC407A", bgGradient: "from-pink-100 to-rose-200", leafColor: "#F48FB1", decoration: "💖", enemies: ["💔", "🥀", "🌩️", "🌧️", "🕸️"], desc: "Ogni gesto d'affetto fa crescere rami forti d'unione." },
-  { theme: "Coraggio", icon: "🦁", color: "#FF9800", bgGradient: "from-amber-100 to-orange-200", leafColor: "#FFCC80", decoration: "⭐", enemies: ["🌑", "☁️", "☄️", "🌪️", "🦇"], desc: "La fiducia in te stesso illumina la chioma come calde stelle." },
-  { theme: "Gentilezza", icon: "🌸", color: "#4CAF50", bgGradient: "from-emerald-100 to-green-200", leafColor: "#A5D6A7", decoration: "🌸", enemies: ["🐛", "🥀", "🐌", "🦗", "🐜"], desc: "La cura verso gli altri fa sbocciare splendidi petali profumati." },
-  { theme: "Rispetto", icon: "🙏", color: "#2196F3", bgGradient: "from-blue-100 to-cyan-200", leafColor: "#90CAF9", decoration: "🕊️", enemies: ["🦅", "🦉", "🌩️", "🌪️", "🦇"], desc: "L'ascolto e la comprensione fanno scendere radici stabili e profonde." },
-  { theme: "Collaborazione", icon: "🐝", color: "#9C27B0", bgGradient: "from-purple-100 to-indigo-200", leafColor: "#CE93D8", decoration: "🍎", enemies: ["🐛", "🪱", "🐌", "🦗", "🐜"], desc: "Il lavoro di squadra appende frutti d'oro pronti per essere divisi." }
+  { theme: "Amicizia", icon: "🤝", color: "#EC407A", bgGradient: "from-pink-100 to-rose-200", leafColor: "#F48FB1", decoration: "💖", enemies: ["💔", "😾", "🧊", "⚡", "🕸️"], desc: "Ogni gesto d'affetto fa crescere rami forti d'unione." },
+  { theme: "Coraggio", icon: "🦁", color: "#FF9800", bgGradient: "from-amber-100 to-orange-200", leafColor: "#FFCC80", decoration: "⭐", enemies: ["👻", "🌩️", "🦇", "🌪️", "🌫️"], desc: "La fiducia in te stesso illumina la chioma come calde stelle." },
+  { theme: "Gentilezza", icon: "🌸", color: "#4CAF50", bgGradient: "from-emerald-100 to-green-200", leafColor: "#A5D6A7", decoration: "🌸", enemies: ["🐛", "🐌", "🦗", "🥀", "🕷️"], desc: "La cura verso gli altri fa sbocciare splendidi petali profumati." },
+  { theme: "Rispetto", icon: "🙏", color: "#2196F3", bgGradient: "from-blue-100 to-cyan-200", leafColor: "#90CAF9", decoration: "🕊️", enemies: ["🗯️", "🔊", "🌪️", "⚡", "🦅"], desc: "L'ascolto e la comprensione fanno scendere radici stabili e profonde." },
+  { theme: "Collaborazione", icon: "🐝", color: "#9C27B0", bgGradient: "from-purple-100 to-indigo-200", leafColor: "#CE93D8", decoration: "🍎", enemies: ["🐛", "🪱", "🐌", "🦟", "🕷️"], desc: "Il lavoro di squadra appende frutti d'oro pronti per essere divisi." }
 ];
+
+const ONE_UP_VISUAL_ONLY_IN_DEVELOP = true;
 
 export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
   const [selectedTheme, setSelectedTheme] = useState("Gentilezza");
@@ -41,12 +44,13 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
   
   // Game states
   const [gameState, setGameState] = useState<'idle' | 'intro' | 'playing' | 'gameover' | 'won'>('idle');
-  const [activeTargets, setActiveTargets] = useState<{id: number, type: 'fruit'|'bug', x: number, y: number, speedX: number, speedY: number, char: string}[]>([]);
+  const [activeTargets, setActiveTargets] = useState<{id: number, type: 'fruit'|'bug'|'oneup', x: number, y: number, speedX: number, speedY: number, char: string}[]>([]);
   const [targetsLeft, setTargetsLeft] = useState(10);
   const [gameLevel, setGameLevel] = useState(1);
   const [gameMessage, setGameMessage] = useState("");
   const [showWinPopup, setShowWinPopup] = useState(false);
   const [showCreditsInfo, setShowCreditsInfo] = useState(false);
+  const [visualBonusCreditsByTheme, setVisualBonusCreditsByTheme] = useState<Record<string, number>>({});
 
   const [spentCredits, setSpentCredits] = useState<Record<string, number>>(() => {
     try {
@@ -84,6 +88,23 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
   }, [stories]);
 
   const availableCredits = Math.max(0, earnedCredits - (spentCredits[selectedTheme] || 0));
+  const visualBonusCredits = visualBonusCreditsByTheme[selectedTheme] || 0;
+  const displayCredits = availableCredits + visualBonusCredits;
+
+  const addOneUpCredit = () => {
+    if (ONE_UP_VISUAL_ONLY_IN_DEVELOP) {
+      setVisualBonusCreditsByTheme((prev) => ({
+        ...prev,
+        [selectedTheme]: (prev[selectedTheme] || 0) + 1,
+      }));
+      return;
+    }
+
+    setSpentCredits((prev) => {
+      const spent = prev[selectedTheme] || 0;
+      return { ...prev, [selectedTheme]: Math.max(0, spent - 1) };
+    });
+  };
 
   useEffect(() => {
     setPreviewStage(null);
@@ -111,6 +132,20 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
     return () => {
       document.body.style.overflow = '';
     };
+  }, [gameState]);
+
+  // Dedicated minigame soundtrack while the game overlay is active
+  useEffect(() => {
+    if (gameState !== 'idle') {
+      audioEngine.stopBackgroundMusic();
+      startTreeMinigameMusic();
+      return () => {
+        stopTreeMinigameMusic();
+      };
+    }
+
+    stopTreeMinigameMusic();
+    audioEngine.startBackgroundMusic();
   }, [gameState]);
 
   const startGame = (costCredit: boolean = true) => {
@@ -187,9 +222,13 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
       setActiveTargets(prev => {
         if (prev.length >= maxTargets) return prev;
 
-        const nextSpawnType = chooseBalancedSpawnType(spawnBalanceRef.current, gameLevel, roundProgress);
+        const spawnOneUp = Math.random() < 0.02;
+        const nextSpawnType = spawnOneUp
+          ? 'oneup'
+          : chooseBalancedSpawnType(spawnBalanceRef.current, gameLevel, roundProgress);
 
         const isBug = nextSpawnType === 'bug';
+        const isOneUp = nextSpawnType === 'oneup';
 
         if (isBug) {
           spawnBalanceRef.current = {
@@ -198,7 +237,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
             consecutiveBugs: spawnBalanceRef.current.consecutiveBugs + 1,
             consecutiveFruits: 0,
           };
-        } else {
+        } else if (!isOneUp) {
           spawnBalanceRef.current = {
             ...spawnBalanceRef.current,
             spawnedFruits: spawnBalanceRef.current.spawnedFruits + 1,
@@ -212,7 +251,13 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
         // Base speed based on required clicks
         const baseSpeed = 1 + (gameLevel - 1) * 0.05;
 
-        if (isBug) {
+        if (isOneUp) {
+          x = 35 + Math.random() * 130;
+          y = -25;
+          speedX = (Math.random() - 0.5) * 0.8;
+          speedY = 2.4 * baseSpeed;
+          char = "🍀";
+        } else if (isBug) {
           // Bug from left or right
           const fromLeft = Math.random() > 0.5;
           x = fromLeft ? -20 : 220;
@@ -243,7 +288,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
 
         const newItem = {
           id: Date.now() + Math.random(),
-          type: isBug ? 'bug' : 'fruit',
+          type: nextSpawnType,
           char, x, y, speedX, speedY
         };
 
@@ -323,7 +368,10 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
           return [];
         }
 
-        return next;
+        return next.filter((t) => {
+          if (t.type !== 'oneup') return true;
+          return t.y <= 220 && t.x >= -40 && t.x <= 240;
+        });
       });
     }, 50);
 
@@ -363,7 +411,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
       <div className="flex gap-1.5 overflow-x-auto pb-3 pt-1 scrollbar-none shrink-0">
         {THEME_TREES.map(t => {
           const count = themeCounts[t.theme] || 0;
-          const tCredits = Math.max(0, (earnedCreditsByTheme[t.theme] || 0) - (spentCredits[t.theme] || 0));
+          const tCredits = Math.max(0, (earnedCreditsByTheme[t.theme] || 0) - (spentCredits[t.theme] || 0)) + (visualBonusCreditsByTheme[t.theme] || 0);
           const isSelected = selectedTheme === t.theme;
           return (
             <button
@@ -428,7 +476,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
                   </div>
                   <div className="bg-white/10 backdrop-blur-md px-3 py-2 rounded-2xl border border-white/20 text-center flex-1">
                     <span className="text-white/60 text-[9px] font-bold uppercase tracking-wider block leading-none">Crediti</span>
-                    <span className="text-xl font-black text-rose-400 leading-none">{availableCredits}</span>
+                    <span className="text-xl font-black text-rose-400 leading-none">{displayCredits}</span>
                   </div>
                   <button onClick={() => setGameState('idle')} className="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white/90 hover:text-white px-3 py-2 rounded-full text-xs font-bold transition-colors ml-1 shrink-0 cursor-pointer">
                     <X size={18} />
@@ -584,6 +632,9 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
                     if (item.type === 'fruit') {
                       playFruitCollectSound();
                       setTargetsLeft(curr => Math.max(0, curr - 1));
+                    } else if (item.type === 'oneup') {
+                      playOneUpSound();
+                      addOneUpCredit();
                     } else {
                       playBugShooSound();
                     }
@@ -624,7 +675,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
                     onClick={() => setGameState('intro')}
                     className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white border-2 border-amber-300 rounded-full font-black text-xs shadow-lg hover:scale-110 active:scale-95 transition-all flex items-center gap-2 animate-bounce cursor-pointer drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]"
                   >
-                    <Play size={16} fill="currentColor" /> GIOCA ({availableCredits})
+                    <Play size={16} fill="currentColor" /> GIOCA ({displayCredits})
                   </button>
                 ) : (
                   <button
@@ -680,8 +731,13 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
                 </p>
                 <div className="bg-emerald-50 rounded-xl p-3 mb-5 border border-emerald-100">
                   <p className="text-xs font-bold text-emerald-800">
-                    Crediti disponibili: <span className="text-base font-black text-emerald-600">{availableCredits}</span>
+                    Crediti disponibili: <span className="text-base font-black text-emerald-600">{displayCredits}</span>
                   </p>
+                  {ONE_UP_VISUAL_ONLY_IN_DEVELOP && (
+                    <p className="text-[8px] text-emerald-700/80 mt-1 font-semibold">
+                      Modalita develop: i crediti 1UP sono solo visuali
+                    </p>
+                  )}
                   <p className="text-[9px] text-emerald-600/80 mt-1 uppercase tracking-wide">Costo per partita: 1 credito</p>
                 </div>
                 <button onClick={() => startGame(true)} className="w-full py-3 bg-amber-700 hover:bg-amber-600 text-white rounded-xl font-black shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 text-sm border-2 border-amber-200 cursor-pointer">
