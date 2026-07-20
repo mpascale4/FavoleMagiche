@@ -54,3 +54,14 @@ export const getEducationalThemeDisplayName = (theme?: string): string => {
       return t;
   }
 };
+
+export const getBaseTreeTheme = (theme?: string): string => {
+  if (!theme) return "Gentilezza";
+  const t = theme.trim();
+  if (["Amicizia", "Gratitudine", "Perdono"].includes(t)) return "Amicizia";
+  if (["Coraggio", "Pazienza"].includes(t)) return "Coraggio";
+  if (["Gentilezza", "Generosità", "Empatia"].includes(t)) return "Gentilezza";
+  if (["Rispetto", "Onestà"].includes(t)) return "Rispetto";
+  if (["Collaborazione"].includes(t)) return "Collaborazione";
+  return "Gentilezza";
+};

@@ -66,7 +66,7 @@ export interface AppSettings {
   backendBaseUrl?: string;
 }
 
-export type ScreenType = "home" | "profiles" | "new-story" | "generating" | "reader" | "archive" | "settings" | "premium" | "albero";
+export type ScreenType = "home" | "profiles" | "new-story" | "generating" | "reader" | "archive" | "settings" | "premium" | "albero" | "map";
 
 export const CATEGORIES = [
   "Fantasy",

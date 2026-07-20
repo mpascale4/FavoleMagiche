@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
 import PhoneMockup from "./components/PhoneMockup";
 import HomeView from "./components/HomeView";
+import MapView from "./components/MapView";
 import ProfilesView from "./components/ProfilesView";
 import NewStoryView from "./components/NewStoryView";
 import GenerationView from "./components/GenerationView";
@@ -60,7 +61,7 @@ const INITIAL_STORY: Story = {
     "Lalla prese un profondo respiro e... ssshhhh... accese la sua **luce** ⭐ dorata! Era una luce calda, splendente, che illuminò gli alberi circostanti facendo ballare le ombre del bosco in modo divertente.\n- Guarda che meraviglia! - esclamò Celeste battendo le mani. - La tua luce è la più bella del bosco!\nLalla si accorse che, stando accanto alla sua nuova amica, il buio non faceva più così paura.",
     "Da quella notte, Lalla e Celeste divennero amiche inseparabili. Lalla imparò ad amare la notte, capendo che proprio nell'oscurità la sua luce poteva splendere al massimo e aiutare chi si era smarrito.\n- Grazie Celeste, oggi ho trovato il mio vero **splendore** 🥳! - sussurrò felice la lucciola volando allegra intorno alle stelle d'argento. 👋"
   ],
-  morale: "La morale di questa storia è che non dobbiamo nascondere le nostre paure: quando le condividiamo con un vero amico, troviamo il coraggio di splendere e illuminare la via per noi e per gli altri.",
+  morale: "Coraggio",
   data: "2026-07-12T18:30:00.000Z",
   dataCreazione: "2026-07-12T18:30:00.000Z",
   ultimaLettura: "2026-07-13T21:15:00.000Z",
@@ -148,6 +149,35 @@ export default function App() {
   const [screenAnnouncement, setScreenAnnouncement] = useState<string>("Schermata iniziale caricata");
   type UnlockPoolType = "category" | "theme" | "characterType" | "characterTrait";
 
+  const [globalTouchStartX, setGlobalTouchStartX] = useState<number | null>(null);
+  const [globalTouchStartY, setGlobalTouchStartY] = useState<number | null>(null);
+
+  const handleGlobalTouchStart = (e: React.TouchEvent) => {
+    if (screen === "home" || screen === "reader" || screen === "generating") return;
+    setGlobalTouchStartX(e.changedTouches[0].clientX);
+    setGlobalTouchStartY(e.changedTouches[0].clientY);
+  };
+
+  const handleGlobalTouchEnd = (e: React.TouchEvent) => {
+    if (screen === "home" || screen === "reader" || screen === "generating" || globalTouchStartX === null || globalTouchStartY === null) return;
+    
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
+    
+    const diffX = globalTouchStartX - touchEndX;
+    const diffY = globalTouchStartY - touchEndY;
+    const minSwipeDistance = 50;
+    
+    // Check if it's primarily a horizontal swipe
+    if (Math.abs(diffX) > minSwipeDistance && Math.abs(diffY) < Math.abs(diffX) * 0.6) {
+      playClickSound();
+      setScreen("home");
+    }
+    
+    setGlobalTouchStartX(null);
+    setGlobalTouchStartY(null);
+  };
+
   const screenLabels: Record<ScreenType, string> = {
     home: "Home",
     profiles: "Profili",
@@ -158,6 +188,7 @@ export default function App() {
     settings: "Impostazioni",
     albero: "Albero della crescita",
     premium: "Premium",
+    map: "Mappa delle fiabe",
   };
 
   const buildBedtimeStoryConfig = (): BedtimeStoryConfig => {
@@ -1162,7 +1193,12 @@ export default function App() {
       onUpdateSettings={handleUpdateSettings}
       temaVisivo={activeProfile?.temaVisivo || "🌸 Giardino delle Fate"}
     >
-      {screen === "home" && (
+      <div 
+        onTouchStart={handleGlobalTouchStart}
+        onTouchEnd={handleGlobalTouchEnd}
+        className="w-full h-full flex flex-col min-h-0"
+      >
+        {screen === "home" && (
         <HomeView
           settings={settings}
           onDisableKidsMode={() => {
@@ -1319,6 +1355,16 @@ export default function App() {
       {screen === "albero" && (
         <GrowthTree
           stories={stories}
+          onBack={() => setScreen("home")}
+        />
+      )}
+
+      {screen === "map" && (
+        <MapView
+          claimedAchievements={claimedAchievements}
+          storiesCount={stories.length}
+          totalReadCount={stories.reduce((sum, s) => sum + (s.volteLetta || 0), 0)}
+          onClaimAchievement={handleOpenAchievementModalById}
           onBack={() => setScreen("home")}
         />
       )}
@@ -1749,6 +1795,7 @@ export default function App() {
           onClose={() => setIsDeveloperMode(false)}
         />
       )}
+      </div>
     </PhoneMockup>
     </main>
     <p className="sr-only" aria-live="polite" aria-atomic="true">

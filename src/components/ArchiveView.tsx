@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { ArrowLeft, Search, Star, Trash2, Calendar, Clock, Sparkles, RotateCcw, AlertTriangle, ChevronDown, ChevronUp, Layers } from "lucide-react";
+import { ArrowLeft, Search, Star, Trash2, Calendar, Clock, Sparkles, RotateCcw, AlertTriangle, ChevronDown, ChevronUp, Layers, X } from "lucide-react";
 import { Story, CATEGORIES, DeletedStory } from "../types";
 import { playClickSound } from "../utils/audio";
+import { getEducationalThemeDisplayName } from "../utils/themeNames";
 
 interface ArchiveViewProps {
   stories: Story[];
@@ -24,10 +25,12 @@ export default function ArchiveView({
 }: ArchiveViewProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCat, setSelectedCat] = useState<string>("Tutte");
+  const [showCategoryFilter, setShowCategoryFilter] = useState(false);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [storyToDelete, setStoryToDelete] = useState<Story | null>(null);
   const [storyToPermanentlyDelete, setStoryToPermanentlyDelete] = useState<Story | null>(null);
   const [expandedSeries, setExpandedSeries] = useState<Record<string, boolean>>({});
+  const [showTrashModal, setShowTrashModal] = useState(false);
 
   const toggleSeries = (sId: string) => {
     setExpandedSeries(prev => ({ ...prev, [sId]: !prev[sId] }));
@@ -39,6 +42,20 @@ export default function ArchiveView({
     const now = Date.now();
     const diffDays = Math.ceil((expiryDate - now) / (1000 * 60 * 60 * 24));
     return Math.max(0, diffDays);
+  };
+
+  const formatDateShort = (dateStr?: string) => {
+    if (!dateStr) return "";
+    try {
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return dateStr.split("T")[0];
+      const day = String(date.getDate()).padStart(2, "0");
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const year = String(date.getFullYear()).slice(-2);
+      return `${day}/${month}/${year}`;
+    } catch {
+      return "";
+    }
   };
 
   // Filter logic
@@ -199,87 +216,132 @@ export default function ArchiveView({
   return (
     <section className="flex-1 flex flex-col p-5" aria-labelledby="archive-title">
       {/* Back Header */}
-      <header className="flex items-center gap-2 mb-4 shrink-0">
-        <button
-          onClick={() => { playClickSound(); onBack(); }}
-          id="btn-back-archive"
-          aria-label="Torna alla Home"
-          className="w-9 h-9 bg-white hover:bg-natural-pink-light text-natural-burgundy rounded-xl flex items-center justify-center border-2 border-natural-pink-border shadow-xs transition-colors"
-        >
-          <ArrowLeft size={18} />
-        </button>
-        <h3 id="archive-title" className="text-lg font-bold text-natural-burgundy font-serif italic">Libreria Magica</h3>
-      </header>
-
-      {/* Search and Favorites Bar */}
-      <div className="space-y-2.5 mb-4 shrink-0">
-        <div className="relative">
-          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-natural-pink" />
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            id="input-archive-search"
-            aria-label="Cerca favole in archivio"
-            placeholder="Cerca titolo, personaggio, morale..."
-            className="w-full bg-white border-2 border-natural-pink-light rounded-2xl pl-10 pr-4 py-2.5 text-xs text-natural-text focus:outline-none focus:ring-4 focus:ring-natural-pink-light/30 font-bold"
-          />
-        </div>
-
-        <div className="flex items-center justify-between">
-          <p className="text-[11px] font-extrabold text-natural-burgundy uppercase tracking-wide">Filtra per Categoria</p>
+      <header className="flex items-center justify-between mb-4 shrink-0">
+        <div className="flex items-center gap-2">
           <button
-            onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-            id="btn-archive-toggle-favorites"
+            onClick={() => { playClickSound(); onBack(); }}
+            id="btn-back-archive"
+            aria-label="Torna alla Home"
+            className="w-9 h-9 bg-white hover:bg-natural-pink-light text-natural-burgundy rounded-xl flex items-center justify-center border-2 border-natural-pink-border shadow-xs transition-colors cursor-pointer"
+          >
+            <ArrowLeft size={18} />
+          </button>
+          <h3 id="archive-title" className="text-lg font-bold text-natural-burgundy font-serif italic">Libreria Magica</h3>
+          
+          <button
+            onClick={() => { playClickSound(); setShowFavoritesOnly(!showFavoritesOnly); }}
+            id="btn-archive-toggle-favorites-top"
             aria-pressed={showFavoritesOnly}
             aria-label={showFavoritesOnly ? "Mostra tutte le favole" : "Mostra solo le favole preferite"}
-            className={`flex items-center gap-1 px-3 py-1.5 rounded-full border-2 font-bold text-[10px] transition-all cursor-pointer ${
+            className={`p-1 rounded-full transition-all cursor-pointer border ${
               showFavoritesOnly
-                ? "bg-gradient-to-r from-natural-yellow to-[#FFB300] text-white border-natural-yellow shadow-xs"
-                : "bg-white text-natural-text border-natural-pink-border hover:bg-[#FCE4EC]/50"
+                ? "bg-amber-100 border-amber-300 text-natural-yellow scale-110"
+                : "bg-transparent border-transparent text-slate-300 hover:text-natural-yellow"
             }`}
           >
-            <Star size={12} fill={showFavoritesOnly ? "currentColor" : "none"} className={showFavoritesOnly ? "text-white" : "text-natural-yellow"} />
-            Preferite
+            <Star size={20} fill={showFavoritesOnly ? "currentColor" : "none"} />
           </button>
         </div>
-      </div>
 
-      {/* Horizontal Category Pill List */}
-      <div className="flex gap-1.5 overflow-x-auto pb-2 mb-3 shrink-0 scrollbar-none" role="radiogroup" aria-label="Filtro categoria">
         <button
-          onClick={() => setSelectedCat("Tutte")}
-          role="radio"
-          aria-checked={selectedCat === "Tutte"}
-          aria-label="Categoria tutte"
-          className={`px-3 py-1.5 rounded-full font-bold text-[10px] border-2 transition-all shrink-0 cursor-pointer ${
-            selectedCat === "Tutte"
-              ? "bg-gradient-to-r from-natural-pink to-[#EC407A] text-white border-[#EC407A] shadow-xs"
-              : "bg-white text-natural-text border-natural-pink-border hover:bg-[#FCE4EC]/30"
-          }`}
+          onClick={() => { playClickSound(); setShowTrashModal(true); }}
+          className="w-9 h-9 bg-white hover:bg-slate-50 text-slate-500 hover:text-red-500 rounded-xl flex items-center justify-center border-2 border-slate-200 shadow-3xs cursor-pointer relative shrink-0"
+          title="Cestino dei ricordi"
         >
-          ✨ Tutte
+          <Trash2 size={16} />
+          {deletedStories.length > 0 && (
+            <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full w-4.5 h-4.5 flex items-center justify-center text-[9px] font-black border-2 border-white animate-pulse">
+              {deletedStories.length}
+            </span>
+          )}
         </button>
-        {CATEGORIES.map((cat) => (
+      </header>
+
+      {/* Search and Categories Bar */}
+      <div className="space-y-2 mb-3.5 shrink-0">
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-natural-pink" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              id="input-archive-search"
+              aria-label="Cerca favole in archivio"
+              placeholder="Cerca titolo, personaggio, tema..."
+              className="w-full bg-white border-2 border-natural-pink-light rounded-2xl pl-10 pr-4 py-2 text-xs text-natural-text focus:outline-none focus:ring-4 focus:ring-natural-pink-light/30 font-bold"
+            />
+          </div>
+          
           <button
-            key={cat}
-            onClick={() => setSelectedCat(cat)}
-            role="radio"
-            aria-checked={selectedCat === cat}
-            aria-label={`Categoria ${cat}`}
-            className={`px-3 py-1.5 rounded-full font-bold text-[10px] border-2 transition-all shrink-0 cursor-pointer ${
-              selectedCat === cat
-                ? "bg-gradient-to-r from-natural-pink to-[#EC407A] text-white border-[#EC407A] shadow-xs"
-                : "bg-white text-natural-text border-natural-pink-border/60 hover:bg-[#FCE4EC]/30"
+            onClick={() => { playClickSound(); setShowCategoryFilter(!showCategoryFilter); }}
+            id="btn-toggle-category-filter"
+            aria-label="Filtra per Categoria"
+            className={`px-3 py-2 rounded-2xl border-2 font-bold text-xs transition-all cursor-pointer flex items-center gap-1 shrink-0 ${
+              showCategoryFilter || selectedCat !== "Tutte"
+                ? "bg-gradient-to-r from-natural-pink to-[#EC407A] text-white border-[#EC407A]"
+                : "bg-white text-natural-text border-natural-pink-border hover:bg-[#FCE4EC]/30"
             }`}
           >
-            {cat}
+            <span>📁 Categorie</span>
+            {selectedCat !== "Tutte" && (
+              <span className="bg-white text-[#EC407A] rounded-full px-1.5 text-[8.5px] font-black">
+                {selectedCat}
+              </span>
+            )}
           </button>
-        ))}
-      </div>
+        </div>
 
-      {/* Stories list */}
-      <div className="flex-1 overflow-y-auto space-y-3.5 px-1.5 pb-4 scrollbar-none">
+        {/* Expandable Category Selection Grid (No scrolling) */}
+        {(showCategoryFilter || selectedCat !== "Tutte") && (
+          <div className="bg-white/80 border-2 border-natural-pink-border/50 rounded-2xl p-2 mb-1 animate-in fade-in slide-in-from-top-1 duration-150 shrink-0">
+            <div className="flex items-center justify-between px-1.5 pb-1.5 border-b border-black/5 mb-1.5">
+              <span className="text-[9px] font-black text-natural-burgundy uppercase tracking-wider">Seleziona Categoria</span>
+              <button 
+                onClick={() => { playClickSound(); setSelectedCat("Tutte"); setShowCategoryFilter(false); }}
+                className="text-[8px] font-black text-[#EC407A] hover:underline uppercase"
+              >
+                Reset ×
+              </button>
+            </div>
+            
+            <div className="grid grid-cols-3 gap-1" role="radiogroup" aria-label="Filtro categoria">
+              <button
+                onClick={() => { playClickSound(); setSelectedCat("Tutte"); }}
+                role="radio"
+                aria-checked={selectedCat === "Tutte"}
+                className={`px-1.5 py-1 rounded-lg font-bold text-[9px] border transition-all text-center truncate cursor-pointer ${
+                  selectedCat === "Tutte"
+                    ? "bg-gradient-to-r from-natural-pink to-[#EC407A] text-white border-[#EC407A] shadow-3xs"
+                    : "bg-white text-natural-text border-slate-100 hover:bg-slate-50"
+                }`}
+              >
+                ✨ Tutte ({stories.length})
+              </button>
+              {CATEGORIES.map((cat) => {
+                const count = stories.filter(s => s.categoria === cat).length;
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => { playClickSound(); setSelectedCat(cat); }}
+                    role="radio"
+                    aria-checked={selectedCat === cat}
+                    className={`px-1.5 py-1 rounded-lg font-bold text-[9px] border transition-all text-center truncate cursor-pointer ${
+                      selectedCat === cat
+                        ? "bg-gradient-to-r from-natural-pink to-[#EC407A] text-white border-[#EC407A] shadow-3xs"
+                        : "bg-white text-natural-text border-slate-100 hover:bg-slate-50"
+                    }`}
+                  >
+                    {cat} {count > 0 ? `(${count})` : ""}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+            {/* Stories list */}
+      <div className="flex-1 overflow-y-auto space-y-2 px-1.5 pb-3 scrollbar-none">
         {filteredStories.length === 0 ? (
           <div className="bg-white/40 rounded-[2rem] p-8 text-center border-4 border-dashed border-natural-pink-border my-4 space-y-2">
             <span className="text-4xl">🏰</span>
@@ -294,66 +356,18 @@ export default function ArchiveView({
             const hasChapters = group.length > 1;
             const totalChapters = group.length;
             const isExpanded = !!expandedSeries[sId];
-            const firstStory = group[0]; // Usually chapter 1 or the newest
-            const cardColorClass = colorBgMap[firstStory.coverColor] || colorBgMap["pastel-blue"];
 
-            if (hasChapters && !isExpanded) {
-              return (
-                <div
-                  key={`series-collapsed-${sId}`}
-                  onClick={() => { playClickSound(); toggleSeries(sId); }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      playClickSound();
-                      toggleSeries(sId);
-                    }
-                  }}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`Espandi serie ${firstStory.titolo.replace(/ - Capitolo \d+$/, "")}`}
-                  className={`group cursor-pointer rounded-2xl border-4 p-3.5 shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-between gap-3 relative ${cardColorClass} mb-3`}
-                >
-                  <div className="absolute -right-1.5 -bottom-1.5 bg-amber-100 text-amber-800 border-2 border-amber-300 rounded-lg px-2 py-1 flex items-center gap-1 shadow-sm z-10">
-                    <Layers size={10} />
-                    <span className="text-[10px] font-black uppercase">{totalChapters} Capitoli</span>
-                  </div>
-
-                  <div className="flex items-center gap-3.5 flex-1 min-w-0">
-                    <div className="relative w-12 h-12 bg-white/80 rounded-xl flex items-center justify-center text-2xl shadow-sm border-2 border-black/5">
-                      {getCoverEmoji(firstStory.coverTheme)}
-                    </div>
-                    <div className="min-w-0 flex-1 space-y-0.5">
-                      <h4 className="font-extrabold text-[13px] leading-tight font-serif text-natural-burgundy break-words whitespace-normal">
-                        {firstStory.titolo.replace(/ - Capitolo \d+$/, "")}
-                      </h4>
-                      <p className="text-[9px] font-bold text-theme-secondary uppercase">
-                        Clicca per espandere la serie
-                      </p>
-                    </div>
-                  </div>
-                  <div className="shrink-0 text-theme-secondary p-1">
-                    <ChevronDown size={18} />
-                  </div>
-                </div>
-              );
-            }
+            // If it has chapters, and is NOT expanded, we only show the first story.
+            // If it IS expanded, we show all of them.
+            const storiesToRender = hasChapters && !isExpanded ? [group[0]] : group;
 
             return (
-              <div key={`series-${sId}`} className={`relative mb-3 ${hasChapters ? "bg-white/40 p-3 rounded-2xl border-2 border-dashed border-slate-300/50 space-y-3" : ""}`}>
-                {hasChapters && (
-                  <button 
-                    onClick={() => toggleSeries(sId)}
-                    className="w-full flex items-center justify-between px-1 pb-1 text-[10px] font-black text-theme-secondary uppercase cursor-pointer hover:text-natural-burgundy"
-                  >
-                    <span className="flex items-center gap-1.5"><Layers size={12}/> {firstStory.titolo.replace(/ - Capitolo \d+$/, "")} ({totalChapters} Capitoli)</span>
-                    <ChevronUp size={14} />
-                  </button>
+              <div key={`series-${sId}`} className={`relative mb-2.5 ${hasChapters ? "bg-white/40 p-2 rounded-2xl border border-dashed border-slate-300/50 space-y-2" : ""}`}>
+                {hasChapters && isExpanded && (
+                  <div className="absolute left-5 top-12 bottom-12 w-0.5 bg-amber-300 rounded-full z-0" />
                 )}
-                
-                {hasChapters && <div className="absolute left-6 top-10 bottom-6 w-0.5 bg-amber-300 rounded-full z-0" />}
 
-                {group.map((story) => {
+                {storiesToRender.map((story, index) => {
                   const cardColorClass = colorBgMap[story.coverColor] || colorBgMap["pastel-blue"];
                   const readingCount = story.volteLetta !== undefined ? story.volteLetta : (story.ultimaLettura ? 1 : 0);
                   const isBedtime = story.categoria?.toLowerCase().includes("buonanotte") || 
@@ -361,106 +375,88 @@ export default function ArchiveView({
                                     !!story.isBedtimeMode;
                   
                   const chapterNum = story.chapter || 1;
+                  const isSubChapter = hasChapters && index > 0;
 
                   return (
                     <div
                       key={story.id}
                       id={`story-card-${story.id}`}
                       onClick={() => { playClickSound(); onSelectStory(story); }}
-                      className={`group cursor-pointer rounded-2xl border-4 p-3.5 shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-between gap-3 relative z-10 ${hasChapters ? "ml-5" : ""} ${cardColorClass} ${isBedtime ? "ring-2 ring-indigo-400 border-indigo-300 shadow-[0_0_15px_rgba(26,35,126,0.15)]" : ""}`}
+                      className={`group cursor-pointer rounded-2xl border-2 p-2 hover:shadow-md transition-all duration-200 flex items-center justify-between gap-2.5 relative z-10 ${isSubChapter ? "ml-4" : ""} ${cardColorClass} ${isBedtime ? "ring-1.5 ring-indigo-400 border-indigo-300 shadow-3xs" : ""}`}
                     >
                       {/* Connection Dot for Chapters */}
-                      {hasChapters && (
-                        <div className="absolute -left-[20px] top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-2 border-amber-400 rounded-full z-10" />
+                      {isSubChapter && (
+                        <div className="absolute -left-[16px] top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-white border-2 border-amber-400 rounded-full z-10" />
                       )}
 
-                      <div className="flex items-center gap-3.5 flex-1 min-w-0">
-                        <div className="relative shrink-0 select-none pl-1">
-                          <div className="relative w-12 h-12 bg-white rounded-xl flex items-center justify-center text-2xl shadow-sm border-2 border-black/5 group-hover:scale-105 transition-transform">
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <div className="relative shrink-0 select-none">
+                          <div className="relative w-9 h-9 bg-white rounded-lg flex items-center justify-center text-xl shadow-xs border border-black/5 group-hover:scale-105 transition-transform">
                             {getCoverEmoji(story.coverTheme)}
-                            {/* High contrast visual indicator depending on read count */}
-                            {getThumbnailBadge(readingCount)}
                             {isBedtime && (
-                              <div className="absolute -bottom-1.5 -left-1.5 bg-[#1A237E] text-white border border-indigo-300 rounded-full w-4.5 h-4.5 flex items-center justify-center text-[9px] shadow-xs select-none z-10">
+                              <div className="absolute -bottom-1 -left-1 bg-[#1A237E] text-white rounded-full w-3.5 h-3.5 flex items-center justify-center text-[7px] shadow-3xs select-none z-10">
                                 🌙
                               </div>
                             )}
                           </div>
                         </div> 
 
-                         <div className="min-w-0 flex-1 space-y-0.5">
-                          <h4 className="font-extrabold text-[13px] leading-tight font-serif flex flex-wrap items-center gap-1.5 break-words whitespace-normal pr-1">
-                            {story.titolo}
+                        <div className="min-w-0 flex-1 leading-tight">
+                          <h4 className="font-extrabold text-[11.5px] leading-tight font-serif text-natural-burgundy flex items-center gap-1 truncate">
+                            <span className="truncate">{story.titolo}</span>
                             {hasChapters && (
-                              <span className="bg-amber-100 text-amber-800 border border-amber-300 px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wider whitespace-nowrap shrink-0 mt-0.5">
-                                Cap. {chapterNum} di {totalChapters}
+                              <span className="bg-amber-100 text-amber-800 border border-amber-300 px-1 py-0.2 rounded text-[7.5px] font-black uppercase shrink-0">
+                                Cap. {chapterNum}
                               </span>
                             )}
                           </h4>
                           
-                          <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[9px] font-bold">
-                            <span className="bg-white/60 px-1.5 py-0.2 rounded-md uppercase border border-black/5">
+                          {/* Compact details row */}
+                          <div className="flex items-center gap-1.5 text-[8.5px] font-bold text-slate-600 mt-0.5">
+                            <span className="bg-white/70 px-1 py-0.2 rounded text-[#EC407A] uppercase text-[7.5px] border border-black/5 shrink-0">
                               {story.categoria}
                             </span>
-                            {isBedtime && (
-                              <span className="bg-[#1A237E] text-white px-1.5 py-0.2 rounded-md uppercase border border-[#3F51B5] text-[7.5px] font-black flex items-center gap-0.5 shadow-xs shrink-0 select-none">
-                                🌙 Buonanotte
-                              </span>
-                            )}
-                            {story.isOffline && (
-                              <span className="bg-amber-100/90 text-amber-800 px-1.5 py-0.2 rounded-md uppercase border border-amber-200 text-[8px] font-extrabold">
-                                Offline ⚡
-                              </span>
-                            )}
-                            <span className="flex items-center gap-0.5 opacity-80">
-                              <Clock size={9} /> {story.durata}
+                            <span className="opacity-60">•</span>
+                            <span className="flex items-center gap-0.5 font-semibold text-slate-500 shrink-0">
+                              ⏱️ {story.durata}
+                            </span>
+                            <span className="opacity-60">•</span>
+                            <span className="text-[#F57C00] truncate">
+                              🌟 {getEducationalThemeDisplayName(story.temaEducativo)}
                             </span>
                           </div>
 
-                          {story.personaggi && story.personaggi.length > 0 && (
-                            <div className="flex flex-wrap gap-1 mt-0.5">
-                              {story.personaggi.map((p, idx) => (
-                                <span key={idx} className="bg-white/80 text-natural-burgundy px-1.5 py-0.5 rounded text-[8px] font-bold border border-black/5 shadow-xs">
-                                  {p.nome}
+                          {/* Date and readings counter */}
+                          <div className="text-[8px] font-extrabold text-theme-secondary/80 flex items-center gap-2 mt-1">
+                            <span>📅 {formatDateShort(story.dataCreazione || story.data)}</span>
+                            <span>•</span>
+                            <span className="text-slate-500">
+                              📖 Letta {readingCount} {readingCount === 1 ? "volta" : "volte"}
+                            </span>
+                            {story.personaggi && story.personaggi.length > 0 && (
+                              <>
+                                <span>•</span>
+                                <span className="truncate text-natural-burgundy max-w-[100px]">
+                                  👤 {story.personaggi.map(p => p.nome).join(", ")}
                                 </span>
-                              ))}
-                            </div>
-                          )}
-
-                          <p className="text-[9px] font-bold italic opacity-85 truncate pt-0.5">
-                            Morale: {story.morale}
-                          </p>
-
-                          {/* Creation and Last Read Dates */}
-                          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[9px] font-black text-theme-secondary pt-1 border-t border-black/5 mt-1">
-                            <span className="flex items-center gap-0.5 shrink-0">
-                              <Calendar size={9} className="opacity-60" /> Creata: <span className="font-extrabold text-theme-primary">{formatDate(story.dataCreazione || story.data)}</span>
-                            </span>
-                            <span className="flex items-center gap-0.5 shrink-0">
-                              <Sparkles size={9} className="text-pink-500/70" /> Letta: <span className="font-extrabold text-theme-primary">{story.ultimaLettura ? formatDate(story.ultimaLettura) : "Mai letta"}</span>
-                            </span>
-                            {renderReadingStatusBadge(readingCount)}
+                              </>
+                            )}
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex flex-col items-end gap-2 shrink-0">
+                      {/* Compact actions block */}
+                      <div className="flex items-center gap-1.5 shrink-0">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             playClickSound();
                             onSelectStory(story);
                           }}
-                          aria-label={`Apri favola ${story.titolo}`}
-                          className="px-2 py-1 text-[9px] font-black rounded-lg border border-white/70 bg-white/80 text-theme-secondary hover:bg-white transition-all"
+                          className="px-2 py-1 text-[8.5px] font-black rounded-lg border border-slate-300/60 bg-white hover:bg-slate-50 text-theme-secondary shadow-3xs cursor-pointer"
                         >
                           Apri
                         </button>
-                        {story.preferita && (
-                          <span className="text-natural-yellow">
-                            <Star size={14} fill="currentColor" />
-                          </span>
-                        )}
                         
                         <button
                           onClick={(e) => {
@@ -468,80 +464,36 @@ export default function ArchiveView({
                             setStoryToDelete(story);
                           }}
                           id={`btn-delete-story-${story.id}`}
-                          aria-label={`Sposta nel cestino la favola ${story.titolo}`}
-                          className="p-1.5 text-natural-text/40 hover:text-[#EC407A] hover:bg-white/80 rounded-lg transition-all"
+                          className="p-1 text-slate-400 hover:text-[#EC407A] hover:bg-white/80 rounded-lg transition-all cursor-pointer"
                           title="Sposta nel cestino"
                         >
-                          <Trash2 size={13} />
+                          <Trash2 size={12} />
                         </button>
                       </div>
                     </div>
                   );
                 })}
+
+                {/* Elegant Toggle Series Button at the bottom if hasChapters */}
+                {hasChapters && (
+                  <div className="flex items-center justify-center pt-1">
+                    <button
+                      type="button"
+                      onClick={() => { playClickSound(); toggleSeries(sId); }}
+                      className="text-[8.5px] font-extrabold text-theme-secondary uppercase flex items-center gap-1 hover:text-natural-burgundy hover:bg-amber-100/60 transition-all cursor-pointer bg-white/80 border border-amber-200/80 rounded-full px-3 py-1 shadow-3xs"
+                    >
+                      <Layers size={9} className="text-amber-500" />
+                      <span>
+                        {isExpanded 
+                          ? "Nascondi altri capitoli della serie ▴" 
+                          : `Mostra altri ${totalChapters - 1} capitoli della serie ▾`}
+                      </span>
+                    </button>
+                  </div>
+                )}
               </div>
             );
           })
-        )}
-
-        {/* --- RECYCLE BIN SECTION --- */}
-        {deletedStories.length > 0 && (
-          <div className="mt-8 pt-4 border-t border-dashed border-natural-pink-border/85">
-            <h4 className="text-xs font-black text-natural-burgundy/80 flex items-center gap-1.5 font-serif italic mb-3">
-              <span>🗑️</span> Cestino dei Ricordi
-            </h4>
-            <p className="text-[10px] text-natural-text font-semibold leading-tight mb-3">
-              Le favole eliminate rimangono salvate qui per 30 giorni. Puoi ripristinarle o eliminarle definitivamente.
-            </p>
-            <div className="space-y-2">
-              {deletedStories.map(({ story, deletedAt }) => {
-                const daysRemaining = getDaysRemaining(deletedAt);
-                return (
-                  <div
-                    key={story.id}
-                    className="p-3 bg-slate-50/70 border border-slate-200/60 rounded-xl flex items-center justify-between"
-                  >
-                    <div className="flex-1 min-w-0 pr-3">
-                      <h5 className="font-extrabold text-[10px] text-slate-700 truncate font-serif">
-                        {story.titolo}
-                      </h5>
-                      <p className="text-[8.5px] font-bold text-theme-secondary flex items-center gap-1 mt-0.5">
-                        <AlertTriangle size={9} className="text-amber-500" />
-                        {daysRemaining} {daysRemaining === 1 ? 'giorno rimanente' : 'giorni rimanenti'}
-                      </p>
-                    </div>
-                    <div className="flex gap-1.5 shrink-0">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          playClickSound();
-                          if (onRestoreStory) onRestoreStory(story.id);
-                        }}
-                        aria-label={`Ripristina favola ${story.titolo}`}
-                        className="p-1.5 bg-green-100 hover:bg-green-200 text-green-700 border border-green-300 rounded-lg transition-all cursor-pointer"
-                        title="Ripristina favola"
-                      >
-                        <RotateCcw size={12} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          playClickSound();
-                          setStoryToPermanentlyDelete(story);
-                        }}
-                        aria-label={`Elimina definitivamente favola ${story.titolo}`}
-                        className="p-1.5 bg-red-100 hover:bg-red-200 text-red-700 border border-red-300 rounded-lg transition-all cursor-pointer"
-                        title="Elimina definitivamente"
-                      >
-                        <Trash2 size={12} />
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
         )}
       </div>
 
@@ -549,10 +501,98 @@ export default function ArchiveView({
         Totale storie conservate: <span className="text-natural-burgundy font-black">{stories.length}</span>
       </div>
 
+      {/* Cestino (Trash) Modal */}
+      {showTrashModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-5 z-50 animate-fade-in" role="presentation">
+          <div className="bg-white rounded-[2rem] border-4 border-slate-300 p-5 max-w-sm w-full text-center space-y-4 shadow-2xl relative animate-scale-up">
+            <button
+              onClick={() => setShowTrashModal(false)}
+              className="absolute -top-3.5 -right-3.5 bg-slate-500 hover:bg-slate-600 active:scale-95 text-white font-bold w-11 h-11 flex items-center justify-center rounded-full border-4 border-white shadow-lg cursor-pointer z-50 transition-all"
+              title="Chiudi"
+            >
+              <X size={18} strokeWidth={3} />
+            </button>
+
+            <div className="text-4xl">🗑️</div>
+
+            <div className="space-y-1">
+              <h4 className="font-extrabold text-sm text-natural-burgundy font-serif italic">
+                Cestino dei Ricordi
+              </h4>
+              <p className="text-[10px] text-natural-text/80 font-bold leading-tight">
+                Le favole eliminate rimangono salvate qui per 30 giorni. Puoi ripristinarle o eliminarle definitivamente.
+              </p>
+            </div>
+
+            <div className="max-h-[220px] overflow-y-auto pr-1 space-y-2 text-left scrollbar-none">
+              {deletedStories.length === 0 ? (
+                <div className="text-center py-6 text-[10px] font-bold text-slate-400">
+                  Il cestino è vuoto ✨
+                </div>
+              ) : (
+                deletedStories.map(({ story, deletedAt }) => {
+                  const daysRemaining = getDaysRemaining(deletedAt);
+                  return (
+                    <div
+                      key={story.id}
+                      className="p-2.5 bg-slate-50/80 border border-slate-200 rounded-xl flex items-center justify-between gap-2"
+                    >
+                      <div className="min-w-0 flex-1 pr-1">
+                        <h5 className="font-extrabold text-[10.5px] text-slate-700 truncate font-serif">
+                          {story.titolo}
+                        </h5>
+                        <p className="text-[8.5px] font-bold text-theme-secondary flex items-center gap-1 mt-0.5">
+                          <AlertTriangle size={9} className="text-amber-500 shrink-0" />
+                          <span>{daysRemaining} {daysRemaining === 1 ? 'giorno rimasto' : 'giorni rimasti'}</span>
+                        </p>
+                      </div>
+                      <div className="flex gap-1 shrink-0">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            playClickSound();
+                            if (onRestoreStory) onRestoreStory(story.id);
+                          }}
+                          className="p-1.5 bg-green-50 hover:bg-green-100 text-green-700 border border-green-200 rounded-lg transition-all cursor-pointer"
+                          title="Ripristina"
+                        >
+                          <RotateCcw size={12} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            playClickSound();
+                            setStoryToPermanentlyDelete(story);
+                          }}
+                          className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-lg transition-all cursor-pointer"
+                          title="Elimina per sempre"
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Custom Confirmation Dialog */}
       {storyToDelete && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-5 z-50 animate-fade-in" role="presentation">
-          <div className="bg-white rounded-[2rem] border-4 border-natural-pink-border p-6 max-w-sm w-full text-center space-y-4 shadow-xl transform scale-100 transition-all animate-scale-up" role="dialog" aria-modal="true" aria-labelledby="archive-delete-title" aria-describedby="archive-delete-description">
+          <div className="bg-white rounded-[2rem] border-4 border-natural-pink-border p-6 max-w-sm w-full text-center space-y-4 shadow-xl transform scale-100 transition-all animate-scale-up relative" role="dialog" aria-modal="true" aria-labelledby="archive-delete-title" aria-describedby="archive-delete-description">
+            <button
+              onClick={() => setStoryToDelete(null)}
+              className="absolute -top-3.5 -right-3.5 bg-slate-500 hover:bg-slate-600 active:scale-95 text-white font-bold w-11 h-11 flex items-center justify-center rounded-full border-4 border-white shadow-lg cursor-pointer z-50 transition-all"
+              title="Chiudi"
+            >
+              <X size={18} strokeWidth={3} />
+            </button>
+
             <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center text-2xl mx-auto border-2 border-red-100">
               🗑️
             </div>
@@ -588,7 +628,15 @@ export default function ArchiveView({
       {/* Permanent Delete Confirmation Dialog */}
       {storyToPermanentlyDelete && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-5 z-50 animate-fade-in" role="presentation">
-          <div className="bg-white rounded-[2rem] border-4 border-natural-pink-border p-6 max-w-sm w-full text-center space-y-4 shadow-xl transform scale-100 transition-all animate-scale-up" role="dialog" aria-modal="true" aria-labelledby="archive-hard-delete-title" aria-describedby="archive-hard-delete-description">
+          <div className="bg-white rounded-[2rem] border-4 border-natural-pink-border p-6 max-w-sm w-full text-center space-y-4 shadow-xl transform scale-100 transition-all animate-scale-up relative" role="dialog" aria-modal="true" aria-labelledby="archive-hard-delete-title" aria-describedby="archive-hard-delete-description">
+            <button
+              onClick={() => setStoryToPermanentlyDelete(null)}
+              className="absolute -top-3.5 -right-3.5 bg-slate-500 hover:bg-slate-600 active:scale-95 text-white font-bold w-11 h-11 flex items-center justify-center rounded-full border-4 border-white shadow-lg cursor-pointer z-50 transition-all"
+              title="Chiudi"
+            >
+              <X size={18} strokeWidth={3} />
+            </button>
+
             <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center text-2xl mx-auto border-2 border-red-100">
               ⚠️
             </div>

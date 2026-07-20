@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Share2, Star, ChevronLeft, ChevronRight, Play, Pause, Square, Sparkles, Copy, Check, Mic, Trash2, CheckCircle } from "lucide-react";
+import { ArrowLeft, Share2, Star, ChevronLeft, ChevronRight, Play, Pause, Square, Sparkles, Copy, Check, Mic, Trash2, CheckCircle, X } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Story, AppSettings, ChildProfile } from "../types";
 import { audioEngine } from "../lib/audioEngine";
@@ -85,8 +85,65 @@ export default function StoryReaderView({
   onContinueStory,
   onStoryReadCompleted
 }: StoryReaderViewProps) {
+  const [fontSize, setFontSize] = useState<"sm" | "base" | "lg" | "xl" | "2xl">("base");
   const rawPagine = story.pagine || [];
-  const pagine = rawPagine.filter((p: string) => p && p.trim().length > 20 && !p.includes("coverTheme") && !p.includes("coverColor"));
+  const filteredPagine = rawPagine.filter((p: string) => p && p.trim().length > 20 && !p.includes("coverTheme") && !p.includes("coverColor"));
+
+  // Dynamic pagination splitting to fill the page beautiful height based on font size
+  const pagine = React.useMemo(() => {
+    const finalPages: string[] = [];
+    // Choose dynamic character threshold to fill up to the page maximum height beautifully
+    const maxChars = fontSize === "sm" ? 900
+                   : fontSize === "base" ? 700
+                   : fontSize === "lg" ? 550
+                   : fontSize === "xl" ? 420
+                   : 320; // 2xl
+    
+    filteredPagine.forEach((pageText: string) => {
+      const clean = pageText.trim();
+      if (!clean) return;
+      if (clean.length <= maxChars) {
+        finalPages.push(clean);
+        return;
+      }
+      
+      // Split by paragraphs/newlines first
+      const paragraphs = clean.split("\n").map(p => p.trim()).filter(Boolean);
+      let currentChunk = "";
+      
+      paragraphs.forEach((para) => {
+        if (currentChunk.length + para.length + 1 <= maxChars) {
+          currentChunk = currentChunk ? currentChunk + "\n" + para : para;
+        } else {
+          if (para.length > maxChars) {
+            // Split by punctuation sentences while preserving the punctuation
+            const sentences = para.match(/[^.!?]+[.!?]+(\s+|$)/g) || [para];
+            sentences.forEach((sentence) => {
+              const trimmedSent = sentence.trim();
+              if (currentChunk.length + trimmedSent.length + 1 <= maxChars) {
+                currentChunk = currentChunk ? currentChunk + " " + trimmedSent : trimmedSent;
+              } else {
+                if (currentChunk) {
+                  finalPages.push(currentChunk);
+                }
+                currentChunk = trimmedSent;
+              }
+            });
+          } else {
+            if (currentChunk) {
+              finalPages.push(currentChunk);
+            }
+            currentChunk = para;
+          }
+        }
+      });
+      if (currentChunk) {
+        finalPages.push(currentChunk);
+      }
+    });
+    return finalPages;
+  }, [filteredPagine, fontSize]);
+
   const totalPages = pagine.length;
   const [currentPage, setCurrentPage] = useState<number>(0); // 0 is cover, 1..N are pages, N+1 is moral
   const [visitedPages, setVisitedPages] = useState<Set<number>>(new Set([0]));
@@ -160,7 +217,6 @@ export default function StoryReaderView({
   }, [playbackSpeed]);
   const [recordings, setRecordings] = useState<Record<string, string>>({});
   const [playingRecording, setPlayingRecording] = useState<{ readerType: string } | null>(null);
-  const [fontSize, setFontSize] = useState<"sm" | "base" | "lg" | "xl" | "2xl">("base");
   const [activeConsoleTab, setActiveConsoleTab] = useState<"audio" | "registra">("audio");
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -791,7 +847,7 @@ export default function StoryReaderView({
     if (isCover) {
       rawText = `${story.titolo}. Una favola magica nella categoria ${story.categoria}.`;
     } else if (isMoralPage) {
-      rawText = `La morale finale di questa storia è: ${story.morale}`;
+      rawText = `La morale finale di questa storia è: ${story.temaEducativo || story.morale}`;
     } else {
       rawText = pagine[currentPage - 1];
     }
@@ -846,7 +902,7 @@ export default function StoryReaderView({
       if (targetPage === 0) {
         rawText = `${story.titolo}. Una favola magica nella categoria ${story.categoria}.`;
       } else if (targetPage === totalPages + 1) {
-        rawText = `La morale finale di questa storia è: ${story.morale}`;
+        rawText = `La morale finale di questa storia è: ${story.temaEducativo || story.morale}`;
       } else {
         rawText = pagine[targetPage - 1];
       }
@@ -1523,24 +1579,30 @@ export default function StoryReaderView({
             >
               <div className="absolute -top-6 -right-6 w-16 h-16 bg-natural-yellow-light/40 rounded-full blur-md"></div>
               
-              <div className="flex-1 flex flex-col items-center justify-center space-y-2 py-2 overflow-y-auto scrollbar-none">
-                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-2xl shadow-inner border border-natural-yellow-light animate-bounce shrink-0">
-                  📜
+              <div className="flex-1 flex flex-col items-center justify-center space-y-4 py-2 overflow-y-auto scrollbar-none">
+                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center text-4xl shadow-md border-2 border-natural-yellow-light animate-bounce shrink-0 select-none">
+                  {story.temaEducativo === "Amicizia" ? "🤝" :
+                   story.temaEducativo === "Coraggio" ? "🦁" :
+                   story.temaEducativo === "Gentilezza" ? "🌸" :
+                   story.temaEducativo === "Rispetto" ? "💖" :
+                   story.temaEducativo === "Collaborazione" ? "🐝" :
+                   story.temaEducativo === "Onestà" ? "🌟" :
+                   story.temaEducativo === "Generosità" ? "🎁" :
+                   story.temaEducativo === "Pazienza" ? "⏳" :
+                   story.temaEducativo === "Gratitudine" ? "🙏" :
+                   story.temaEducativo === "Perdono" ? "🕊️" : "✨"}
                 </div>
-                <h4 className="text-[#F57C00] font-black text-base font-serif italic shrink-0">La Morale Insegnata</h4>
                 
-                <div className="text-[10px] text-[#F57C00] font-black tracking-widest uppercase bg-white/80 px-3 py-0.5 rounded-full border border-natural-yellow-light shrink-0">
+                <div className="space-y-1">
+                  <h4 className="text-[#F57C00] font-black text-xs uppercase tracking-widest">La Morale Insegnata</h4>
+                  <h3 className="text-4xl md:text-5xl font-black font-serif italic text-natural-burgundy tracking-tight py-2 leading-none">
+                    {story.temaEducativo || story.morale}
+                  </h3>
+                </div>
+
+                <div className="text-[10px] text-[#F57C00] font-black tracking-widest uppercase bg-white/90 px-4 py-1.5 rounded-full border border-natural-yellow-light shadow-2xs">
                   ✨ Valore: {getEducationalThemeDisplayName(story.temaEducativo)} ✨
                 </div>
-                
-                <p className={`text-natural-text leading-relaxed font-extrabold px-2 ${
-                  fontSize === "sm" ? "text-xs" :
-                  fontSize === "base" ? "text-sm" :
-                  fontSize === "lg" ? "text-base" :
-                  fontSize === "xl" ? "text-lg" : "text-xl"
-                }`}>
-                  {renderPageText(story.morale)}
-                </p>
 
                 {/* BIG sparkling Continue Story button */}
                 {(story.chapter || 1) < 10 && (
@@ -1601,7 +1663,15 @@ export default function StoryReaderView({
       {/* Custom Share Modal fallback */}
       {showShareModal && (
         <div className="absolute inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in" role="presentation">
-          <div className="bg-white rounded-[2rem] p-5 border-4 border-natural-pink-border shadow-xl max-w-xs w-full text-center space-y-4" role="dialog" aria-modal="true" aria-labelledby="share-story-title" aria-describedby="share-story-description">
+          <div className="bg-white rounded-[2rem] p-5 border-4 border-natural-pink-border shadow-xl max-w-xs w-full text-center space-y-4 relative" role="dialog" aria-modal="true" aria-labelledby="share-story-title" aria-describedby="share-story-description">
+            <button
+              onClick={() => setShowShareModal(false)}
+              className="absolute -top-3.5 -right-3.5 bg-slate-500 hover:bg-slate-600 active:scale-95 text-white font-bold w-11 h-11 flex items-center justify-center rounded-full border-4 border-white shadow-lg cursor-pointer z-50 transition-all"
+              title="Chiudi"
+            >
+              <X size={18} strokeWidth={3} />
+            </button>
+
             <span className="text-4xl animate-bounce inline-block">🎁</span>
             <h4 id="share-story-title" className="font-extrabold text-sm text-natural-burgundy font-serif">Condividi la tua Favola!</h4>
             <p id="share-story-description" className="text-[10px] text-natural-text/70 leading-relaxed font-bold">
@@ -1616,14 +1686,6 @@ export default function StoryReaderView({
               >
                 {copied ? <Check size={14} /> : <Copy size={14} />}
                 {copied ? "Copiato negli Appunti!" : "Copia Testo Favola"}
-              </button>
-
-              <button
-                onClick={() => setShowShareModal(false)}
-                aria-label="Chiudi finestra di condivisione"
-                className="w-full py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full text-xs font-bold transition-colors cursor-pointer"
-              >
-                Chiudi
               </button>
             </div>
           </div>

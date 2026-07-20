@@ -696,15 +696,33 @@ export default function NewStoryView({
           </button>
           <h3 className="text-lg font-bold text-natural-burgundy font-serif">Nuova Storia</h3>
         </div>
-        <button
-          onClick={handleRandomizeAll}
-          id="btn-random-story-config"
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-400 hover:from-amber-500 hover:to-amber-600 text-slate-950 text-[10.5px] font-black rounded-full shadow-md border-b-2 border-amber-700 active:border-b-0 active:translate-y-[2px] transition-all cursor-pointer uppercase tracking-wider animate-pulse ring-4 ring-amber-400/60 shrink-0"
-          title="Genera casualmente categoria, tema, tipo e caratteristica personaggio!"
-        >
-          <Sparkles size={11} className="animate-bounce" />
-          <span>Casuale 🔮</span>
-        </button>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button
+            onClick={() => {
+              playClickSound();
+              if (onToggleBedtimeMode) onToggleBedtimeMode(!isBedtimeMode);
+            }}
+            id="btn-toggle-bedtime-new-story"
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-black rounded-full shadow-md border-b-2 transition-all cursor-pointer uppercase tracking-wider ${
+              isBedtimeMode
+                ? "bg-indigo-900 border-indigo-700 hover:bg-indigo-800 text-white"
+                : "bg-indigo-50 border-indigo-300 hover:bg-indigo-100 text-indigo-950"
+            }`}
+            title={isBedtimeMode ? "Disattiva modalità buonanotte" : "Attiva modalità buonanotte"}
+          >
+            <span>🌙 Nanna: {isBedtimeMode ? "SÌ" : "NO"}</span>
+          </button>
+          
+          <button
+            onClick={handleRandomizeAll}
+            id="btn-random-story-config"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-400 hover:from-amber-500 hover:to-amber-600 text-slate-950 text-[10px] font-black rounded-full shadow-md border-b-2 border-amber-700 active:border-b-0 active:translate-y-[2px] transition-all cursor-pointer uppercase tracking-wider animate-pulse ring-4 ring-amber-400/60"
+            title="Genera casualmente categoria, tema, tipo e caratteristica personaggio!"
+          >
+            <Sparkles size={11} className="animate-bounce" />
+            <span>Casuale 🔮</span>
+          </button>
+        </div>
       </div>
 
       <div ref={scrollContainerRef} className="flex-1 overflow-y-auto space-y-4 px-1.5 pb-4 scrollbar-none">

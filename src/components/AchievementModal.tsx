@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Gift, Trophy } from "lucide-react";
+import { Gift, Trophy, X } from "lucide-react";
 import { playClickSound } from "../utils/audio";
 import confetti from "canvas-confetti";
 import { type AchievementReward } from "../utils/achievements";
@@ -53,6 +53,14 @@ export default function AchievementModal({
           ? "bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-100 border-amber-500"
           : "bg-amber-50 border-amber-300"
       }`}>
+        <button
+          onClick={() => { playClickSound(); onClaim(); }}
+          className="absolute top-4 right-4 bg-slate-500 hover:bg-slate-600 active:scale-95 text-white font-bold w-10 h-10 flex items-center justify-center rounded-full border-4 border-white shadow-lg cursor-pointer z-[320] transition-all"
+          title="Chiudi"
+        >
+          <X size={16} strokeWidth={3} />
+        </button>
+
         {/* Content Container */}
         <div className="relative p-8 space-y-6 text-center flex flex-col items-center justify-center">
           {/* Trophy Icon */}
@@ -131,18 +139,6 @@ export default function AchievementModal({
                   </div>
                 ))}
               </div>
-
-              <button
-                type="button"
-                onClick={() => {
-                  playClickSound();
-                  setShowRewards(false);
-                  onClaim();
-                }}
-                className="mt-4 w-full py-3 px-4 bg-slate-900 hover:bg-slate-800 active:scale-95 text-white font-black text-base rounded-xl transition-all cursor-pointer shadow-md"
-              >
-                Chiudi
-              </button>
             </div>
           )}
         </div>
