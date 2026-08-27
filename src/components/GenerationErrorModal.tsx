@@ -1,5 +1,6 @@
 import React from "react";
 import { AlertCircle } from "lucide-react";
+import { useSwipeToDismiss } from "@mp/app-kit";
 import { playClickSound } from "../utils/audio";
 
 interface GenerationErrorModalProps {
@@ -21,10 +22,15 @@ export default function GenerationErrorModal({
 }: GenerationErrorModalProps) {
   const titleId = "generation-error-title";
   const descriptionId = "generation-error-description";
+  const { offset, isDragging, handlers } = useSwipeToDismiss({ onDismiss: onCancel });
 
   return (
         <div className="fixed inset-0 bg-slate-950/70 flex items-center justify-center p-4 z-200" role="presentation">
-          <div className="bg-white rounded-[2.5rem] border-4 border-red-200 p-6 max-w-sm w-full shadow-[0_10px_40px_rgba(220,38,38,0.3)] space-y-4 animate-in fade-in scale-95" role="alertdialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={descriptionId} aria-live="assertive">
+          <div
+            className="bg-white rounded-[2.5rem] border-4 border-red-200 p-6 max-w-sm w-full shadow-[0_10px_40px_rgba(220,38,38,0.3)] space-y-4 animate-in fade-in scale-95"
+            style={{ transform: `translateY(${offset}px)`, transition: isDragging ? "none" : undefined }}
+            {...handlers}
+            role="alertdialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={descriptionId} aria-live="assertive">
         {/* Error Icon */}
             <div className="flex flex-col items-center mb-2 gap-2">
               <div className="text-[11px] font-black uppercase tracking-[0.25em] text-red-700 flex items-center gap-1">

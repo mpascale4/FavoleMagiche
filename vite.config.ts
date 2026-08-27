@@ -10,6 +10,7 @@ export default defineConfig(() => {
       alias: {
         '@': path.resolve(__dirname, '.'),
       },
+      dedupe: ['react', 'react-dom'],
     },
     build: {
       chunkSizeWarningLimit: 1000, // Aumenta il limite a 1MB per sopprimere l'avviso

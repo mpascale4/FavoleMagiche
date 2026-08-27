@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F06292" />
+      <stop offset="100%" stop-color="#880E4F" />
+    </linearGradient>
+  </defs>
+
+  <!-- App icon: magic storybook -->
+  <rect x="0" y="0" width="512" height="512" rx="112" fill="url(#bg)" />
+
+  <!-- open book -->
+  <path d="M96 168 C160 148 216 148 256 176 C296 148 352 148 416 168 L416 356 C352 336 296 336 256 364 C216 336 160 336 96 356 Z" fill="#FFF9F0" opacity="0.96" />
+  <line x1="256" y1="176" x2="256" y2="364" stroke="#F8BBD0" stroke-width="8" />
+
+  <!-- sparkles -->
+  <g fill="#F9A825">
+    <path d="M256 96 L266 124 L294 134 L266 144 L256 172 L246 144 L218 134 L246 124 Z" />
+    <path d="M150 200 L157 218 L175 225 L157 232 L150 250 L143 232 L125 225 L143 218 Z" />
+    <path d="M368 210 L374 226 L390 232 L374 238 L368 254 L362 238 L346 232 L362 226 Z" />
+  </g>
+
+  <!-- MP brand badge (mandatory: fixed brand indigo, bottom-right corner) -->
+  <circle cx="392" cy="392" r="88" fill="#4f46e5" stroke="#ffffff" stroke-width="10" />
+  <text
+    x="392"
+    y="410"
+    text-anchor="middle"
+    font-family="Fredoka, Arial, sans-serif"
+    font-weight="700"
+    font-size="64"
+    fill="#ffffff"
+  >MP</text>
+</svg>

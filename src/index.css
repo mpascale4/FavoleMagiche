@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Inter:wght@400;500;600;700;800;950&family=Outfit:wght@300..900&display=swap');
 @import "tailwindcss";
+@import "@mp/app-kit/theme.css";
 
 @theme {
   --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
