@@ -84,8 +84,9 @@ export default function HomeView({
       {/* 1. TOP HEADER WITH COMPACT BUTTONS ON THE RIGHT */}
       <div className="flex items-center justify-between mt-2 mb-1 shrink-0">
         <div className="flex items-center gap-2 text-left">
-          <div className="w-9 h-9 bg-gradient-to-br from-natural-pink to-[#F06292] rounded-xl flex items-center justify-center shadow-md transform -rotate-3 shrink-0">
-            <span className="text-xl">✨</span>
+          {/* Icona app = favicon (regola "Icona header = favicon") */}
+          <div className="w-9 h-9 rounded-xl overflow-hidden shadow-md transform -rotate-3 shrink-0 border border-white">
+            <img src="/icon.svg" alt="Favole Magiche" className="h-full w-full object-cover" />
           </div>
           <div>
             <h2 className="text-base font-extrabold tracking-tight text-natural-burgundy italic font-serif leading-none">

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { X, Info, Sparkles, Calendar, Clock } from "lucide-react";
+import { useSwipeToDismiss } from "@mp/app-kit";
 import { playClickSound } from "../utils/audio";
 
 interface ChangeItem {
@@ -31,6 +32,7 @@ interface InfoModalProps {
 
 export default function InfoModal({ onClose }: InfoModalProps) {
   const [versionInfo, setVersionInfo] = useState<VersionInfo | null>(null);
+  const { offset, isDragging, handlers } = useSwipeToDismiss({ onDismiss: onClose });
 
   useEffect(() => {
     const loadVersion = async () => {
@@ -54,7 +56,11 @@ export default function InfoModal({ onClose }: InfoModalProps) {
 
   return (
     <div className="absolute inset-0 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-3 z-[120] animate-in fade-in">
-      <div className="bg-slate-900 text-slate-100 rounded-[1.5rem] border-3 border-pink-500/60 shadow-[0_20px_60px_rgba(0,0,0,0.45)] w-full max-h-[96%] overflow-hidden flex flex-col">
+      <div
+        className="bg-slate-900 text-slate-100 rounded-[1.5rem] border-3 border-pink-500/60 shadow-[0_20px_60px_rgba(0,0,0,0.45)] w-full max-h-[96%] overflow-hidden flex flex-col"
+        style={{ transform: `translateY(${offset}px)`, transition: isDragging ? "none" : undefined }}
+        {...handlers}
+      >
         <div className="bg-slate-800 border-b border-slate-600/70 p-4 flex items-start justify-between gap-4">
           <div className="flex items-start gap-3 flex-1">
             <div className="w-11 h-11 bg-natural-pink rounded-xl flex items-center justify-center text-white text-xl shrink-0">✨</div>

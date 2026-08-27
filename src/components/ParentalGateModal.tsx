@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Lock, X, Check, HelpCircle, AlertTriangle } from "lucide-react";
+import { useSwipeToDismiss } from "@mp/app-kit";
 import { playClickSound, playFairyChorusSound } from "../utils/audio";
 
 interface ParentalGateModalProps {
@@ -22,6 +23,7 @@ export default function ParentalGateModal({
   const [showPinOption, setShowPinOption] = useState(false);
   const [pinDigits, setPinDigits] = useState("");
   const [pinError, setPinError] = useState(false);
+  const { offset, isDragging, handlers } = useSwipeToDismiss({ onDismiss: onCancel });
 
   // Generate randomized arithmetic question
   useEffect(() => {
@@ -78,7 +80,11 @@ export default function ParentalGateModal({
 
   return (
     <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-5 z-200 animate-fade-in">
-      <div className="bg-white rounded-[2.5rem] p-6 border-4 border-natural-pink-border shadow-2xl max-w-sm w-full text-center relative overflow-hidden">
+      <div
+        className="bg-white rounded-[2.5rem] p-6 border-4 border-natural-pink-border shadow-2xl max-w-sm w-full text-center relative overflow-hidden"
+        style={{ transform: `translateY(${offset}px)`, transition: isDragging ? "none" : undefined }}
+        {...handlers}
+      >
         {/* Close Button */}
         <button
           onClick={() => { playClickSound(); onCancel(); }}

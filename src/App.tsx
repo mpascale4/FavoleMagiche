@@ -17,6 +17,7 @@ import GenerationErrorModal from "./components/GenerationErrorModal";
 import AchievementModal from "./components/AchievementModal";
 import DeveloperMode from "./components/DeveloperMode";
 import DeveloperPinModal from "./components/DeveloperPinModal";
+import { MpBranding } from "@mp/app-kit";
 import { audioEngine } from "./lib/audioEngine";
 import { playFairyChorusSound, playClickSound } from "./utils/audio";
 import { ChildProfile, DeletedProfile, DeletedStory, Story, AppSettings, ScreenType, Character, CATEGORIES, EDUCATIONAL_THEMES, INITIAL_CATEGORIES, INITIAL_THEMES, CHARACTER_TYPES, INITIAL_CHARACTER_TYPES, CHARACTER_TRAITS, INITIAL_CHARACTER_TRAITS } from "./types";
@@ -1162,6 +1163,7 @@ export default function App() {
 
   return (
     <>
+      <MpBranding />
       <a
         href="#app-main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[10000] focus:rounded-lg focus:bg-blue-700 focus:px-3 focus:py-2 focus:text-sm focus:font-bold focus:text-white"

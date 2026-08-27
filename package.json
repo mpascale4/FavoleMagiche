@@ -16,13 +16,15 @@
     "lint": "tsc --noEmit",
     "pull": "git pull origin develop && git pull origin main",
     "update:changelog": "node scripts/update-changelog.cjs",
-    "feature:finish": "node scripts/finish-feature.cjs"
+    "feature:finish": "node scripts/finish-feature.cjs",
+    "gen:favicon": "node scripts/gen-favicon.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.2",
     "@capacitor/cli": "^8.4.2",
     "@capacitor/core": "^8.4.2",
     "@google/genai": "^2.4.0",
+    "@mp/app-kit": "file:../mp-app-kit",
     "@tailwindcss/vite": "^4.1.14",
     "@types/canvas-confetti": "^1.9.0",
     "@vitejs/plugin-react": "^5.0.4",
@@ -44,6 +46,8 @@
     "axe-core": "^4.10.3",
     "jest-axe": "^10.0.0",
     "jsdom": "^26.1.0",
+    "png-to-ico": "^3.0.2",
+    "sharp": "^0.35.3",
     "tailwindcss": "^4.1.14",
     "typescript": "~5.8.2",
     "vite": "^6.2.3",

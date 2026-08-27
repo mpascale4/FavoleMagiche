@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Gift, Trophy, X } from "lucide-react";
+import { useSwipeToDismiss } from "@mp/app-kit";
 import { playClickSound } from "../utils/audio";
 import confetti from "canvas-confetti";
 import { type AchievementReward } from "../utils/achievements";
@@ -21,6 +22,7 @@ export default function AchievementModal({
 }: AchievementModalProps) {
   const [showRewards, setShowRewards] = useState(false);
   const [openedRewards, setOpenedRewards] = useState<AchievementReward[]>(rewards);
+  const { offset, isDragging, handlers } = useSwipeToDismiss({ onDismiss: onClaim });
 
   useEffect(() => {
     confetti({
@@ -48,6 +50,8 @@ export default function AchievementModal({
     >
       <div
         onClick={(e) => e.stopPropagation()}
+        style={{ transform: `translateY(${offset}px)`, transition: isDragging ? "none" : undefined }}
+        {...handlers}
         className={`relative z-[310] rounded-[2.5rem] border-4 shadow-[0_20px_60px_rgba(0,0,0,0.4)] w-full max-w-sm max-h-[90vh] overflow-y-auto flex flex-col animate-in zoom-in-95 duration-300 ${
         isWorldCompletion
           ? "bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-100 border-amber-500"

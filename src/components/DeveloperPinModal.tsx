@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { X, AlertTriangle } from "lucide-react";
+import { useSwipeToDismiss } from "@mp/app-kit";
 import { playClickSound } from "../utils/audio";
 
 interface DeveloperPinModalProps {
@@ -14,6 +15,7 @@ export default function DeveloperPinModal({
   const [pin, setPin] = useState("");
   const [error, setError] = useState(false);
   const correctPin = "1357";
+  const { offset, isDragging, handlers } = useSwipeToDismiss({ onDismiss: onCancel });
 
   const handleNumberClick = (num: string) => {
     playClickSound();
@@ -41,7 +43,11 @@ export default function DeveloperPinModal({
 
   return (
     <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-5 z-450 animate-fade-in">
-      <div className="bg-white rounded-3xl p-6 border-4 border-slate-200 shadow-2xl max-w-xs w-full text-center relative overflow-hidden">
+      <div
+        className="bg-white rounded-3xl p-6 border-4 border-slate-200 shadow-2xl max-w-xs w-full text-center relative overflow-hidden"
+        style={{ transform: `translateY(${offset}px)`, transition: isDragging ? "none" : undefined }}
+        {...handlers}
+      >
         <button
           onClick={() => { playClickSound(); onCancel(); }}
           className="absolute top-4 right-4 text-theme-secondary hover:text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-full w-8 h-8 flex items-center justify-center cursor-pointer transition-colors"
