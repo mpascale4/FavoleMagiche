@@ -109,6 +109,17 @@ function expectedPages(durata: StoryGenerationConfig["durata"]): number {
   return 5;
 }
 
+function cleanMoralToSingleWord(morale: string, fallbackTheme: string): string {
+  const clean = (morale || "").trim().replace(/[.,!?;:]/g, "");
+  // If it is indeed a single word, return it capitalized
+  if (clean && !clean.includes(" ") && clean.length > 1) {
+    return clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase();
+  }
+  // Otherwise, fallback to the single-word theme capitalized
+  const themeClean = fallbackTheme.trim();
+  return themeClean.charAt(0).toUpperCase() + themeClean.slice(1).toLowerCase();
+}
+
 function ensureNotCancelled(isCancelled?: () => boolean): void {
   if (isCancelled?.()) {
     throw new Error("GENERATION_CANCELLED");
@@ -150,7 +161,7 @@ ${characters}
 Requisiti:
 1) Inserisci dialoghi naturali e facili da leggere.
 2) Ogni pagina deve essere un testo separato nell'array "pagine".
-3) Concludi con una morale chiara.
+3) IMPORTANTE: Il campo "morale" deve essere RIGOROSAMENTE composto da una sola parola (es. "Amicizia", "Coraggio", "Gentilezza", "Rispetto", "Collaborazione", "Onestà", "Generosità", "Pazienza", "Gratitudine", "Perdono") che rappresenta il valore morale principale insegnato nella favola, senza altre parole, articoli, verbi, punti o frasi intorno.
 4) Suggerisci coverTheme in inglese e coverColor tra: ${COLORS.join(", ")}.
 5) Usa un linguaggio positivo, rassicurante e adatto ai bambini.
 6) IMPORTANTE PER I DIALOGHI: Adatta fedelmente il modo di parlare dei personaggi alla loro natura. 
@@ -181,12 +192,14 @@ function normalizeGeminiResponse(raw: string, config: StoryGenerationConfig): St
     ? parsed.coverTheme
     : (COVER_THEMES[config.categoria] || "star");
 
+  const rawMoral = typeof parsed.morale === "string" && parsed.morale.trim()
+    ? parsed.morale
+    : config.temaEducativo;
+
   return {
     titolo: typeof parsed.titolo === "string" && parsed.titolo.trim() ? parsed.titolo : `Favola su ${config.temaEducativo} ✨`,
     pagine,
-    morale: typeof parsed.morale === "string" && parsed.morale.trim()
-      ? parsed.morale
-      : `La morale e che ${config.temaEducativo.toLowerCase()} ci aiuta a crescere con il sorriso.`,
+    morale: cleanMoralToSingleWord(rawMoral, config.temaEducativo),
     coverTheme,
     coverColor,
     copertinaDescrizione: typeof parsed.copertinaDescrizione === "string" && parsed.copertinaDescrizione.trim()
@@ -213,12 +226,14 @@ function normalizeStoryResult(raw: Partial<StoryGenerationResult>, config: Story
     ? raw.coverTheme
     : (COVER_THEMES[config.categoria] || "star");
 
+  const rawMoral = typeof raw.morale === "string" && raw.morale.trim()
+    ? raw.morale
+    : config.temaEducativo;
+
   return {
     titolo: typeof raw.titolo === "string" && raw.titolo.trim() ? raw.titolo : `Favola su ${config.temaEducativo} ✨`,
     pagine,
-    morale: typeof raw.morale === "string" && raw.morale.trim()
-      ? raw.morale
-      : `La morale e che ${config.temaEducativo.toLowerCase()} ci aiuta a crescere con il sorriso.`,
+    morale: cleanMoralToSingleWord(rawMoral, config.temaEducativo),
     coverTheme,
     coverColor,
     copertinaDescrizione: typeof raw.copertinaDescrizione === "string" && raw.copertinaDescrizione.trim()
@@ -294,7 +309,7 @@ function generateFallbackStory(config: StoryGenerationConfig, reason?: string): 
   return {
     titolo: `La magia di ${child} e ${mainCharacter} ✨`,
     pagine: finalPagine,
-    morale: `La morale è che la forza di ${theme} rende ogni avventura più bella quando la condividiamo con il cuore.`,
+    morale: config.temaEducativo.trim(),
     coverTheme: COVER_THEMES[config.categoria] || "star",
     coverColor: COLORS[Math.floor(Math.random() * COLORS.length)],
     copertinaDescrizione: `${child} e ${mainCharacter} in un mondo color pastello pieno di stelle e magia.`,

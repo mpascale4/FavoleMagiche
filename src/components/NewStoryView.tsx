@@ -217,6 +217,49 @@ export default function NewStoryView({
   const [pageCharType, setPageCharType] = useState(1);
   const [pageCharTrait, setPageCharTrait] = useState(1);
 
+  // Step-by-step wizard state
+  const [formStep, setFormStep] = useState(1);
+
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [formStep]);
+
+  // Swipe back gesture detection
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.changedTouches[0].clientX;
+    touchStartY.current = e.changedTouches[0].clientY;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null || touchStartY.current === null) return;
+
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
+
+    const diffX = touchStartX.current - touchEndX;
+    const diffY = touchStartY.current - touchEndY;
+    const minSwipeDistance = 50;
+
+    // Detect horizontal swipe (primarily left to right or right to left, representing back)
+    if (Math.abs(diffX) > minSwipeDistance && Math.abs(diffY) < Math.abs(diffX) * 0.6) {
+      e.stopPropagation();
+      playClickSound();
+      if (formStep > 1) {
+        setFormStep((prev) => prev - 1);
+      } else {
+        onBack();
+      }
+    }
+
+    touchStartX.current = null;
+    touchStartY.current = null;
+  };
+
   // Locked item banner messages
   const [lockedBannerMsg, setLockedBannerMsg] = useState<{ section: string; text: string } | null>(null);
 
@@ -609,6 +652,9 @@ export default function NewStoryView({
       setBackupName("Piccolo Lettore");
     }
 
+    // Move directly to Step 3 so the user can review and generate!
+    setFormStep(3);
+
     // 6. Trigger blinking/flashing on generate button
     setIsBlinking(true);
 
@@ -682,13 +728,26 @@ export default function NewStoryView({
     } as any);
   };
 
+  const isStep1Valid = activeProfile || backupName.trim().length > 0;
+
   return (
-    <div className="flex-1 flex flex-col p-5">
+    <div 
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      className="flex-1 flex flex-col p-5 min-h-0"
+    >
       {/* Back Header */}
       <div className="flex items-center justify-between mb-4 shrink-0 gap-2">
         <div className="flex items-center gap-2">
           <button
-            onClick={() => { playClickSound(); onBack(); }}
+            onClick={() => {
+              playClickSound();
+              if (formStep > 1) {
+                setFormStep(prev => prev - 1);
+              } else {
+                onBack();
+              }
+            }}
             id="btn-back-new-story"
             className="w-9 h-9 bg-white hover:bg-natural-pink-light text-natural-burgundy rounded-xl flex items-center justify-center border-2 border-natural-pink-border shadow-xs transition-colors shrink-0"
           >
@@ -696,15 +755,67 @@ export default function NewStoryView({
           </button>
           <h3 className="text-lg font-bold text-natural-burgundy font-serif">Nuova Storia</h3>
         </div>
-        <button
-          onClick={handleRandomizeAll}
-          id="btn-random-story-config"
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-400 hover:from-amber-500 hover:to-amber-600 text-slate-950 text-[10.5px] font-black rounded-full shadow-md border-b-2 border-amber-700 active:border-b-0 active:translate-y-[2px] transition-all cursor-pointer uppercase tracking-wider animate-pulse ring-4 ring-amber-400/60 shrink-0"
-          title="Genera casualmente categoria, tema, tipo e caratteristica personaggio!"
-        >
-          <Sparkles size={11} className="animate-bounce" />
-          <span>Casuale 🔮</span>
-        </button>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button
+            onClick={() => {
+              playClickSound();
+              if (onToggleBedtimeMode) onToggleBedtimeMode(!isBedtimeMode);
+            }}
+            id="btn-toggle-bedtime-new-story"
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-black rounded-full shadow-md border-b-2 transition-all cursor-pointer uppercase tracking-wider ${
+              isBedtimeMode
+                ? "bg-indigo-900 border-indigo-700 hover:bg-indigo-800 text-white"
+                : "bg-indigo-50 border-indigo-300 hover:bg-indigo-100 text-indigo-950"
+            }`}
+            title={isBedtimeMode ? "Disattiva modalità buonanotte" : "Attiva modalità buonanotte"}
+          >
+            <span>🌙 Nanna: {isBedtimeMode ? "SÌ" : "NO"}</span>
+          </button>
+          
+          <button
+            onClick={handleRandomizeAll}
+            id="btn-random-story-config"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-400 hover:from-amber-500 hover:to-amber-600 text-slate-950 text-[10px] font-black rounded-full shadow-md border-b-2 border-amber-700 active:border-b-0 active:translate-y-[2px] transition-all cursor-pointer uppercase tracking-wider animate-pulse ring-4 ring-amber-400/60"
+            title="Genera casualmente categoria, tema, tipo e caratteristica personaggio!"
+          >
+            <Sparkles size={11} className="animate-bounce" />
+            <span>Casuale 🔮</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Step Indicators (Always Pinned Top) */}
+      <div className="bg-white/70 border-4 border-natural-pink-border rounded-[2rem] p-3 mb-4 flex flex-col items-center justify-center gap-1.5 shadow-sm shrink-0">
+        <div className="flex items-center justify-center gap-2">
+          <button
+            type="button"
+            onClick={() => { if (formStep > 1) { playClickSound(); setFormStep(1); } }}
+            className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-black border-2 transition-all duration-300 ${formStep === 1 ? 'bg-[#EC407A] text-white border-[#EC407A] scale-110 shadow-xs' : 'bg-white text-natural-burgundy border-natural-pink-border cursor-pointer hover:bg-natural-pink-light/30'}`}
+          >
+            1
+          </button>
+          <div className={`w-8 h-0.5 transition-colors duration-300 ${formStep >= 2 ? 'bg-[#EC407A]' : 'bg-natural-pink-border/60'}`}></div>
+          <button
+            type="button"
+            onClick={() => { if (isStep1Valid && formStep !== 2) { playClickSound(); setFormStep(2); } }}
+            disabled={!isStep1Valid}
+            className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-black border-2 transition-all duration-300 ${formStep === 2 ? 'bg-[#EC407A] text-white border-[#EC407A] scale-110 shadow-xs' : 'bg-white text-natural-burgundy border-natural-pink-border ' + (isStep1Valid ? 'cursor-pointer hover:bg-natural-pink-light/30' : 'opacity-50 cursor-not-allowed')}`}
+          >
+            2
+          </button>
+          <div className={`w-8 h-0.5 transition-colors duration-300 ${formStep >= 3 ? 'bg-[#EC407A]' : 'bg-natural-pink-border/40'}`}></div>
+          <button
+            type="button"
+            onClick={() => { if (isStep1Valid && formStep !== 3) { playClickSound(); setFormStep(3); } }}
+            disabled={!isStep1Valid}
+            className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-black border-2 transition-all duration-300 ${formStep === 3 ? 'bg-[#EC407A] text-white border-[#EC407A] scale-110 shadow-xs' : 'bg-white text-natural-burgundy border-natural-pink-border ' + (isStep1Valid ? 'cursor-pointer hover:bg-natural-pink-light/30' : 'opacity-50 cursor-not-allowed')}`}
+          >
+            3
+          </button>
+        </div>
+        <p className="text-[10px] font-black uppercase text-natural-burgundy/80 tracking-widest leading-none mt-0.5">
+          {formStep === 1 ? "1. Lettore e Tempo ⏳" : formStep === 2 ? "2. Sfondo e Morale 🏰" : "3. Protagonisti 🦄"}
+        </p>
       </div>
 
       <div ref={scrollContainerRef} className="flex-1 overflow-y-auto space-y-4 px-1.5 pb-4 scrollbar-none">
@@ -740,417 +851,430 @@ export default function NewStoryView({
           </div>
         )}
 
-        {/* Active child reminder or manual input */}
-        <div className="bg-white/80 rounded-[2rem] p-3.5 border-4 border-natural-pink-border shadow-sm space-y-2.5">
-          {profiles.length > 0 && (
-            <div className="flex items-center justify-between border-b pb-2 border-natural-pink-light/30">
-              <span className="text-[10px] uppercase font-extrabold text-natural-burgundy/60 tracking-wider flex items-center gap-1">
-                👤 Bambino:
-              </span>
-              <select
-                id="select-child-profile-new-story"
-                value={activeProfile ? activeProfile.id : "manual"}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  if (val === "manual") {
-                    if (onSelectProfile) onSelectProfile(null);
-                  } else {
-                    const match = profiles.find((p) => p.id === val);
-                    if (match && onSelectProfile) {
-                      onSelectProfile(match);
-                    }
-                  }
-                }}
-                className="bg-natural-pink-light/40 border-2 border-natural-pink-border/50 text-natural-burgundy font-extrabold rounded-xl px-2 py-0.5 text-xs focus:outline-none cursor-pointer"
-              >
-                {profiles.map((p) => (
-                  <option key={p.id} value={p.id} className="text-slate-800">
-                    {p.nome} ({currentYear - p.annoNascita} anni)
-                  </option>
-                ))}
-                <option value="manual" className="text-slate-800 font-semibold">
-                  ✍️ Altro bambino (Manuale)
-                </option>
-              </select>
-            </div>
-          )}
+        {/* STEP 1 */}
+        {formStep === 1 && (
+          <div className="space-y-4 animate-fade-in">
+            {/* Active child reminder or manual input */}
+            <div className="bg-white/80 rounded-[2rem] p-3.5 border-4 border-natural-pink-border shadow-sm space-y-2.5">
+              {profiles.length > 0 && (
+                <div className="flex items-center justify-between border-b pb-2 border-natural-pink-light/30">
+                  <span className="text-[10px] uppercase font-extrabold text-natural-burgundy/60 tracking-wider flex items-center gap-1">
+                    👤 Bambino:
+                  </span>
+                  <select
+                    id="select-child-profile-new-story"
+                    value={activeProfile ? activeProfile.id : "manual"}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === "manual") {
+                        if (onSelectProfile) onSelectProfile(null);
+                      } else {
+                        const match = profiles.find((p) => p.id === val);
+                        if (match && onSelectProfile) {
+                          onSelectProfile(match);
+                        }
+                      }
+                    }}
+                    className="bg-natural-pink-light/40 border-2 border-natural-pink-border/50 text-natural-burgundy font-extrabold rounded-xl px-2 py-0.5 text-xs focus:outline-none cursor-pointer"
+                  >
+                    {profiles.map((p) => (
+                      <option key={p.id} value={p.id} className="text-slate-800">
+                        {p.nome} ({currentYear - p.annoNascita} anni)
+                      </option>
+                    ))}
+                    <option value="manual" className="text-slate-800 font-semibold">
+                      ✍️ Altro bambino (Manuale)
+                    </option>
+                  </select>
+                </div>
+              )}
 
-          {activeProfile ? (
-            <div className="flex items-center gap-2.5">
-              <span className="text-2xl animate-bounce">🦁</span>
-              <p className="text-xs text-natural-burgundy font-bold">
-                La favola sarà dedicata a <strong className="text-[#EC407A] font-extrabold">{activeProfile.nome}</strong> (Età: {currentYear - activeProfile.annoNascita} anni).
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              <div className="flex items-center gap-1.5 text-xs text-natural-burgundy font-extrabold mb-1">
-                <span className="text-lg">👶</span>
-                <span>A chi dedichiamo la favola?</span>
+              {activeProfile ? (
+                <div className="flex items-center gap-2.5">
+                  <span className="text-2xl animate-bounce">🦁</span>
+                  <p className="text-xs text-natural-burgundy font-bold">
+                    La favola sarà dedicata a <strong className="text-[#EC407A] font-extrabold">{activeProfile.nome}</strong> (Età: {currentYear - activeProfile.annoNascita} anni).
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1.5 text-xs text-natural-burgundy font-extrabold mb-1">
+                    <span className="text-lg">👶</span>
+                    <span>A chi dedichiamo la favola?</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="text"
+                      value={backupName}
+                      onChange={(e) => setBackupName(e.target.value)}
+                      placeholder="Nome Bambino"
+                      maxLength={15}
+                      className="bg-natural-bg border-2 border-natural-pink-light rounded-xl px-2.5 py-2 text-xs text-natural-text focus:outline-none focus:ring-4 focus:ring-natural-pink-light/40 font-bold"
+                    />
+                    <select
+                      value={backupAge}
+                      onChange={(e) => setBackupAge(parseInt(e.target.value))}
+                      className="bg-natural-bg border-2 border-natural-pink-light rounded-xl px-2.5 py-2 text-xs text-natural-text focus:outline-none font-bold"
+                    >
+                      {Array.from({ length: 11 }, (_, i) => i + 2).map((a) => (
+                        <option key={a} value={a}>
+                          {a} anni
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <p className="text-[10px] text-natural-text/60 font-semibold leading-relaxed">
+                    Consiglio: crea un profilo in <button onClick={() => onNavigate("profiles")} className="text-[#EC407A] font-bold underline">Profili</button> per salvarlo automaticamente!
+                  </p>
+                </div>
+              )}
+
+              {/* Checkbox to include/exclude the child profile in the story */}
+              <div className="mt-3.5 pt-3 flex items-center justify-between border-t border-natural-pink-border/25">
+                <span className="text-[10px] font-bold text-natural-burgundy/80">
+                  Inserisci {activeProfile ? activeProfile.nome : (backupName.trim() || "il bambino")} direttamente come personaggio?
+                </span>
+                <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                  <input
+                    type="checkbox"
+                    checked={includeBambino}
+                    onChange={(e) => setIncludeBambino(e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#EC407A]"></div>
+                </label>
               </div>
-              <div className="grid grid-cols-2 gap-2">
+            </div>
+
+            {/* 3. Durata Selector */}
+            <div className="space-y-3 bg-white/85 rounded-[2rem] p-4 border-4 border-natural-pink-border shadow-sm">
+              <label className="block text-[10px] font-black text-natural-burgundy uppercase tracking-wider mb-1">
+                3. Lunghezza Storia
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {DURATIONS.map((dur) => {
+                  const selected = durata === dur.value;
+                  return (
+                    <button
+                      key={dur.value}
+                      onClick={() => setDurata(dur.value as any)}
+                      id={`btn-duration-${dur.value.toLowerCase()}`}
+                      className={`py-2 px-2 rounded-2xl font-extrabold text-center text-xs border-4 transition-all ${
+                        selected
+                          ? "bg-[#E1F5FE] text-[#0277BD] border-[#81D4FA] shadow-xs"
+                          : "bg-white/80 text-natural-text border-transparent hover:border-natural-blue-light"
+                      }`}
+                    >
+                      <span className="text-sm">{dur.value === "Breve" ? "🕒" : dur.value === "Media" ? "⏳" : "🌙"}</span>
+                      <div className="text-[9px] mt-0.5 tracking-tight">{dur.value}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 2 */}
+        {formStep === 2 && (
+          <div className="space-y-4 animate-fade-in">
+            {/* 1. Categoria Selector */}
+            <div className="space-y-2.5 bg-white/40 p-3 rounded-[1.8rem] border-2 border-natural-pink-light/30">
+              <div className="flex items-center justify-between">
+                <label className="block text-[10px] font-black text-natural-burgundy uppercase tracking-wider">
+                  1. Scegli la Categoria
+                </label>
+                <span className="text-[9px] font-bold text-natural-text/50">Ordina per utilizzo</span>
+              </div>
+
+              {/* Search bar for category */}
+              <div className="relative">
+                <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-natural-burgundy/40" />
                 <input
                   type="text"
-                  value={backupName}
-                  onChange={(e) => setBackupName(e.target.value)}
-                  placeholder="Nome Bambino"
-                  maxLength={15}
-                  className="bg-natural-bg border-2 border-natural-pink-light rounded-xl px-2.5 py-2 text-xs text-natural-text focus:outline-none focus:ring-4 focus:ring-natural-pink-light/40 font-bold"
+                  placeholder="Cerca categoria..."
+                  value={searchCategory}
+                  onChange={(e) => setSearchCategory(e.target.value)}
+                  className="w-full bg-white border border-natural-pink-border/60 rounded-xl pl-8 pr-3 py-1.5 text-[11px] focus:outline-none focus:ring-2 focus:ring-natural-pink-light/40 font-bold text-natural-burgundy placeholder:text-natural-burgundy/30"
                 />
-                <select
-                  value={backupAge}
-                  onChange={(e) => setBackupAge(parseInt(e.target.value))}
-                  className="bg-natural-bg border-2 border-natural-pink-light rounded-xl px-2.5 py-2 text-xs text-natural-text focus:outline-none font-bold"
-                >
-                  {Array.from({ length: 11 }, (_, i) => i + 2).map((a) => (
-                    <option key={a} value={a}>
-                      {a} anni
-                    </option>
-                  ))}
-                </select>
               </div>
-              <p className="text-[10px] text-natural-text/60 font-semibold leading-relaxed">
-                Consiglio: crea un profilo in <button onClick={() => onNavigate("profiles")} className="text-[#EC407A] font-bold underline">Profili</button> per salvarlo automaticamente!
-              </p>
-            </div>
-          )}
 
-          {/* Checkbox to include/exclude the child profile in the story */}
-          <div className="mt-3.5 pt-3 flex items-center justify-between border-t border-natural-pink-border/25">
-            <span className="text-[10px] font-bold text-natural-burgundy/80">
-              Inserisci {activeProfile ? activeProfile.nome : (backupName.trim() || "il bambino")} direttamente come personaggio?
-            </span>
-            <label className="relative inline-flex items-center cursor-pointer shrink-0">
-              <input
-                type="checkbox"
-                checked={includeBambino}
-                onChange={(e) => setIncludeBambino(e.target.checked)}
-                className="sr-only peer"
-              />
-              <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#EC407A]"></div>
-            </label>
-          </div>
-        </div>
+              {/* Unlocked / Available Categories */}
+              {paginatedCategories.length > 0 ? (
+                <div className="grid grid-cols-2 gap-1.5">
+                  {paginatedCategories.map((cat) => {
+                    const selected = categoria === cat;
+                    const usage = getUsage(cat);
+                    const emoji = CATEGORY_EMOJIS[cat] || "🏰";
+                    const isNew = unlockedCategories.includes(cat) && !INITIAL_CATEGORIES.includes(cat) && !usedUnlockedItems.includes(cat) && usage === 0;
+                    return (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => {
+                          setCategoria(cat);
+                          if (onMarkItemAsUsed) onMarkItemAsUsed(cat);
+                        }}
+                        id={`btn-cat-${cat.toLowerCase().replace(/\s+/g, '-')}`}
+                        className={`py-2 px-2.5 rounded-2xl text-left font-extrabold text-xs border-4 transition-all relative flex flex-col justify-between ${
+                          selected
+                            ? "bg-[#FCE4EC] text-natural-burgundy border-[#F48FB1] shadow-xs scale-[1.02]"
+                            : "bg-white text-natural-text border-[#FCE4EC] hover:border-natural-pink-border"
+                        }`}
+                      >
+                        {isNew && (
+                          <span className="absolute -top-1.5 -right-1 text-[7px] bg-[#EC407A] text-white px-1.5 py-0.5 rounded-full font-black animate-pulse shadow-xs uppercase tracking-tighter z-10">
+                            NUOVO ✨
+                          </span>
+                        )}
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-sm">{emoji}</span>
+                          <span className="truncate">{cat}</span>
+                        </div>
+                        {usage > 0 && (
+                          <span className="text-[8px] bg-natural-burgundy/25 text-natural-burgundy font-black px-1.5 rounded-sm mt-1 self-start uppercase tracking-tighter">
+                            Usata: {usage}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-[10px] text-natural-text/50 italic text-center py-1">
+                  Nessuna categoria sbloccata corrisponde alla ricerca.
+                </p>
+              )}
 
-        {/* 1. Categoria Selector */}
-        <div className="space-y-2.5 bg-white/40 p-3 rounded-[1.8rem] border-2 border-natural-pink-light/30">
-          <div className="flex items-center justify-between">
-            <label className="block text-[10px] font-black text-natural-burgundy uppercase tracking-wider">
-              1. Scegli la Categoria
-            </label>
-            <span className="text-[9px] font-bold text-natural-text/50">Ordina per utilizzo</span>
-          </div>
-
-          {/* Search bar for category */}
-          <div className="relative">
-            <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-natural-burgundy/40" />
-            <input
-              type="text"
-              placeholder="Cerca categoria..."
-              value={searchCategory}
-              onChange={(e) => setSearchCategory(e.target.value)}
-              className="w-full bg-white border border-natural-pink-border/60 rounded-xl pl-8 pr-3 py-1.5 text-[11px] focus:outline-none focus:ring-2 focus:ring-natural-pink-light/40 font-bold text-natural-burgundy placeholder:text-natural-burgundy/30"
-            />
-          </div>
-
-          {/* Unlocked / Available Categories */}
-          {paginatedCategories.length > 0 ? (
-            <div className="grid grid-cols-2 gap-1.5">
-              {paginatedCategories.map((cat) => {
-                const selected = categoria === cat;
-                const usage = getUsage(cat);
-                const emoji = CATEGORY_EMOJIS[cat] || "🏰";
-                const isNew = unlockedCategories.includes(cat) && !INITIAL_CATEGORIES.includes(cat) && !usedUnlockedItems.includes(cat) && usage === 0;
-                return (
+              {/* Pagination Controls for Categories */}
+              {filteredUnlockedCategories.length > PAGE_SIZE_CATEGORIES && (
+                <div className="flex items-center justify-between mt-1 px-1 text-[10px] font-bold text-theme-secondary">
                   <button
-                    key={cat}
+                    type="button"
+                    disabled={pageCategory === 1}
+                    onClick={() => setPageCategory(p => Math.max(1, p - 1))}
+                    className="flex items-center gap-0.5 px-2 py-1 bg-white hover:bg-natural-pink-light rounded-lg border border-natural-pink-border/40 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+                  >
+                    <ChevronLeft size={10} /> Prec
+                  </button>
+                  <span>Pagina {pageCategory} di {Math.ceil(filteredUnlockedCategories.length / PAGE_SIZE_CATEGORIES)}</span>
+                  <button
+                    type="button"
+                    disabled={pageCategory >= Math.ceil(filteredUnlockedCategories.length / PAGE_SIZE_CATEGORIES)}
+                    onClick={() => setPageCategory(p => p + 1)}
+                    className="flex items-center gap-0.5 px-2 py-1 bg-white hover:bg-natural-pink-light rounded-lg border border-natural-pink-border/40 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+                  >
+                    Succ <ChevronRight size={10} />
+                  </button>
+                </div>
+              )}
+
+              {/* Locked / Mystery Categories */}
+              {filteredLockedCategories.length > 0 && (
+                <div className="mt-2 bg-slate-100/50 p-2.5 rounded-xl border border-slate-200/40">
+                  <button
                     type="button"
                     onClick={() => {
-                      setCategoria(cat);
-                      if (onMarkItemAsUsed) onMarkItemAsUsed(cat);
+                      setShowSecretCategories(!showSecretCategories);
+                      playPlinkSound();
                     }}
-                    id={`btn-cat-${cat.toLowerCase().replace(/\s+/g, '-')}`}
-                    className={`py-2 px-2.5 rounded-2xl text-left font-extrabold text-xs border-4 transition-all relative flex flex-col justify-between ${
-                      selected
-                        ? "bg-[#FCE4EC] text-natural-burgundy border-[#F48FB1] shadow-xs scale-[1.02]"
-                        : "bg-white text-natural-text border-[#FCE4EC] hover:border-natural-pink-border"
-                    }`}
+                    className="w-full flex items-center justify-between text-[9px] uppercase font-black text-theme-secondary tracking-wider px-0.5 cursor-pointer hover:text-natural-burgundy focus:outline-none"
                   >
-                    {isNew && (
-                      <span className="absolute -top-1.5 -right-1 text-[7px] bg-[#EC407A] text-white px-1.5 py-0.5 rounded-full font-black animate-pulse shadow-xs uppercase tracking-tighter z-10">
-                        NUOVO ✨
-                      </span>
-                    )}
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-sm">{emoji}</span>
-                      <span className="truncate">{cat}</span>
+                    <span>🔒 Categorie segrete ({filteredLockedCategories.length})</span>
+                    <span className="text-[8px] bg-slate-200/80 hover:bg-slate-300 text-theme-secondary font-extrabold px-1.5 py-0.5 rounded transition-colors">
+                      {showSecretCategories ? "Nascondi 🔼" : "Mostra 🔽"}
+                    </span>
+                  </button>
+                  {showSecretCategories && (
+                    <div className="grid grid-cols-2 gap-1.5 mt-2 animate-fade-in">
+                      {filteredLockedCategories.map((cat) => (
+                        <button
+                          key={cat}
+                          type="button"
+                          onClick={() => setLockedBannerMsg({
+                            section: "categoria",
+                            text: `La categoria '${cat}' è ancora segreta! Si sbloccherà casualmente completando gli obiettivi o aprendo il Box Regalo Giornaliero!`
+                          })}
+                          className="py-1.5 px-2 bg-slate-200/40 hover:bg-slate-200/70 text-theme-secondary text-[10.5px] rounded-xl font-bold flex items-center gap-1 border border-slate-200/30 transition-all cursor-pointer"
+                        >
+                          <span className="flex items-center gap-1.5">
+                            <span>{CATEGORY_EMOJIS[cat] || "❓"}</span>
+                            <span>{cat}</span>
+                          </span>
+                            <Lock size={10} className="text-theme-secondary" />
+                        </button>
+                      ))}
                     </div>
-                    {usage > 0 && (
-                      <span className="text-[8px] bg-natural-burgundy/25 text-natural-burgundy font-black px-1.5 rounded-sm mt-1 self-start uppercase tracking-tighter">
-                        Usata: {usage}
-                      </span>
-                    )}
+                  )}
+                </div>
+              )}
+
+              {/* Lock message banner */}
+              {lockedBannerMsg && lockedBannerMsg.section === "categoria" && (
+                <div className="bg-amber-50 border border-amber-200 text-[#795548] p-2 rounded-xl text-[10px] font-medium leading-relaxed flex items-start gap-1.5 relative mt-1.5">
+                  <span className="text-xs">🔑</span>
+                  <p className="pr-4">{lockedBannerMsg.text}</p>
+                  <button 
+                    type="button" 
+                    onClick={() => setLockedBannerMsg(null)} 
+                    className="absolute right-1.5 top-1.5 text-theme-secondary hover:text-natural-burgundy text-xs font-black cursor-pointer"
+                  >
+                    ×
                   </button>
-                );
-              })}
-            </div>
-          ) : (
-            <p className="text-[10px] text-natural-text/50 italic text-center py-1">
-              Nessuna categoria sbloccata corrisponde alla ricerca.
-            </p>
-          )}
-
-          {/* Pagination Controls for Categories */}
-          {filteredUnlockedCategories.length > PAGE_SIZE_CATEGORIES && (
-            <div className="flex items-center justify-between mt-1 px-1 text-[10px] font-bold text-theme-secondary">
-              <button
-                type="button"
-                disabled={pageCategory === 1}
-                onClick={() => setPageCategory(p => Math.max(1, p - 1))}
-                className="flex items-center gap-0.5 px-2 py-1 bg-white hover:bg-natural-pink-light rounded-lg border border-natural-pink-border/40 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
-              >
-                <ChevronLeft size={10} /> Prec
-              </button>
-              <span>Pagina {pageCategory} di {Math.ceil(filteredUnlockedCategories.length / PAGE_SIZE_CATEGORIES)}</span>
-              <button
-                type="button"
-                disabled={pageCategory >= Math.ceil(filteredUnlockedCategories.length / PAGE_SIZE_CATEGORIES)}
-                onClick={() => setPageCategory(p => p + 1)}
-                className="flex items-center gap-0.5 px-2 py-1 bg-white hover:bg-natural-pink-light rounded-lg border border-natural-pink-border/40 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
-              >
-                Succ <ChevronRight size={10} />
-              </button>
-            </div>
-          )}
-
-          {/* Locked / Mystery Categories */}
-          {filteredLockedCategories.length > 0 && (
-            <div className="mt-2 bg-slate-100/50 p-2.5 rounded-xl border border-slate-200/40">
-              <button
-                type="button"
-                onClick={() => {
-                  setShowSecretCategories(!showSecretCategories);
-                  playPlinkSound();
-                }}
-                className="w-full flex items-center justify-between text-[9px] uppercase font-black text-theme-secondary tracking-wider px-0.5 cursor-pointer hover:text-natural-burgundy focus:outline-none"
-              >
-                <span>🔒 Categorie segrete ({filteredLockedCategories.length})</span>
-                <span className="text-[8px] bg-slate-200/80 hover:bg-slate-300 text-theme-secondary font-extrabold px-1.5 py-0.5 rounded transition-colors">
-                  {showSecretCategories ? "Nascondi 🔼" : "Mostra 🔽"}
-                </span>
-              </button>
-              {showSecretCategories && (
-                <div className="grid grid-cols-2 gap-1.5 mt-2 animate-fade-in">
-                  {filteredLockedCategories.map((cat) => (
-                    <button
-                      key={cat}
-                      type="button"
-                      onClick={() => setLockedBannerMsg({
-                        section: "categoria",
-                        text: `La categoria '${cat}' è ancora segreta! Si sbloccherà casualmente completando gli obiettivi o aprendo il Box Regalo Giornaliero!`
-                      })}
-                      className="py-1.5 px-2 bg-slate-200/40 hover:bg-slate-200/70 text-theme-secondary text-[10.5px] rounded-xl font-bold flex items-center gap-1 border border-slate-200/30 transition-all cursor-pointer"
-                    >
-                      <span className="flex items-center gap-1.5">
-                        <span>{CATEGORY_EMOJIS[cat] || "❓"}</span>
-                        <span>{cat}</span>
-                      </span>
-                        <Lock size={10} className="text-theme-secondary" />
-                    </button>
-                  ))}
                 </div>
               )}
             </div>
-          )}
 
-          {/* Lock message banner */}
-          {lockedBannerMsg && lockedBannerMsg.section === "categoria" && (
-            <div className="bg-amber-50 border border-amber-200 text-[#795548] p-2 rounded-xl text-[10px] font-medium leading-relaxed flex items-start gap-1.5 relative mt-1.5">
-              <span className="text-xs">🔑</span>
-              <p className="pr-4">{lockedBannerMsg.text}</p>
-              <button 
-                type="button" 
-                onClick={() => setLockedBannerMsg(null)} 
-                className="absolute right-1.5 top-1.5 text-theme-secondary hover:text-natural-burgundy text-xs font-black cursor-pointer"
-              >
-                ×
-              </button>
-            </div>
-          )}
-        </div>
+            {/* 2. Tema Educativo Selector */}
+            <div className="space-y-2.5 bg-white/40 p-3 rounded-[1.8rem] border-2 border-natural-pink-light/30">
+              <div className="flex items-center justify-between">
+                <label className="block text-[10px] font-black text-natural-burgundy uppercase tracking-wider">
+                  2. Tema Educativo (La Morale)
+                </label>
+                <span className="text-[9px] font-bold text-theme-secondary">Ordina per utilizzo</span>
+              </div>
 
-        {/* 2. Tema Educativo Selector */}
-        <div className="space-y-2.5 bg-white/40 p-3 rounded-[1.8rem] border-2 border-natural-pink-light/30">
-          <div className="flex items-center justify-between">
-            <label className="block text-[10px] font-black text-natural-burgundy uppercase tracking-wider">
-              2. Tema Educativo (La Morale)
-            </label>
-            <span className="text-[9px] font-bold text-theme-secondary">Ordina per utilizzo</span>
-          </div>
+              {/* Search bar for themes */}
+              <div className="relative">
+                <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-natural-burgundy/40" />
+                <input
+                  type="text"
+                  placeholder="Cerca tema..."
+                  value={searchTheme}
+                  onChange={(e) => setSearchTheme(e.target.value)}
+                  className="w-full bg-white border border-natural-pink-border/60 rounded-xl pl-8 pr-3 py-1.5 text-[11px] focus:outline-none focus:ring-2 focus:ring-natural-pink-light/40 font-bold text-natural-burgundy placeholder:text-natural-burgundy/30"
+                />
+              </div>
 
-          {/* Search bar for themes */}
-          <div className="relative">
-            <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-natural-burgundy/40" />
-            <input
-              type="text"
-              placeholder="Cerca tema..."
-              value={searchTheme}
-              onChange={(e) => setSearchTheme(e.target.value)}
-              className="w-full bg-white border border-natural-pink-border/60 rounded-xl pl-8 pr-3 py-1.5 text-[11px] focus:outline-none focus:ring-2 focus:ring-natural-pink-light/40 font-bold text-natural-burgundy placeholder:text-natural-burgundy/30"
-            />
-          </div>
+              {/* Unlocked / Available Themes */}
+              {paginatedThemes.length > 0 ? (
+                <div className="flex flex-wrap gap-1.5">
+                  {paginatedThemes.map((theme) => {
+                    const selected = temaEducativo === theme;
+                    const usage = getUsage(theme);
+                    const emoji = THEME_EMOJIS[theme] || "✨";
+                    const isNew = unlockedThemes.includes(theme) && !INITIAL_THEMES.includes(theme) && !usedUnlockedItems.includes(theme) && usage === 0;
+                    return (
+                      <button
+                        key={theme}
+                        type="button"
+                        onClick={() => {
+                          setTemaEducativo(theme);
+                          if (onMarkItemAsUsed) onMarkItemAsUsed(theme);
+                        }}
+                        id={`btn-theme-${theme.toLowerCase()}`}
+                        className={`py-1.5 px-3 rounded-full font-extrabold text-[10px] border-2 transition-all flex items-center gap-1 relative ${
+                          selected
+                            ? "bg-amber-100 text-amber-900 border-amber-400 scale-102 shadow-2xs"
+                            : "bg-white text-slate-700 border-slate-300 hover:border-amber-400"
+                        }`}
+                      >
+                        {isNew && (
+                          <span className="absolute -top-1.5 -right-1 text-[7px] bg-[#EC407A] text-white px-1.5 py-0.5 rounded-full font-black animate-pulse shadow-xs uppercase tracking-tighter z-10">
+                            NUOVO ✨
+                          </span>
+                        )}
+                        <span>{emoji}</span>
+                        <span>{getEducationalThemeDisplayName(theme)}</span>
+                        {usage > 0 && (
+                          <span className="text-[8px] bg-amber-300 text-slate-900 font-black px-1.5 rounded-full border border-amber-500">
+                            {usage}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-[10px] text-natural-text/50 italic text-center py-1">
+                  Nessun tema sbloccato corrisponde alla ricerca.
+                </p>
+              )}
 
-          {/* Unlocked / Available Themes */}
-          {paginatedThemes.length > 0 ? (
-            <div className="flex flex-wrap gap-1.5">
-              {paginatedThemes.map((theme) => {
-                const selected = temaEducativo === theme;
-                const usage = getUsage(theme);
-                const emoji = THEME_EMOJIS[theme] || "✨";
-                const isNew = unlockedThemes.includes(theme) && !INITIAL_THEMES.includes(theme) && !usedUnlockedItems.includes(theme) && usage === 0;
-                return (
+              {/* Pagination Controls for Themes */}
+              {filteredUnlockedThemes.length > PAGE_SIZE_THEMES && (
+                <div className="flex items-center justify-between mt-1 px-1 text-[10px] font-bold text-natural-text/60">
                   <button
-                    key={theme}
+                    type="button"
+                    disabled={pageTheme === 1}
+                    onClick={() => setPageTheme(p => Math.max(1, p - 1))}
+                    className="flex items-center gap-0.5 px-2 py-1 bg-white hover:bg-natural-pink-light rounded-lg border border-natural-pink-border/40 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+                  >
+                    <ChevronLeft size={10} /> Prec
+                  </button>
+                  <span>Pagina {pageTheme} di {Math.ceil(filteredUnlockedThemes.length / PAGE_SIZE_THEMES)}</span>
+                  <button
+                    type="button"
+                    disabled={pageTheme >= Math.ceil(filteredUnlockedThemes.length / PAGE_SIZE_THEMES)}
+                    onClick={() => setPageTheme(p => p + 1)}
+                    className="flex items-center gap-0.5 px-2 py-1 bg-white hover:bg-natural-pink-light rounded-lg border border-natural-pink-border/40 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+                  >
+                    Succ <ChevronRight size={10} />
+                  </button>
+                </div>
+              )}
+
+              {/* Locked / Mystery Themes */}
+              {filteredLockedThemes.length > 0 && (
+                <div className="mt-2 bg-slate-100/50 p-2.5 rounded-xl border border-slate-200/40">
+                  <button
                     type="button"
                     onClick={() => {
-                      setTemaEducativo(theme);
-                      if (onMarkItemAsUsed) onMarkItemAsUsed(theme);
+                      setShowSecretThemes(!showSecretThemes);
+                      playPlinkSound();
                     }}
-                    id={`btn-theme-${theme.toLowerCase()}`}
-                    className={`py-1.5 px-3 rounded-full font-extrabold text-[10px] border-2 transition-all flex items-center gap-1 relative ${
-                      selected
-                        ? "bg-amber-100 text-amber-900 border-amber-400 scale-102 shadow-2xs"
-                        : "bg-white text-slate-700 border-slate-300 hover:border-amber-400"
-                    }`}
+                    className="w-full flex items-center justify-between text-[9px] uppercase font-black text-theme-secondary tracking-wider px-0.5 cursor-pointer hover:text-natural-burgundy focus:outline-none"
                   >
-                    {isNew && (
-                      <span className="absolute -top-1.5 -right-1 text-[7px] bg-[#EC407A] text-white px-1.5 py-0.5 rounded-full font-black animate-pulse shadow-xs uppercase tracking-tighter z-10">
-                        NUOVO ✨
-                      </span>
-                    )}
-                    <span>{emoji}</span>
-                    <span>{getEducationalThemeDisplayName(theme)}</span>
-                    {usage > 0 && (
-                      <span className="text-[8px] bg-amber-300 text-slate-900 font-black px-1.5 rounded-full border border-amber-500">
-                        {usage}
-                      </span>
-                    )}
+                    <span>🔒 Temi educativi segreti ({filteredLockedThemes.length})</span>
+                    <span className="text-[8px] bg-slate-200/80 hover:bg-slate-300 text-theme-secondary font-extrabold px-1.5 py-0.5 rounded transition-colors">
+                      {showSecretThemes ? "Nascondi 🔼" : "Mostra 🔽"}
+                    </span>
                   </button>
-                );
-              })}
-            </div>
-          ) : (
-            <p className="text-[10px] text-natural-text/50 italic text-center py-1">
-              Nessun tema sbloccato corrisponde alla ricerca.
-            </p>
-          )}
+                  {showSecretThemes && (
+                    <div className="flex flex-wrap gap-1.5 mt-2 animate-fade-in">
+                      {filteredLockedThemes.map((theme) => (
+                        <button
+                          key={theme}
+                          type="button"
+                          onClick={() => setLockedBannerMsg({
+                            section: "temaEducativo",
+                            text: `Il tema '${getEducationalThemeDisplayName(theme)}' è ancora segreto! Si sbloccherà casualmente completando gli obiettivi o aprendo il Box Regalo Giornaliero!`
+                          })}
+                          className="py-1 px-2.5 bg-slate-200/40 hover:bg-slate-200/70 text-slate-400 text-[10px] rounded-full font-bold flex items-center gap-1 border border-slate-200/30 transition-all cursor-pointer"
+                        >
+                          <span>{THEME_EMOJIS[theme] || "❓"}</span>
+                          <span>{getEducationalThemeDisplayName(theme)}</span>
+                          <Lock size={9} className="text-slate-400" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
-          {/* Pagination Controls for Themes */}
-          {filteredUnlockedThemes.length > PAGE_SIZE_THEMES && (
-            <div className="flex items-center justify-between mt-1 px-1 text-[10px] font-bold text-natural-text/60">
-              <button
-                type="button"
-                disabled={pageTheme === 1}
-                onClick={() => setPageTheme(p => Math.max(1, p - 1))}
-                className="flex items-center gap-0.5 px-2 py-1 bg-white hover:bg-natural-pink-light rounded-lg border border-natural-pink-border/40 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
-              >
-                <ChevronLeft size={10} /> Prec
-              </button>
-              <span>Pagina {pageTheme} di {Math.ceil(filteredUnlockedThemes.length / PAGE_SIZE_THEMES)}</span>
-              <button
-                type="button"
-                disabled={pageTheme >= Math.ceil(filteredUnlockedThemes.length / PAGE_SIZE_THEMES)}
-                onClick={() => setPageTheme(p => p + 1)}
-                className="flex items-center gap-0.5 px-2 py-1 bg-white hover:bg-natural-pink-light rounded-lg border border-natural-pink-border/40 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
-              >
-                Succ <ChevronRight size={10} />
-              </button>
-            </div>
-          )}
-
-          {/* Locked / Mystery Themes */}
-          {filteredLockedThemes.length > 0 && (
-            <div className="mt-2 bg-slate-100/50 p-2.5 rounded-xl border border-slate-200/40">
-              <button
-                type="button"
-                onClick={() => {
-                  setShowSecretThemes(!showSecretThemes);
-                  playPlinkSound();
-                }}
-                className="w-full flex items-center justify-between text-[9px] uppercase font-black text-theme-secondary tracking-wider px-0.5 cursor-pointer hover:text-natural-burgundy focus:outline-none"
-              >
-                <span>🔒 Temi educativi segreti ({filteredLockedThemes.length})</span>
-                <span className="text-[8px] bg-slate-200/80 hover:bg-slate-300 text-theme-secondary font-extrabold px-1.5 py-0.5 rounded transition-colors">
-                  {showSecretThemes ? "Nascondi 🔼" : "Mostra 🔽"}
-                </span>
-              </button>
-              {showSecretThemes && (
-                <div className="flex flex-wrap gap-1.5 mt-2 animate-fade-in">
-                  {filteredLockedThemes.map((theme) => (
-                    <button
-                      key={theme}
-                      type="button"
-                      onClick={() => setLockedBannerMsg({
-                        section: "temaEducativo",
-                        text: `Il tema '${getEducationalThemeDisplayName(theme)}' è ancora segreto! Si sbloccherà casualmente completando gli obiettivi o aprendo il Box Regalo Giornaliero!`
-                      })}
-                      className="py-1 px-2.5 bg-slate-200/40 hover:bg-slate-200/70 text-slate-400 text-[10px] rounded-full font-bold flex items-center gap-1 border border-slate-200/30 transition-all cursor-pointer"
-                    >
-                      <span>{THEME_EMOJIS[theme] || "❓"}</span>
-                      <span>{getEducationalThemeDisplayName(theme)}</span>
-                      <Lock size={9} className="text-slate-400" />
-                    </button>
-                  ))}
+              {/* Lock message banner */}
+              {lockedBannerMsg && lockedBannerMsg.section === "temaEducativo" && (
+                <div className="bg-amber-50 border border-amber-200 text-[#795548] p-2 rounded-xl text-[10px] font-medium leading-relaxed flex items-start gap-1.5 relative mt-1">
+                  <span>🔑</span>
+                  <p className="pr-4">{lockedBannerMsg.text}</p>
+                  <button 
+                    type="button" 
+                    onClick={() => setLockedBannerMsg(null)} 
+                    className="absolute right-1 top-1 text-[#795548] hover:text-[#5d4037] text-xs font-black cursor-pointer"
+                  >
+                    ×
+                  </button>
                 </div>
               )}
             </div>
-          )}
-
-          {/* Lock message banner */}
-          {lockedBannerMsg && lockedBannerMsg.section === "temaEducativo" && (
-            <div className="bg-amber-50 border border-amber-200 text-[#795548] p-2 rounded-xl text-[10px] font-medium leading-relaxed flex items-start gap-1.5 relative mt-1">
-              <span>🔑</span>
-              <p className="pr-4">{lockedBannerMsg.text}</p>
-              <button 
-                type="button" 
-                onClick={() => setLockedBannerMsg(null)} 
-                className="absolute right-1 top-1 text-slate-400 hover:text-slate-600 text-xs font-black cursor-pointer"
-              >
-                ×
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* 3. Durata Selector */}
-        <div className="space-y-2">
-          <label className="block text-[10px] font-bold text-natural-text/70 uppercase tracking-wide">
-            3. Lunghezza Storia
-          </label>
-          <div className="grid grid-cols-3 gap-2">
-            {DURATIONS.map((dur) => {
-              const selected = durata === dur.value;
-              return (
-                <button
-                  key={dur.value}
-                  onClick={() => setDurata(dur.value as any)}
-                  id={`btn-duration-${dur.value.toLowerCase()}`}
-                  className={`py-2 px-2 rounded-2xl font-extrabold text-center text-xs border-4 transition-all ${
-                    selected
-                      ? "bg-[#E1F5FE] text-[#0277BD] border-[#81D4FA] shadow-xs"
-                      : "bg-white/80 text-natural-text border-transparent hover:border-natural-blue-light"
-                  }`}
-                >
-                  <span className="text-sm">{dur.value === "Breve" ? "🕒" : dur.value === "Media" ? "⏳" : "🌙"}</span>
-                  <div className="text-[9px] mt-0.5 tracking-tight">{dur.value}</div>
-                </button>
-              );
-            })}
           </div>
-        </div>
+        )}
 
-        {/* 4. Personaggi Option */}
-        <div className="space-y-2 border-t-4 border-natural-pink-light pt-3">
+        {/* STEP 3 */}
+        {formStep === 3 && (
+          <div className="space-y-4 animate-fade-in">
+            {/* 4. Personaggi Option */}
+            <div className="space-y-2 border-t-4 border-natural-pink-light pt-3">
           <div className="flex items-center justify-between">
             <label className="text-[10px] font-bold text-natural-text/70 uppercase tracking-wide">
               4. Personaggi Della Storia
@@ -1591,25 +1715,55 @@ export default function NewStoryView({
             </div>
           )}
         </div>
+        </div>
+        )}
       </div>
 
-      {/* Submit Button */}
-      <button
-        onClick={() => {
-          setIsBlinking(false);
-          handleStartGeneration();
-        }}
-        onMouseEnter={() => setIsBlinking(false)}
-        disabled={(personaggiMode === "personalizzata" && customCharacters.length === 0) || showCharacterForm}
-        id="btn-trigger-story-generation"
-        className={`w-full py-3.5 bg-gradient-to-r from-natural-yellow to-[#FFB300] disabled:from-slate-200 disabled:to-slate-200 disabled:text-slate-400 text-[#5D4037] border-b-4 border-[#F57C00] active:border-b-0 active:translate-y-1 rounded-full font-extrabold text-sm shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer shrink-0 mt-auto ${
-          isBlinking 
-            ? "animate-pulse ring-4 ring-amber-400 ring-offset-2 scale-[1.02]" 
-            : ""
-        }`}
-      >
-        <Sparkles size={18} className="text-[#F57C00] animate-pulse" /> Genera La Favola Magica!
-      </button>
+      {/* Navigation / Submit Footer */}
+      <div className="pt-2 pb-4 px-4 bg-transparent border-t border-natural-pink-light/20 flex gap-3 shrink-0">
+        {formStep > 1 && (
+          <button
+            type="button"
+            onClick={() => {
+              setFormStep((prev) => Math.max(1, prev - 1));
+              playPlinkSound();
+            }}
+            className="flex-1 py-3 bg-white hover:bg-slate-50 text-slate-700 border-2 border-natural-pink-border/50 hover:border-natural-pink-border text-xs font-black rounded-full text-center transition-all cursor-pointer uppercase tracking-wider"
+          >
+            Indietro
+          </button>
+        )}
+        
+        {formStep < 3 ? (
+          <button
+            type="button"
+            onClick={() => {
+              setFormStep((prev) => Math.min(3, prev + 1));
+              playPlinkSound();
+            }}
+            className="flex-2 py-3 bg-gradient-to-r from-natural-pink to-[#EC407A] text-white text-xs font-black rounded-full flex items-center justify-center gap-1 shadow-md border-b-4 border-[#C2185B] active:border-b-0 active:translate-y-[2px] transition-all cursor-pointer uppercase tracking-wider"
+          >
+            Avanti <ChevronRight size={14} />
+          </button>
+        ) : (
+          <button
+            onClick={() => {
+              setIsBlinking(false);
+              handleStartGeneration();
+            }}
+            onMouseEnter={() => setIsBlinking(false)}
+            disabled={(personaggiMode === "personalizzata" && customCharacters.length === 0) || showCharacterForm}
+            id="btn-trigger-story-generation"
+            className={`flex-2 py-3.5 bg-gradient-to-r from-natural-yellow to-[#FFB300] disabled:from-slate-200 disabled:to-slate-200 disabled:text-slate-400 text-[#5D4037] border-b-4 border-[#F57C00] active:border-b-0 active:translate-y-1 rounded-full font-extrabold text-sm shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer ${
+              isBlinking 
+                ? "animate-pulse ring-4 ring-amber-400 ring-offset-2 scale-[1.02]" 
+                : ""
+            }`}
+          >
+            <Sparkles size={18} className="text-[#F57C00] animate-pulse" /> Genera La Favola Magica!
+          </button>
+        )}
+      </div>
     </div>
   );
 }

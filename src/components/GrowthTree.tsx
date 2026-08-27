@@ -1,10 +1,11 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
-import { ArrowLeft, Sparkles, BookOpen, Heart, Award, Star, Play, X, Info } from "lucide-react";
+import { ArrowLeft, Sparkles, BookOpen, Heart, Award, Star, Play, X, Info, ChevronLeft, ChevronRight } from "lucide-react";
 import { Story } from "../types";
 import { playClickSound, playFruitCollectSound, playBugShooSound, playGameFailSound, playGameWinSound, playOneUpSound, startTreeMinigameMusic, stopTreeMinigameMusic } from "../utils/audio";
 import confetti from "canvas-confetti";
 import { chooseBalancedSpawnType, pickRandomEnemy, FRUITS_PER_ROUND, type SpawnBalanceState } from "./growthTreeGame";
 import { audioEngine } from "../lib/audioEngine";
+import { getBaseTreeTheme, getEducationalThemeDisplayName } from "../utils/themeNames";
 
 interface GrowthTreeProps {
   stories: Story[];
@@ -32,9 +33,126 @@ const THEME_TREES = [
 
 const ONE_UP_VISUAL_ONLY_IN_DEVELOP = import.meta.env.DEV;
 
+function MiniatureTree({ theme, stage, color, leafColor, decoration, size = 60 }: { theme: string, stage: number, color: string, leafColor: string, decoration: string, size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 200 200" className="drop-shadow-xs overflow-visible">
+      <defs>
+        <linearGradient id={`trunkGradMini-${theme}`} x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#8D6E63" />
+          <stop offset="50%" stopColor="#795548" />
+          <stop offset="100%" stopColor="#5D4037" />
+        </linearGradient>
+        <radialGradient id={`canopyGradMini-${theme}`} cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor={leafColor} />
+          <stop offset="100%" stopColor={color} />
+        </radialGradient>
+      </defs>
+
+      {/* Ground */}
+      <ellipse cx="100" cy="180" rx="65" ry="10" fill="#81C784" opacity="0.9" />
+      <ellipse cx="100" cy="180" rx="45" ry="6" fill="#66BB6A" />
+
+      {/* Stage 0: Golden Seed under the earth */}
+      {stage === 0 && (
+        <g>
+          <circle cx="100" cy="176" r="8" fill="#FFD54F" stroke="#FFB300" strokeWidth="1.5" />
+          <path d="M100,168 Q104,163 100,158 Q96,163 100,168" fill="#AED581" />
+        </g>
+      )}
+
+      {/* Stage 1: Little golden sprout */}
+      {stage === 1 && (
+        <g>
+          <path d="M100,180 Q100,165 103,155" stroke={`url(#trunkGradMini-${theme})`} strokeWidth="5" fill="none" strokeLinecap="round" />
+          <path d="M103,155 Q93,148 95,140 Q105,146 103,155" fill="#81C784" stroke="#4CAF50" strokeWidth="1" />
+          <path d="M103,155 Q113,150 111,142 Q101,146 103,155" fill="#A5D6A7" stroke="#4CAF50" strokeWidth="1" />
+        </g>
+      )}
+
+      {/* Stage 2: Young sapling */}
+      {stage === 2 && (
+        <g>
+          <path d="M100,180 Q100,150 102,130" stroke={`url(#trunkGradMini-${theme})`} strokeWidth="8" fill="none" strokeLinecap="round" />
+          <path d="M100,155 Q88,145 86,138" stroke={`url(#trunkGradMini-${theme})`} strokeWidth="4" fill="none" strokeLinecap="round" />
+          <path d="M101,145 Q112,135 114,128" stroke={`url(#trunkGradMini-${theme})`} strokeWidth="4" fill="none" strokeLinecap="round" />
+          
+          <circle cx="86" cy="135" r="14" fill={`url(#canopyGradMini-${theme})`} opacity="0.95" />
+          <circle cx="114" cy="125" r="13" fill={`url(#canopyGradMini-${theme})`} opacity="0.95" />
+          <circle cx="102" cy="120" r="17" fill={`url(#canopyGradMini-${theme})`} />
+        </g>
+      )}
+
+      {/* Stage 3: Growing healthy tree */}
+      {stage === 3 && (
+        <g>
+          <path d="M100,180 Q100,135 100,105" stroke={`url(#trunkGradMini-${theme})`} strokeWidth="11" fill="none" strokeLinecap="round" />
+          <path d="M100,140 Q84,118 76,108" stroke={`url(#trunkGradMini-${theme})`} strokeWidth="6" fill="none" strokeLinecap="round" />
+          <path d="M100,130 Q116,113 122,103" stroke={`url(#trunkGradMini-${theme})`} strokeWidth="6" fill="none" strokeLinecap="round" />
+
+          <circle cx="76" cy="103" r="24" fill={`url(#canopyGradMini-${theme})`} opacity="0.95" />
+          <circle cx="122" cy="98" r="22" fill={`url(#canopyGradMini-${theme})`} opacity="0.95" />
+          <circle cx="100" cy="92" r="30" fill={`url(#canopyGradMini-${theme})`} />
+        </g>
+      )}
+
+      {/* Stage 4: Majestic Bloomed Tree */}
+      {stage === 4 && (
+        <g>
+          <path d="M100,180 Q100,135 100,95" stroke={`url(#trunkGradMini-${theme})`} strokeWidth="14" fill="none" strokeLinecap="round" />
+          <path d="M100,135 Q80,110 70,100" stroke={`url(#trunkGradMini-${theme})`} strokeWidth="8" fill="none" strokeLinecap="round" />
+          <path d="M100,120 Q120,100 128,90" stroke={`url(#trunkGradMini-${theme})`} strokeWidth="8" fill="none" strokeLinecap="round" />
+          <path d="M100,105 Q90,85 85,80" stroke={`url(#trunkGradMini-${theme})`} strokeWidth="6" fill="none" strokeLinecap="round" />
+
+          <circle cx="70" cy="95" r="30" fill={`url(#canopyGradMini-${theme})`} opacity="0.95" />
+          <circle cx="128" cy="85" r="28" fill={`url(#canopyGradMini-${theme})`} opacity="0.95" />
+          <circle cx="95" cy="70" r="36" fill={`url(#canopyGradMini-${theme})`} />
+
+          {/* Miniature fruits/decorations */}
+          <text x="70" y="93" fontSize="14" textAnchor="middle">{decoration}</text>
+          <text x="128" y="83" fontSize="14" textAnchor="middle">{decoration}</text>
+          <text x="95" y="65" fontSize="16" textAnchor="middle">{decoration}</text>
+        </g>
+      )}
+    </svg>
+  );
+}
+
 export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
-  const [selectedTheme, setSelectedTheme] = useState("Gentilezza");
+  const [selectedTheme, setSelectedTheme] = useState<string | null>(null);
   const [previewStage, setPreviewStage] = useState<number | null>(null);
+  
+  // Touch Swipe States and Handlers
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (gameState !== "idle") return;
+    setTouchStartX(e.changedTouches[0].clientX);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (gameState !== "idle" || touchStartX === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diffX = touchStartX - touchEndX;
+    const minSwipeDistance = 50;
+
+    if (Math.abs(diffX) > minSwipeDistance) {
+      const currentIndex = THEME_TREES.findIndex((t) => t.theme === selectedTheme);
+      if (currentIndex !== -1) {
+        playClickSound();
+        if (diffX > 0) {
+          // Swipe left -> Next tree
+          const nextIndex = (currentIndex + 1) % THEME_TREES.length;
+          setSelectedTheme(THEME_TREES[nextIndex].theme);
+        } else {
+          // Swipe right -> Previous tree
+          const prevIndex = (currentIndex - 1 + THEME_TREES.length) % THEME_TREES.length;
+          setSelectedTheme(THEME_TREES[prevIndex].theme);
+        }
+      }
+    }
+    setTouchStartX(null);
+  };
+
   const oneUpSpawnedThisLevelRef = useRef(false);
   const spawnBalanceRef = useRef<SpawnBalanceState>({
     spawnedFruits: 0,
@@ -52,6 +170,12 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
   const [showWinPopup, setShowWinPopup] = useState(false);
   const [showCreditsInfo, setShowCreditsInfo] = useState(false);
   const [visualBonusCreditsByTheme, setVisualBonusCreditsByTheme] = useState<Record<string, number>>({});
+  const [moralsPage, setMoralsPage] = useState(0);
+  const [moralsTouchStartX, setMoralsTouchStartX] = useState<number | null>(null);
+
+  useEffect(() => {
+    setMoralsPage(0);
+  }, [selectedTheme]);
 
   const [spentCredits, setSpentCredits] = useState<Record<string, number>>(() => {
     try {
@@ -67,7 +191,8 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
   }, [spentCredits]);
 
   const earnedCredits = useMemo(() => {
-    return stories.filter(s => s.temaEducativo === selectedTheme).length * 5;
+    if (!selectedTheme) return 0;
+    return stories.filter(s => getBaseTreeTheme(s.temaEducativo) === selectedTheme).length * 5;
   }, [stories, selectedTheme]);
 
   const earnedCreditsByTheme = useMemo(() => {
@@ -80,19 +205,21 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
     };
 
     stories.forEach((story) => {
-      if (credits[story.temaEducativo] !== undefined) {
-        credits[story.temaEducativo] += 5;
+      const t = getBaseTreeTheme(story.temaEducativo);
+      if (credits[t] !== undefined) {
+        credits[t] += 5;
       }
     });
 
     return credits;
   }, [stories]);
 
-  const availableCredits = Math.max(0, earnedCredits - (spentCredits[selectedTheme] || 0));
-  const visualBonusCredits = visualBonusCreditsByTheme[selectedTheme] || 0;
+  const availableCredits = selectedTheme ? Math.max(0, earnedCredits - (spentCredits[selectedTheme] || 0)) : 0;
+  const visualBonusCredits = selectedTheme ? (visualBonusCreditsByTheme[selectedTheme] || 0) : 0;
   const displayCredits = availableCredits + visualBonusCredits;
 
   const addOneUpCredit = () => {
+    if (!selectedTheme) return;
     if (ONE_UP_VISUAL_ONLY_IN_DEVELOP) {
       setVisualBonusCreditsByTheme((prev) => ({
         ...prev,
@@ -183,7 +310,7 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
     };
     
     stories.forEach(s => {
-      const t = s.temaEducativo;
+      const t = getBaseTreeTheme(s.temaEducativo);
       if (counts[t] !== undefined) {
         // Count story creation + times read
         counts[t] += 1 + (s.volteLetta || 0);
@@ -194,10 +321,11 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
   }, [stories]);
 
   const activeTreeInfo = useMemo(() => {
+    if (!selectedTheme) return THEME_TREES[2];
     return THEME_TREES.find(t => t.theme === selectedTheme) || THEME_TREES[2];
   }, [selectedTheme]);
 
-  const readCount = themeCounts[selectedTheme] || 0;
+  const readCount = selectedTheme ? (themeCounts[selectedTheme] || 0) : 0;
 
   // Determine stage (0 to 4)
   const actualGrowthStage = useMemo(() => {
@@ -210,6 +338,11 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
 
   const growthStage = gameState !== 'idle' ? 4 : (previewStage !== null ? previewStage : actualGrowthStage);
   const collectedCount = gameState !== 'idle' ? Math.max(0, 10 - targetsLeft) : 10;
+
+  const themeStories = useMemo(() => {
+    if (!selectedTheme) return [];
+    return stories.filter(s => getBaseTreeTheme(s.temaEducativo) === selectedTheme);
+  }, [stories, selectedTheme]);
 
   // Game Logic Effect
   // Spawn logic
@@ -397,12 +530,116 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
     { name: "Fioritura Splendente! 🌸✨", message: "Incredibile! Il tuo Albero della virtù è fiorito e risplende di pura magia!", percent: dynamicPercent }
   ][safeStage];
 
+  if (selectedTheme === null) {
+    return (
+      <div className="flex flex-col h-full bg-gradient-to-b from-[#FFFDF0] to-[#FFF9E6] p-4 font-sans select-none overflow-y-auto scrollbar-none">
+        {/* Header Bar */}
+        <div className="flex items-center justify-between pb-3 border-b-2 border-amber-200/50 shrink-0 mb-4">
+          <button
+            onClick={() => { playClickSound(); onBack(); }}
+            className="p-2.5 bg-white border-2 border-slate-200 hover:border-slate-300 text-slate-700 rounded-full hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-xs"
+          >
+            <ArrowLeft size={16} />
+          </button>
+          <div className="text-center">
+            <h2 className="font-extrabold text-sm text-natural-burgundy leading-none flex items-center gap-1 justify-center">
+              🌳 Albero della Crescita
+            </h2>
+            <p className="text-[9px] text-[#EC407A] font-black uppercase tracking-wider mt-0.5">Le tue statistiche di lettura</p>
+          </div>
+          <div className="w-10"></div> {/* Spacer for symmetry */}
+        </div>
+
+        {/* Categories Grid (No scroll!) */}
+        <div className="space-y-4 flex-1 flex flex-col justify-center py-2">
+          <div className="text-center space-y-1">
+            <h3 className="text-xs font-black text-natural-burgundy uppercase tracking-wider">Scegli una Virtù da Coltivare</h3>
+            <p className="text-[10px] text-theme-secondary font-bold">Clicca su una categoria per vedere il suo albero magico!</p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 max-w-md mx-auto w-full">
+            {THEME_TREES.map(t => {
+              const count = themeCounts[t.theme] || 0;
+              const tCredits = Math.max(0, (earnedCreditsByTheme[t.theme] || 0) - (spentCredits[t.theme] || 0)) + (visualBonusCreditsByTheme[t.theme] || 0);
+              const canPlay = tCredits > 0;
+              
+              // Get current growth stage name based on XP/Read count
+              const currentStageName = count === 0 ? "Seme 🌱" : count <= 4 ? "Germoglio 🌱" : count <= 9 ? "Arboscello 🌿" : count <= 14 ? "Rigoglioso 🌳" : "Fiorito! 🌸✨";
+              
+              const computedGrowthStage = count === 0 ? 0 : count <= 4 ? 1 : count <= 9 ? 2 : count <= 14 ? 3 : 4;
+
+              return (
+                <button
+                  key={t.theme}
+                  onClick={() => { playClickSound(); setSelectedTheme(t.theme); }}
+                  className={`bg-white border-4 rounded-3xl p-3 flex flex-col items-center justify-between text-center transition-all duration-200 hover:scale-103 hover:shadow-lg cursor-pointer active:scale-98 min-h-[145px] relative ${
+                    canPlay 
+                      ? "shadow-[0_0_15px_rgba(245,158,11,0.3)] ring-4 ring-amber-300/60" 
+                      : ""
+                  }`}
+                  style={{ borderColor: t.color }}
+                >
+                  {/* GIOCA Badge */}
+                  {canPlay && (
+                    <div className="absolute -top-2.5 -right-1 bg-amber-500 text-white border-2 border-white rounded-full px-2 py-0.5 text-[8px] font-black uppercase tracking-wider shadow-md animate-bounce flex items-center gap-0.5 z-10">
+                      <span>🎮</span> GIOCA!
+                    </div>
+                  )}
+
+                  {/* Miniature Tree Representation */}
+                  <div className="relative w-16 h-16 flex items-center justify-center mb-1">
+                    <MiniatureTree 
+                      theme={t.theme} 
+                      stage={computedGrowthStage} 
+                      color={t.color} 
+                      leafColor={t.leafColor} 
+                      decoration={t.decoration} 
+                      size={60} 
+                    />
+                    {/* Floating Theme Icon/Emoji */}
+                    <span className="absolute -bottom-1 -right-1 text-sm bg-white/95 rounded-full w-5.5 h-5.5 flex items-center justify-center shadow-xs border border-slate-100">
+                      {t.icon}
+                    </span>
+                  </div>
+
+                  <div>
+                    <h4 className="font-black text-xs text-natural-burgundy leading-none">{t.theme}</h4>
+                    <p className="text-[8.5px] text-theme-secondary font-bold mt-1 uppercase tracking-wide">Stato: {currentStageName}</p>
+                  </div>
+                  
+                  <div className="w-full mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-between text-[8px] font-black text-theme-secondary uppercase">
+                    <span className="flex items-center gap-0.5">⭐ XP: {count}</span>
+                    <span className={`flex items-center gap-0.5 ${canPlay ? "text-amber-600 font-extrabold" : "text-slate-400"}`}>
+                      🪙 Crediti: {tCredits}
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+          
+          <div className="bg-amber-50/80 border-2 border-amber-200 rounded-2xl p-3 text-center space-y-1.5 max-w-md mx-auto w-full">
+            <p className="text-[10px] font-extrabold text-natural-burgundy">💡 Come guadagnare Crediti per Giocare?</p>
+            <p className="text-[9px] text-theme-secondary font-bold leading-normal">
+              Ricevi ben <span className="text-amber-600 font-extrabold">5 Crediti di Gioco</span> per ogni storia che crei! ✨<br />
+              Ogni volta che leggi una favola, guadagni <span className="text-[#EC407A] font-extrabold">1 Punto Virtù (XP)</span> per far fiorire il rispettivo Albero! 🌱
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col h-full bg-gradient-to-b from-[#FFFDF0] to-[#FFF9E6] p-4 font-sans select-none overflow-y-auto">
+    <div 
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      className="flex flex-col h-full bg-gradient-to-b from-[#FFFDF0] to-[#FFF9E6] p-4 font-sans select-none overflow-y-auto"
+    >
       {/* Header Bar */}
       <div className="flex items-center justify-between pb-3 border-b-2 border-amber-200/50 shrink-0 mb-4">
         <button
-          onClick={() => { playClickSound(); onBack(); }}
+          onClick={() => { playClickSound(); setSelectedTheme(null); }}
           className="p-2.5 bg-white border-2 border-slate-200 hover:border-slate-300 text-slate-700 rounded-full hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-xs"
         >
           <ArrowLeft size={16} />
@@ -416,43 +653,48 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
         <div className="w-10"></div> {/* Spacer for symmetry */}
       </div>
 
-      {/* Tabs Selector for Themes */}
-      <div className="flex gap-1.5 overflow-x-auto pb-3 pt-1 scrollbar-none shrink-0">
-        {THEME_TREES.map(t => {
-          const count = themeCounts[t.theme] || 0;
-          const tCredits = Math.max(0, (earnedCreditsByTheme[t.theme] || 0) - (spentCredits[t.theme] || 0)) + (visualBonusCreditsByTheme[t.theme] || 0);
-          const isSelected = selectedTheme === t.theme;
-          return (
-            <button
-              key={t.theme}
-              onClick={() => setSelectedTheme(t.theme)}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl border-2 text-xs font-black transition-all cursor-pointer shrink-0 shadow-xs ${
-                isSelected
-                  ? "bg-white text-natural-burgundy scale-103 shadow-md"
-                  : "bg-slate-50/70 border-slate-200/60 text-theme-secondary hover:bg-slate-100/80"
-              }`}
-              style={{ borderColor: isSelected ? t.color : undefined }}
-            >
-              <div className="flex flex-col items-center leading-none shrink-0">
-                <span className="text-base">{t.icon}</span>
-                <span className="text-[8px] font-black text-amber-500 mt-0.5">{tCredits}</span>
-              </div>
-              <div className="text-left leading-none">
-                <span className="block text-[10px]">{t.theme}</span>
-                <span className="text-[7.5px] font-mono text-theme-secondary font-extrabold flex items-center gap-0.5 mt-0.5">
-                  XP: {count}
-                </span>
-              </div>
-            </button>
-          );
-        })}
-      </div>
+
 
       {/* Magic Growth Canvas Section */}
       <div className="flex-1 bg-white rounded-3xl border-4 border-[#FFE082] shadow-sm relative overflow-hidden flex flex-col md:flex-row min-h-[340px]">
         {/* Sky Background & Canvas */}
         <div className={`flex-1 relative bg-gradient-to-b ${activeTreeInfo.bgGradient} p-4 flex flex-col items-center justify-center min-h-[220px]`}>
           
+          {/* Left / Right Navigation Arrows */}
+          {gameState === 'idle' && (
+            <>
+              <button
+                onClick={() => {
+                  playClickSound();
+                  const currentIndex = THEME_TREES.findIndex(t => t.theme === selectedTheme);
+                  if (currentIndex !== -1) {
+                    const prevIndex = (currentIndex - 1 + THEME_TREES.length) % THEME_TREES.length;
+                    setSelectedTheme(THEME_TREES[prevIndex].theme);
+                  }
+                }}
+                className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white active:scale-90 text-amber-800 w-9 h-9 flex items-center justify-center rounded-full border border-amber-200/60 shadow-md cursor-pointer transition-all z-20 hover:scale-105"
+                title="Albero precedente"
+              >
+                <ChevronLeft size={22} strokeWidth={3} />
+              </button>
+
+              <button
+                onClick={() => {
+                  playClickSound();
+                  const currentIndex = THEME_TREES.findIndex(t => t.theme === selectedTheme);
+                  if (currentIndex !== -1) {
+                    const nextIndex = (currentIndex + 1) % THEME_TREES.length;
+                    setSelectedTheme(THEME_TREES[nextIndex].theme);
+                  }
+                }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white active:scale-90 text-amber-800 w-9 h-9 flex items-center justify-center rounded-full border border-amber-200/60 shadow-md cursor-pointer transition-all z-20 hover:scale-105"
+                title="Albero successivo"
+              >
+                <ChevronRight size={22} strokeWidth={3} />
+              </button>
+            </>
+          )}
+
           {/* Floating magical clouds */}
           <div className="absolute top-4 left-6 bg-white/40 backdrop-blur-xs px-3 py-1 rounded-full text-[9px] font-bold text-theme-secondary flex items-center gap-1 shadow-xs animate-pulse">
             ☁️ Cielo Fatato
@@ -679,25 +921,12 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
             {/* Minigame Floating Start Button (Top-Right) */}
             {gameState === 'idle' && (
               <div className="absolute top-4 right-4 z-20 flex gap-2">
-                <button
-                  onClick={() => setShowCreditsInfo(true)}
-                  className="w-8 h-8 bg-white/70 hover:bg-white text-slate-600 rounded-full flex items-center justify-center shadow-md transition-all cursor-pointer"
-                >
-                  <Info size={18} />
-                </button>
-                {availableCredits > 0 ? (
+                {availableCredits > 0 && (
                   <button
                     onClick={() => setGameState('intro')}
                     className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white border-2 border-amber-300 rounded-full font-black text-xs shadow-lg hover:scale-110 active:scale-95 transition-all flex items-center gap-2 animate-bounce cursor-pointer drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]"
                   >
                     <Play size={16} fill="currentColor" /> GIOCA ({displayCredits})
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => setShowCreditsInfo(true)}
-                    className="px-4 py-2 bg-slate-200 text-slate-400 border-2 border-slate-300 rounded-full font-black text-xs shadow-sm transition-all flex items-center gap-2 cursor-pointer"
-                  >
-                    <Play size={16} fill="currentColor" /> GIOCA (0)
                   </button>
                 )}
               </div>
@@ -823,10 +1052,134 @@ export default function GrowthTree({ stories, onBack }: GrowthTreeProps) {
             )}
           </div>
 
-          <div className="bg-amber-50/70 p-2.5 rounded-2xl border border-amber-100/50">
-            <p className="text-[9px] text-theme-secondary font-black leading-normal text-center md:text-left">
+          <div className="bg-amber-50/70 p-2 rounded-2xl border border-amber-100/50 text-center md:text-left">
+            <p className="text-[8.5px] text-theme-secondary font-bold leading-tight">
               "{stageDetails.message}"
             </p>
+          </div>
+
+          {/* Paginated Morals Section */}
+          <div 
+            onTouchStart={(e) => {
+              e.stopPropagation();
+              setMoralsTouchStartX(e.changedTouches[0].clientX);
+            }}
+            onTouchEnd={(e) => {
+              e.stopPropagation();
+              if (moralsTouchStartX === null) return;
+              const touchEndX = e.changedTouches[0].clientX;
+              const diffX = moralsTouchStartX - touchEndX;
+              const minSwipeDistance = 40;
+              const storiesPerPage = 2;
+              const totalMoralPages = Math.ceil(themeStories.length / storiesPerPage);
+              if (totalMoralPages <= 1) return;
+
+              if (Math.abs(diffX) > minSwipeDistance) {
+                playClickSound();
+                if (diffX > 0) {
+                  // Swipe left -> Next page
+                  setMoralsPage(prev => (prev + 1) % totalMoralPages);
+                } else {
+                  // Swipe right -> Previous page
+                  setMoralsPage(prev => (prev - 1 + totalMoralPages) % totalMoralPages);
+                }
+              }
+              setMoralsTouchStartX(null);
+            }}
+            className="bg-white/95 rounded-2xl p-2.5 border-2 border-amber-200/60 shadow-3xs space-y-2 relative"
+          >
+            <div className="flex items-center justify-between border-b border-amber-100 pb-1.5 shrink-0 select-none">
+              <span className="text-[9px] font-black text-natural-burgundy uppercase tracking-wider flex items-center gap-1">
+                📜 Morali Raccolte ({themeStories.length})
+              </span>
+              {themeStories.length > 2 && (
+                <div className="flex items-center gap-1 shrink-0">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      playClickSound();
+                      const storiesPerPage = 2;
+                      const totalMoralPages = Math.ceil(themeStories.length / storiesPerPage);
+                      setMoralsPage(prev => (prev - 1 + totalMoralPages) % totalMoralPages);
+                    }}
+                    className="p-0.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-md text-slate-700 cursor-pointer"
+                    title="Precedente"
+                  >
+                    <ChevronLeft size={10} strokeWidth={2.5} />
+                  </button>
+                  <span className="text-[8px] font-black text-slate-500 font-mono">
+                    {moralsPage + 1}/{Math.ceil(themeStories.length / 2)}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      playClickSound();
+                      const storiesPerPage = 2;
+                      const totalMoralPages = Math.ceil(themeStories.length / storiesPerPage);
+                      setMoralsPage(prev => (prev + 1) % totalMoralPages);
+                    }}
+                    className="p-0.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-md text-slate-700 cursor-pointer"
+                    title="Successivo"
+                  >
+                    <ChevronRight size={10} strokeWidth={2.5} />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {themeStories.length === 0 ? (
+              <div className="text-center py-4 text-[9px] font-bold text-slate-400">
+                Ancora nessuna morale scoperta... 🌱
+                <p className="text-[8px] text-slate-400 font-medium mt-1">Crea favole su questa virtù per sbloccarle!</p>
+              </div>
+            ) : (
+              <div className="space-y-1.5">
+                {themeStories.slice(moralsPage * 2, (moralsPage + 1) * 2).map((story) => (
+                  <div 
+                    key={story.id}
+                    className="p-2 bg-gradient-to-r from-amber-50/50 to-white border border-amber-100 rounded-xl space-y-1 text-left shadow-3xs"
+                  >
+                    <div className="flex items-center justify-between gap-1.5">
+                      <h5 className="text-[9.5px] font-black text-slate-700 truncate font-serif leading-none flex-1">
+                        📖 {story.titolo}
+                      </h5>
+                      <span className="text-[7.5px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-full font-black uppercase tracking-wider shrink-0 leading-none">
+                        {story.temaEducativo}
+                      </span>
+                    </div>
+                    <p className="text-[9px] text-natural-text/90 font-bold italic leading-relaxed pl-1.5 border-l-2 border-amber-300">
+                      "{story.morale}"
+                    </p>
+                  </div>
+                ))}
+
+                {themeStories.length > 2 && (
+                  <div className="flex flex-col items-center gap-1 select-none">
+                    {/* Dot Indicators */}
+                    <div className="flex items-center gap-1.5 py-0.5">
+                      {Array.from({ length: Math.ceil(themeStories.length / 2) }).map((_, index) => (
+                        <button
+                          key={index}
+                          type="button"
+                          onClick={(e) => { 
+                            e.stopPropagation();
+                            playClickSound(); 
+                            setMoralsPage(index); 
+                          }}
+                          className={`h-1.5 rounded-full transition-all duration-300 ${moralsPage === index ? "w-3 bg-amber-500" : "w-1.5 bg-slate-200"}`}
+                          aria-label={`Pagina morale ${index + 1}`}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-[7.5px] text-theme-secondary font-bold uppercase tracking-wide">
+                      👉 Trascina (Swipe) per scorrere le morali
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
